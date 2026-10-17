@@ -1,0 +1,48 @@
+services:
+  # ReviewPilot FastAPI Web Service (Serving API + Frontend)
+  - type: web
+    name: reviewpilot-web
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: ENVIRONMENT
+        value: production
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ANTHROPIC_MODEL
+        value: claude-3-5-sonnet-20241022
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: TELEGRAM_ALERTS_ENABLED
+        value: "false"
+      - key: BUSINESS_NAME
+        value: "ReviewPilot Demo Store"
+      - key: BUSINESS_TYPE
+        value: "Restaurant / Cafe"
+
+  # Render Workflow / Background Worker Service for Asynchronous Parallel Processing
+  - type: worker
+    name: reviewpilot-workflow-worker
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m backend.services.workflow
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: ENVIRONMENT
+        value: production
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false

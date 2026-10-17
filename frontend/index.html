@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReviewPilot — AI Customer Review Analysis & Instant Reply Management</title>
+  <meta name="description" content="Turn customer reviews into better relationships. Analyze sentiment, generate thoughtful replies, and get alerted when a customer needs immediate attention.">
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Modular Stylesheets -->
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/landing.css">
+  <link rel="stylesheet" href="/static/css/dashboard.css">
+  <link rel="stylesheet" href="/static/css/analyzer.css">
+
+  <!-- Chart.js for Visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <!-- ========================================== -->
+  <!-- 1. MARKETING LANDING PAGE VIEW            -->
+  <!-- ========================================== -->
+  <div id="landing-view">
+    <!-- Navbar -->
+    <header class="landing-navbar">
+      <div class="landing-nav-container">
+        <a href="#landing" class="brand-logo" data-navigate="landing">
+          <div class="brand-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </div>
+          <span>ReviewPilot</span>
+        </a>
+
+        <ul class="landing-nav-links">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <button class="btn btn-primary" data-navigate="dashboard">Launch App</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="landing-hero">
+      <div class="hero-pill">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        AI Review Management for Small Businesses
+      </div>
+      <h1 class="hero-heading">Every review deserves<br>the right response.</h1>
+      <p class="hero-subtext">
+        Turn customer reviews into better relationships. Analyze sentiment, generate thoughtful replies, and get alerted when a customer needs immediate attention.
+      </p>
+
+      <div class="hero-cta-group">
+        <button class="btn btn-primary btn-lg" data-navigate="analyzer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Analyze reviews
+        </button>
+        <a href="#how-it-works" class="btn btn-secondary btn-lg">
+          See how it works
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+    </section>
+
+    <!-- Product Dashboard Preview Mockup -->
+    <div class="product-preview-wrapper">
+      <div class="product-preview-frame">
+        <div class="preview-topbar">
+          <span class="preview-dot dot-red"></span>
+          <span class="preview-dot dot-amber"></span>
+          <span class="preview-dot dot-green"></span>
+          <span style="margin-left: 0.5rem; font-size: 0.75rem; color: #94a3b8; font-weight: 500;">ReviewPilot — Live Analysis Demo</span>
+        </div>
+        <div class="preview-content">
+          <div class="preview-stats-grid">
+            <div class="preview-stat-card">
+              <span class="text-xs text-muted" style="text-transform: uppercase; font-weight: 600;">Total Analyzed</span>
+              <div class="preview-stat-num">48</div>
+            </div>
+            <div class="preview-stat-card">
+              <span class="text-xs text-muted" style="text-transform: uppercase; font-weight: 600;">Positive Sentiment</span>
+              <div class="preview-stat-num" style="color: #10b981;">68%</div>
+            </div>
+            <div class="preview-stat-card">
+              <span class="text-xs text-muted" style="text-transform: uppercase; font-weight: 600;">Top Concern</span>
+              <div class="preview-stat-num" style="font-size: 1.15rem; color: #ef4444; margin-top: 0.4rem;">Wait Times</div>
+            </div>
+            <div class="preview-stat-card">
+              <span class="text-xs text-muted" style="text-transform: uppercase; font-weight: 600;">Urgent Escalations</span>
+              <div class="preview-stat-num" style="color: #e11d48;">2 Alerts</div>
+            </div>
+          </div>
+
+          <div class="preview-card-sample">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <span class="badge badge-negative">Negative (94%)</span>
+                <span class="badge badge-category">Food & Drink Quality</span>
+                <span class="badge badge-urgent">🚨 Urgent Escalation</span>
+              </div>
+              <span class="text-xs text-muted">Telegram Dispatched ✓</span>
+            </div>
+            <div class="preview-urgent-banner">
+              ⚠️ Trigger: Health hazard reported (customer mentioned severe food poisoning symptoms)
+            </div>
+            <p style="font-size: 0.9rem; color: #334155; font-style: italic;">
+              "Ordered the seafood pasta for dinner on Friday and woke up with violent food poisoning. I was in bed all weekend and missed work. Completely unacceptable!"
+            </p>
+            <div style="background-color: #f8fafc; border-left: 3px solid #4f46e5; padding: 0.75rem 1rem; border-radius: 4px; font-size: 0.85rem; color: #0f172a;">
+              <strong>Empathetic Response Draft:</strong> "We are deeply distressed to read this and take customer health with absolute seriousness. Please contact our leadership directly at management@bistrolounge.com so we can investigate this immediately."
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Core Features Section -->
+    <section id="features" class="landing-section">
+      <div class="section-header">
+        <div class="section-tag">Powerful Capabilities</div>
+        <h2 class="section-title">Built for busy business owners</h2>
+        <p class="section-desc">Manage reviews across Google, Yelp, and delivery apps in minutes instead of losing your evenings.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-box">
+          <div class="feature-icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+          </div>
+          <h3>Sentiment Analysis</h3>
+          <p>Instant classification of reviews into Positive, Neutral, or Negative with calibrated confidence scores to track your customer mood.</p>
+        </div>
+
+        <div class="feature-box">
+          <div class="feature-icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <h3>Context-Aware AI Replies</h3>
+          <p>Generate empathetic, professional, friendly, or concise responses tailored to your specific business name and category.</p>
+        </div>
+
+        <div class="feature-box">
+          <div class="feature-icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </div>
+          <h3>Urgent Telegram Alerts</h3>
+          <p>Critical reviews highlighting food poisoning, safety violations, harassment, or legal threats trigger immediate alerts to your phone.</p>
+        </div>
+
+        <div class="feature-box">
+          <div class="feature-icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+          </div>
+          <h3>Feedback Insights</h3>
+          <p>Automatically categorize review topics—cleanliness, staff attitude, wait times, pricing—to diagnose root operational friction points.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3-Step How It Works Section -->
+    <section id="how-it-works" class="landing-section" style="background-color: #ffffff; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+      <div class="section-header">
+        <div class="section-tag">Simple Workflow</div>
+        <h2 class="section-title">How ReviewPilot works</h2>
+        <p class="section-desc">Go from raw feedback to thoughtful responses in three straightforward steps.</p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h3>Paste your reviews</h3>
+          <p>Copy multiple customer reviews from Google Maps, Yelp, TripAdvisor, or delivery platforms and paste them directly into the analyzer, one review per line.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h3>AI analyzes & drafts replies</h3>
+          <p>Our intelligent engine scans each review in parallel, determines sentiment, detects topic categories, and drafts a polite response matching your preferred tone.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h3>Review, copy & alert</h3>
+          <p>Copy replies to your clipboard with one click, tweak drafts inline if desired, and receive immediate Telegram pings whenever high-risk complaints arrive.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="landing-section">
+      <div class="section-header">
+        <div class="section-tag">Transparent Pricing</div>
+        <h2 class="section-title">Plans that scale with your business</h2>
+        <p class="section-desc">Straightforward pricing designed for independent cafes, salons, gyms, and multi-location businesses.</p>
+      </div>
+
+      <div class="pricing-grid">
+        <!-- Free Starter -->
+        <div class="pricing-card">
+          <div class="pricing-header">
+            <h3 class="pricing-title">Starter</h3>
+            <p class="text-sm text-muted">For single stores getting started</p>
+            <div class="pricing-price">$0 <span class="pricing-period">/ month</span></div>
+          </div>
+          <ul class="pricing-features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Up to 50 reviews analyzed per month</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> 4 response tone styles</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Sentiment & category tagging</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> One-click reply clipboard copy</li>
+          </ul>
+          <button class="btn btn-secondary" data-navigate="analyzer">Start for free</button>
+        </div>
+
+        <!-- Growth -->
+        <div class="pricing-card featured">
+          <div class="pricing-badge">Most Popular</div>
+          <div class="pricing-header">
+            <h3 class="pricing-title">Growth</h3>
+            <p class="text-sm text-muted">For busy restaurants and salons</p>
+            <div class="pricing-price">$29 <span class="pricing-period">/ month</span></div>
+          </div>
+          <ul class="pricing-features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Up to 1,000 reviews analyzed per month</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Instant Telegram bot urgent alerts</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Full analytics dashboard & charts</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> CSV and JSON report exports</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Batch size up to 20 reviews</li>
+          </ul>
+          <button class="btn btn-primary" data-navigate="analyzer">Try Growth Plan</button>
+        </div>
+
+        <!-- Pro Business -->
+        <div class="pricing-card">
+          <div class="pricing-header">
+            <h3 class="pricing-title">Business Pro</h3>
+            <p class="text-sm text-muted">For multi-unit franchises & agencies</p>
+            <div class="pricing-price">$79 <span class="pricing-period">/ month</span></div>
+          </div>
+          <ul class="pricing-features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Unlimited review analyses</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Bring your own Anthropic Claude key</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Multi-channel alerts & webhook support</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Custom branding sign-offs</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Priority customer support</li>
+          </ul>
+          <button class="btn btn-secondary" data-navigate="analyzer">Contact Sales</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="landing-section" style="background: white; border-top: 1px solid var(--border);">
+      <div class="section-header">
+        <div class="section-tag">Frequently Asked Questions</div>
+        <h2 class="section-title">Everything you need to know</h2>
+      </div>
+
+      <div class="faq-container">
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>How does ReviewPilot classify customer review sentiment?</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            ReviewPilot evaluates each review against emotional sentiment, semantic meaning, and specific keywords. Reviews are labeled as Positive, Neutral, or Negative, along with a confidence percentage, and categorized into operational topics such as Customer Service, Wait Times, and Cleanliness.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>What triggers an urgent alert?</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            Reviews that report severe health risks (e.g. food poisoning, allergic reactions), legal or police threats, pest infestations, racism or harassment allegations, or severe billing disputes are automatically marked as Urgent. If Telegram notifications are configured, an alert is dispatched instantly to your phone.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>Can I customize the tone of generated replies?</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            Yes! You can choose between Friendly, Professional, Empathetic, and Concise tones. You can also regenerate individual replies in a different tone or edit the generated reply directly in the interface before copying it to your clipboard.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>Do I need my own Anthropic Claude API key?</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            ReviewPilot is equipped with a resilient AI engine that works immediately without any setup. If you wish to connect your Anthropic Claude account directly, you can simply input your API key in Settings, and all analyses will be routed securely through Claude 3.5 Sonnet.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>Are my business reviews and API keys secure?</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            Yes. All API requests and credentials are handled securely on the backend server. API keys and bot tokens are never exposed in client-side code or public repositories.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Landing Footer -->
+    <footer class="landing-footer">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <div class="brand-logo">
+            <div class="brand-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            </div>
+            <span>ReviewPilot</span>
+          </div>
+          <p>Empowering local cafes, restaurants, salons, and shops with fast, intelligent customer feedback management.</p>
+        </div>
+
+        <div class="footer-links-group">
+          <div class="footer-col">
+            <h4>Product</h4>
+            <ul>
+              <li><a href="#" data-navigate="analyzer">Review Analyzer</a></li>
+              <li><a href="#" data-navigate="dashboard">Analytics Dashboard</a></li>
+              <li><a href="#" data-navigate="settings">Telegram Alerts</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Resources</h4>
+            <ul>
+              <li><a href="#how-it-works">How It Works</a></li>
+              <li><a href="#faq">FAQ</a></li>
+              <li><a href="#pricing">Pricing</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Connect</h4>
+            <ul>
+              <li><a href="mailto:support@reviewpilot.ai">support@reviewpilot.ai</a></li>
+              <li><a href="https://github.com" target="_blank" rel="noopener">GitHub Repository</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>&copy; 2026 ReviewPilot AI. All rights reserved.</span>
+        <span>Built for high-reliability SaaS deployments.</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 2. FULL SAAS APPLICATION DASHBOARD VIEW    -->
+  <!-- ========================================== -->
+  <div id="app-view">
+    <div class="app-layout">
+      <!-- Collapsible Sidebar -->
+      <aside class="app-sidebar" id="app-sidebar">
+        <div class="sidebar-header">
+          <a href="#landing" class="brand-logo" data-navigate="landing">
+            <div class="brand-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            </div>
+            <span>ReviewPilot</span>
+          </a>
+          <button class="sidebar-toggle-btn" id="sidebar-close-btn" title="Close sidebar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        <nav class="sidebar-nav">
+          <button class="nav-item active" data-navigate="dashboard" data-view="dashboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span>Dashboard</span>
+          </button>
+
+          <button class="nav-item" data-navigate="analyzer" data-view="analyzer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span>Review Analyzer</span>
+          </button>
+
+          <button class="nav-item" data-navigate="settings" data-view="settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>Settings & Alerts</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="business-pill">
+            <span class="business-pill-dot"></span>
+            <span id="sidebar-business-name" style="font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Urban Bistro & Cafe</span>
+          </div>
+          <button class="nav-item" data-navigate="landing" style="font-size: 0.8rem; padding: 0.4rem 0.75rem;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Back to Home</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- App Main Content Window -->
+      <main class="app-main">
+        <!-- App Top Header -->
+        <header class="app-header">
+          <div class="header-left">
+            <button class="mobile-menu-btn" id="mobile-menu-toggle">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <div class="header-title-container">
+              <h2 id="header-view-title">Dashboard & Insights</h2>
+            </div>
+          </div>
+
+          <div class="header-actions">
+            <button class="btn btn-primary btn-sm" data-navigate="analyzer">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Analyze Batch
+            </button>
+          </div>
+        </header>
+
+        <!-- Dynamic Body Area -->
+        <div class="app-body">
+
+          <!-- ========================================== -->
+          <!-- A. DASHBOARD VIEW PANEL                    -->
+          <!-- ========================================== -->
+          <div id="dashboard-panel" class="view-panel active">
+            <div class="dashboard-header">
+              <div class="dashboard-title-group">
+                <h1>Review Feedback Overview</h1>
+                <p>Real-time sentiment breakdown, urgent alert summary, and operational complaint trends.</p>
+              </div>
+
+              <div class="dashboard-actions">
+                <button class="btn btn-secondary btn-sm" id="clear-all-data-btn" title="Reset all reviews to zero state">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                  Reset Data
+                </button>
+                <button class="btn btn-primary btn-sm" data-navigate="analyzer">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  Analyze New Batch
+                </button>
+              </div>
+            </div>
+
+            <!-- Zero State Container -->
+            <div id="dashboard-zero-state" class="card zero-state-container" style="display: none;">
+              <div class="zero-state-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </div>
+              <h3>No reviews analyzed yet</h3>
+              <p>Your dashboard analytics will appear here as soon as you analyze your first batch of customer reviews. We never fabricate data or show synthetic numbers.</p>
+              <button class="btn btn-primary" data-navigate="analyzer">Analyze your first batch</button>
+            </div>
+
+            <!-- Active Data Container -->
+            <div id="dashboard-content-state">
+              <!-- KPI Cards Grid -->
+              <div class="kpi-grid">
+                <!-- Total -->
+                <div class="kpi-card">
+                  <div class="kpi-top">
+                    <span class="kpi-label">Total Analyzed</span>
+                    <div class="kpi-icon" style="background-color: var(--primary-light); color: var(--primary);">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                  </div>
+                  <div class="kpi-val" id="dash-total-reviews">0</div>
+                  <div class="kpi-sub">Lifetime customer feedback</div>
+                </div>
+
+                <!-- Positive -->
+                <div class="kpi-card">
+                  <div class="kpi-top">
+                    <span class="kpi-label">Positive Sentiment</span>
+                    <div class="kpi-icon" style="background-color: var(--pos-bg); color: var(--pos-solid);">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+                    </div>
+                  </div>
+                  <div class="kpi-val" id="dash-positive-count" style="color: var(--pos-text);">0</div>
+                  <div class="kpi-sub" id="dash-positive-pct">0% of total</div>
+                </div>
+
+                <!-- Neutral -->
+                <div class="kpi-card">
+                  <div class="kpi-top">
+                    <span class="kpi-label">Neutral Sentiment</span>
+                    <div class="kpi-icon" style="background-color: var(--neu-bg); color: var(--neu-solid);">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    </div>
+                  </div>
+                  <div class="kpi-val" id="dash-neutral-count" style="color: var(--neu-text);">0</div>
+                  <div class="kpi-sub" id="dash-neutral-pct">0% of total</div>
+                </div>
+
+                <!-- Negative -->
+                <div class="kpi-card">
+                  <div class="kpi-top">
+                    <span class="kpi-label">Negative Sentiment</span>
+                    <div class="kpi-icon" style="background-color: var(--neg-bg); color: var(--neg-solid);">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"/></svg>
+                    </div>
+                  </div>
+                  <div class="kpi-val" id="dash-negative-count" style="color: var(--neg-text);">0</div>
+                  <div class="kpi-sub" id="dash-negative-pct">0% of total</div>
+                </div>
+
+                <!-- Urgent -->
+                <div class="kpi-card urgent-card">
+                  <div class="kpi-top">
+                    <span class="kpi-label">Urgent Alerts</span>
+                    <div class="kpi-icon" style="background-color: #fee2e2; color: var(--urgent-solid);">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                    </div>
+                  </div>
+                  <div class="kpi-val" id="dash-urgent-count">0</div>
+                  <div class="kpi-sub" style="color: var(--urgent-text);">Requires direct intervention</div>
+                </div>
+              </div>
+
+              <!-- Top Complaint Banner -->
+              <div class="complaint-highlight" id="dash-complaint-box" style="display: none;">
+                <div class="complaint-icon">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                </div>
+                <div class="complaint-text">
+                  <h4 id="dash-top-complaint-title">Frequent Concern</h4>
+                  <p id="dash-top-complaint-desc">Analyzing patterns in negative feedback.</p>
+                </div>
+              </div>
+
+              <!-- Charts & Categorization Row -->
+              <div class="charts-grid">
+                <!-- Sentiment Doughnut -->
+                <div class="chart-card">
+                  <div class="chart-header">
+                    <h3 class="chart-title">Sentiment Distribution</h3>
+                    <span class="text-xs text-muted">All batches</span>
+                  </div>
+                  <div class="chart-container-box">
+                    <canvas id="sentimentDoughnutChart"></canvas>
+                  </div>
+                </div>
+
+                <!-- Topic Breakdown -->
+                <div class="chart-card">
+                  <div class="chart-header">
+                    <h3 class="chart-title">Review Categories & Topics</h3>
+                    <span class="text-xs text-muted">Root-cause grouping</span>
+                  </div>
+                  <div class="categories-list" id="dash-categories-list">
+                    <!-- Injected dynamically -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- Recent Analysis Feed -->
+              <div class="recent-reviews-section">
+                <div class="recent-header">
+                  <div>
+                    <h3 style="font-size: 1.15rem; font-weight: 600;">Recent Analysis Results</h3>
+                    <p class="text-xs text-muted">Latest reviews processed by ReviewPilot</p>
+                  </div>
+                  <button class="btn btn-secondary btn-sm" data-navigate="analyzer">
+                    Analyze More Reviews
+                  </button>
+                </div>
+
+                <div class="recent-feed" id="dash-recent-feed">
+                  <!-- Injected dynamically -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ========================================== -->
+          <!-- B. REVIEW ANALYZER VIEW PANEL              -->
+          <!-- ========================================== -->
+          <div id="analyzer-panel" class="view-panel">
+            <div class="analyzer-grid">
+              <!-- Input Card -->
+              <div class="analyzer-input-card">
+                <div class="analyzer-header">
+                  <div class="analyzer-header-title">
+                    <h2>Paste Customer Reviews</h2>
+                    <p>Enter up to 20 customer reviews, one review per line. ReviewPilot will evaluate sentiment, detect urgency, and write polite replies.</p>
+                  </div>
+
+                  <!-- Quick Sample Presets -->
+                  <div class="sample-presets-bar">
+                    <span class="text-xs text-muted" style="font-weight: 600;">Load Example:</span>
+                    <button class="preset-pill" data-preset="cafe">☕ Cafe</button>
+                    <button class="preset-pill" data-preset="restaurant">🍕 Restaurant</button>
+                    <button class="preset-pill" data-preset="salon">✂️ Salon</button>
+                    <button class="preset-pill" data-preset="gym">🏋️ Gym</button>
+                  </div>
+                </div>
+
+                <!-- Textarea -->
+                <div class="textarea-container">
+                  <textarea
+                    id="reviews-textarea"
+                    class="reviews-textarea"
+                    placeholder="Paste customer reviews here, one review per line...&#10;&#10;Example:&#10;The flat white was incredible and the staff was so friendly!&#10;Waited 30 minutes for a sandwich and the cashier was very rude.&#10;BEWARE: Got terrible food poisoning after eating the tuna salad here on Friday!"></textarea>
+                </div>
+
+                <!-- Counters & Clear -->
+                <div class="textarea-footer">
+                  <div style="display: flex; gap: 1rem; align-items: center;">
+                    <span class="line-counter-pill" id="line-counter">0 / 20 reviews</span>
+                    <span id="char-counter">0 characters</span>
+                  </div>
+                  <button class="btn btn-secondary btn-sm" id="clear-input-btn">Clear Text</button>
+                </div>
+
+                <!-- Validation Alert -->
+                <div id="validation-alert" class="validation-alert"></div>
+
+                <!-- Tone & Business Context Controls -->
+                <div class="analyzer-config-grid">
+                  <!-- Tone Picker -->
+                  <div class="form-group">
+                    <label>Select Response Tone</label>
+                    <div class="tone-selector-group">
+                      <button type="button" class="tone-pill-btn active" data-tone="Friendly">Friendly</button>
+                      <button type="button" class="tone-pill-btn" data-tone="Professional">Professional</button>
+                      <button type="button" class="tone-pill-btn" data-tone="Empathetic">Empathetic</button>
+                      <button type="button" class="tone-pill-btn" data-tone="Concise">Concise</button>
+                    </div>
+                  </div>
+
+                  <!-- Business Name -->
+                  <div class="form-group">
+                    <label>Business Name</label>
+                    <input type="text" id="analyzer-biz-name" class="form-input" value="Urban Bistro & Cafe" placeholder="e.g. Bella Napoli Pizzeria">
+                  </div>
+
+                  <!-- Business Category -->
+                  <div class="form-group">
+                    <label>Business Category</label>
+                    <input type="text" id="analyzer-biz-type" class="form-input" value="Restaurant / Cafe" placeholder="e.g. Coffee Shop">
+                  </div>
+                </div>
+
+                <!-- Submit Bar -->
+                <div class="analyzer-submit-row">
+                  <label class="telegram-toggle-box" title="Sends Telegram notification to your bot for any review flagged as urgent">
+                    <input type="checkbox" id="analyzer-telegram-toggle" checked>
+                    <span>Send Telegram alert if any review is urgent</span>
+                  </label>
+
+                  <button class="btn btn-primary btn-lg" id="analyze-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    Analyze reviews
+                  </button>
+                </div>
+              </div>
+
+              <!-- Animated Progress Bar -->
+              <div id="analyzer-progress" class="analyzer-progress-wrapper">
+                <div class="progress-header">
+                  <span class="spinner"></span>
+                  <span id="progress-status-text">Analyzing customer reviews in parallel...</span>
+                </div>
+                <div class="progress-bar-track">
+                  <div class="progress-bar-fill"></div>
+                </div>
+                <p class="text-xs text-muted" style="margin-top: 0.75rem;">Evaluating sentiment polarity, detecting urgency indicators, and composing responses.</p>
+              </div>
+
+              <!-- Results Section -->
+              <div id="results-section" class="results-section">
+                <!-- Summary Banner -->
+                <div class="results-banner">
+                  <div class="banner-stats">
+                    <div class="banner-stat-item">
+                      <span>Analyzed:</span>
+                      <strong id="batch-stat-total">0</strong>
+                    </div>
+                    <div class="banner-stat-item" style="color: var(--pos-text);">
+                      <span>Positive:</span>
+                      <strong id="batch-stat-pos">0</strong>
+                    </div>
+                    <div class="banner-stat-item" style="color: var(--neu-text);">
+                      <span>Neutral:</span>
+                      <strong id="batch-stat-neu">0</strong>
+                    </div>
+                    <div class="banner-stat-item" style="color: var(--neg-text);">
+                      <span>Negative:</span>
+                      <strong id="batch-stat-neg">0</strong>
+                    </div>
+                    <div class="banner-stat-item" style="color: var(--urgent-text);">
+                      <span>Urgent Alerts:</span>
+                      <strong id="batch-stat-urgent">0</strong>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span class="text-xs text-muted">AI Provider:</span>
+                    <span class="badge badge-category" id="batch-ai-provider-badge">ReviewPilot AI</span>
+                  </div>
+                </div>
+
+                <!-- Telegram Dispatched Banner -->
+                <div id="batch-telegram-alert-banner" class="preview-urgent-banner" style="display: none; margin-bottom: 1.5rem;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  <span><strong>Telegram Notification Sent:</strong> Urgent review alert was dispatched to your configured Telegram channel.</span>
+                </div>
+
+                <!-- Filter & Search Toolbar -->
+                <div class="results-filter-bar">
+                  <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="all">All Reviews</button>
+                    <button class="filter-tab" data-filter="urgent" style="color: var(--urgent-text);">Urgent<span id="filter-urgent-count"></span></button>
+                    <button class="filter-tab" data-filter="positive">Positive</button>
+                    <button class="filter-tab" data-filter="neutral">Neutral</button>
+                    <button class="filter-tab" data-filter="negative">Negative</button>
+                  </div>
+
+                  <div class="results-actions-right">
+                    <input type="text" id="results-search-input" class="form-input" placeholder="Search batch reviews..." style="width: 200px; padding: 0.45rem 0.75rem; font-size: 0.85rem;">
+                    <button class="btn btn-secondary btn-sm" id="export-csv-btn" title="Download all reviews as CSV">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                      Export CSV
+                    </button>
+                    <button class="btn btn-secondary btn-sm" id="export-json-btn" title="Download all reviews as JSON">
+                      Export JSON
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Cards List -->
+                <div class="results-cards-list" id="results-cards-list">
+                  <!-- Injected dynamically -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ========================================== -->
+          <!-- C. SETTINGS & INTEGRATIONS PANEL           -->
+          <!-- ========================================== -->
+          <div id="settings-panel" class="view-panel">
+            <div style="max-width: 820px; margin: 0 auto; display: flex; flex-direction: column; gap: 2rem;">
+              <div>
+                <h1 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.25rem;">Settings & Integrations</h1>
+                <p class="text-muted">Configure Anthropic Claude API credentials, Telegram urgent alerts, and default store branding.</p>
+              </div>
+
+              <form id="settings-form" class="card" style="display: flex; flex-direction: column; gap: 1.75rem;">
+                <!-- Business Branding -->
+                <div>
+                  <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 0.25rem;">Business Profile</h3>
+                  <p class="text-sm text-muted" style="margin-bottom: 1rem;">Used to personalize drafted responses and greeting sign-offs.</p>
+
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                      <label>Business Name</label>
+                      <input type="text" id="settings-biz-name" class="form-input" placeholder="e.g. Urban Bistro & Cafe">
+                    </div>
+                    <div class="form-group">
+                      <label>Business Category</label>
+                      <input type="text" id="settings-biz-type" class="form-input" placeholder="e.g. Restaurant / Cafe">
+                    </div>
+                  </div>
+                </div>
+
+                <hr style="border: none; border-top: 1px solid var(--border);">
+
+                <!-- Telegram Integration -->
+                <div>
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.25rem;">
+                    <h3 style="font-size: 1.15rem; font-weight: 600;">Telegram Urgent Alerts</h3>
+                    <span id="settings-telegram-status-pill" class="badge badge-category">Not Configured</span>
+                  </div>
+                  <p class="text-sm text-muted" style="margin-bottom: 1.25rem;">
+                    Receive instant push alerts on Telegram when an urgent safety risk, health violation, or high-escalation review is detected.
+                  </p>
+
+                  <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div class="form-group">
+                      <label>Telegram Bot Token (from @BotFather)</label>
+                      <input type="password" id="settings-telegram-token" class="form-input" placeholder="123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ">
+                      <span class="text-xs text-muted" style="display: block; margin-top: 0.35rem;">Create a bot on Telegram via @BotFather to get your token.</span>
+                    </div>
+
+                    <div class="form-group">
+                      <label>Telegram Chat ID</label>
+                      <input type="text" id="settings-telegram-chat-id" class="form-input" placeholder="e.g. 123456789 or @your_channel">
+                      <span class="text-xs text-muted" style="display: block; margin-top: 0.35rem;">Find your personal chat ID via @userinfobot or invite your bot to your group/channel.</span>
+                    </div>
+
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 0.5rem;">
+                      <label class="telegram-toggle-box">
+                        <input type="checkbox" id="settings-telegram-alerts">
+                        <span>Enable urgent push alerts to Telegram</span>
+                      </label>
+
+                      <button type="button" class="btn btn-secondary btn-sm" id="test-telegram-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                        Test Telegram Connection
+                      </button>
+                    </div>
+
+                    <div id="telegram-test-result" class="validation-alert" style="display: none; margin-top: 0.5rem;"></div>
+                  </div>
+                </div>
+
+                <hr style="border: none; border-top: 1px solid var(--border);">
+
+                <!-- Anthropic Claude Configuration -->
+                <div>
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.25rem;">
+                    <h3 style="font-size: 1.15rem; font-weight: 600;">Anthropic Claude AI API</h3>
+                    <span id="settings-ai-status-pill" class="badge badge-neutral">Simulation Engine</span>
+                  </div>
+                  <p class="text-sm text-muted" style="margin-bottom: 1.25rem;">
+                    Connect your Anthropic API key to unlock Claude 3.5 Sonnet analysis. If left empty, ReviewPilot runs using the high-accuracy built-in simulation engine.
+                  </p>
+
+                  <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div class="form-group">
+                      <label>Anthropic API Key</label>
+                      <input type="password" id="settings-anthropic-key" class="form-input" placeholder="sk-ant-api03-...">
+                      <span class="text-xs text-muted" style="display: block; margin-top: 0.35rem;">Obtain from <a href="https://console.anthropic.com/" target="_blank" rel="noopener" style="color: var(--primary); text-decoration: underline;">Anthropic Console</a>. Kept strictly on the backend.</span>
+                    </div>
+
+                    <div class="form-group">
+                      <label>Claude Model</label>
+                      <select id="settings-anthropic-model" class="form-select">
+                        <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet (Recommended — Highest Quality & Tone)</option>
+                        <option value="claude-3-haiku-20240307">Claude 3 Haiku (Fastest & Lightest)</option>
+                        <option value="claude-3-7-sonnet-20250219">Claude 3.7 Sonnet (Advanced Reasoning)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Save Action -->
+                <div style="display: flex; justify-content: flex-end; padding-top: 1rem; border-top: 1px solid var(--border);">
+                  <button type="submit" class="btn btn-primary" id="save-settings-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Save Settings
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modular Scripts -->
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/app.js"></script>
+  <script src="/static/js/dashboard.js"></script>
+  <script src="/static/js/analyzer.js"></script>
+  <script src="/static/js/settings.js"></script>
+</body>
+</html>
