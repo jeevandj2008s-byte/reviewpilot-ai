@@ -90,3 +90,4 @@ class TelegramTestRequest(BaseModel):
     bot_token: Optional[str] = None
     chat_id: Optional[str] = None
     message: Optional[str] = None
+

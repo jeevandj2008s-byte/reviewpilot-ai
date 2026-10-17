@@ -151,3 +151,4 @@ document.addEventListener('DOMContentLoaded', () => {
     testBtn.addEventListener('click', () => SettingsController.handleTestTelegram());
   }
 });
+

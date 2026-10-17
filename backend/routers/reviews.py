@@ -140,3 +140,4 @@ async def clear_reviews():
 async def get_dashboard_stats():
     """Fetches real-time dashboard analytics, sentiment ratios, and top complaints."""
     return get_stats()
+

@@ -279,3 +279,4 @@ def set_setting(key: str, value: str):
     cursor.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", (key, value))
     conn.commit()
     conn.close()
+

@@ -194,3 +194,4 @@ This repository includes a native `render.yaml` configuration for 1-click Render
 ## 📄 License
 
 MIT License. Designed and engineered for small business owners and SaaS operators.
+

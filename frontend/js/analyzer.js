@@ -535,3 +535,4 @@ const AnalyzerController = {
 document.addEventListener('DOMContentLoaded', () => {
   AnalyzerController.init();
 });
+

@@ -121,3 +121,4 @@ async def send_test_message(
                 return False, f"Telegram test failed: {desc}"
     except Exception as exc:
         return False, f"Connection failed: {str(exc)}"
+

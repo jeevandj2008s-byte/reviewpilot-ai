@@ -197,3 +197,4 @@ function updateGlobalBusinessPill(name, type) {
     pillName.textContent = name;
   }
 }
+
