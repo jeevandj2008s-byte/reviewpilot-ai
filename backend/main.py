@@ -18,6 +18,9 @@ app = FastAPI(
     title="ReviewPilot API",
     description="AI-powered customer review analysis and instant reply management for small businesses",
     version="1.0.0",
+    docs_url="/docs" if (settings.debug or settings.environment == "development") else None,
+    redoc_url="/redoc" if (settings.debug or settings.environment == "development") else None,
+    openapi_url="/openapi.json" if (settings.debug or settings.environment == "development") else None,
     lifespan=lifespan
 )
 
@@ -94,6 +97,22 @@ async def security_headers_and_rate_limit_middleware(request: Request, call_next
             return JSONResponse(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 content={"detail": "Rate limit exceeded for review batch analysis. Please try again shortly."}
+            )
+
+    # Protection against catastrophic data wipe abuse
+    if path == "/api/data/delete-all" and request.method == "DELETE":
+        if not check_rate_limit(client_ip, "delete_all_data", max_attempts=3, window_seconds=60):
+            return JSONResponse(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                content={"detail": "Too many deletion requests. Please wait before attempting again."}
+            )
+
+    # Protection against mass data export scraping
+    if path.startswith("/api/export") and request.method == "GET":
+        if not check_rate_limit(client_ip, "export_data", max_attempts=10, window_seconds=60):
+            return JSONResponse(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                content={"detail": "Export rate limit exceeded. Please wait a minute before requesting another export."}
             )
 
     response = await call_next(request)
