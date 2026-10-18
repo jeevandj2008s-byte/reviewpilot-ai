@@ -70,3 +70,21 @@ async def test_telegram_connection(payload: TelegramTestRequest):
 
     return {"status": "success", "message": message}
 
+@router.delete("/data/delete-all")
+async def delete_all_user_data():
+    """
+    Comprehensive user data deletion flow:
+    Permanently deletes all stored customer reviews, drafted replies, runtime credentials,
+    and business profile settings from the database.
+    """
+    from backend.database import clear_all_reviews, clear_all_settings
+    reviews_count = clear_all_reviews()
+    settings_count = clear_all_settings()
+    return {
+        "status": "success",
+        "message": "All personal data, reviews, and stored credentials have been permanently deleted.",
+        "deleted_reviews_count": reviews_count,
+        "deleted_settings_count": settings_count
+    }
+
+

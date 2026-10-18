@@ -137,6 +137,54 @@ const SettingsController = {
         testBtn.textContent = 'Test Telegram Connection';
       }
     }
+  },
+
+  async handleDeleteAllData() {
+    const confirmed = confirm(
+      '⚠️ WARNING: Are you sure you want to permanently delete all your data?\n\n' +
+      'This will delete:\n' +
+      '• All analyzed reviews and drafted replies\n' +
+      '• Stored business profile information\n' +
+      '• Telegram bot tokens and chat IDs\n' +
+      '• Anthropic API credentials\n\n' +
+      'This action cannot be undone.'
+    );
+
+    if (!confirmed) return;
+
+    const deleteBtn = document.getElementById('delete-all-data-btn');
+    try {
+      if (deleteBtn) deleteBtn.disabled = true;
+      const res = await API.deleteAllUserData();
+      showToast(res.message || 'All personal data deleted successfully.', 'success');
+      
+      // Clear form inputs
+      const bizName = document.getElementById('settings-biz-name');
+      const bizType = document.getElementById('settings-biz-type');
+      const teleToken = document.getElementById('settings-telegram-token');
+      const teleChatId = document.getElementById('settings-telegram-chat-id');
+      const teleAlerts = document.getElementById('settings-telegram-alerts');
+      const anthropicKey = document.getElementById('settings-anthropic-key');
+      
+      if (bizName) bizName.value = '';
+      if (bizType) bizType.value = '';
+      if (teleToken) teleToken.value = '';
+      if (teleChatId) teleChatId.value = '';
+      if (teleAlerts) teleAlerts.checked = false;
+      if (anthropicKey) anthropicKey.value = '';
+
+      updateGlobalBusinessPill('My Business', 'Store');
+      await this.loadSettings();
+
+      // Refresh Dashboard if DashboardController exists
+      if (window.DashboardController) {
+        DashboardController.loadStats();
+      }
+    } catch (err) {
+      showToast('Failed to delete data: ' + err.message, 'error');
+    } finally {
+      if (deleteBtn) deleteBtn.disabled = false;
+    }
   }
 };
 
@@ -150,5 +198,11 @@ document.addEventListener('DOMContentLoaded', () => {
   if (testBtn) {
     testBtn.addEventListener('click', () => SettingsController.handleTestTelegram());
   }
+
+  const deleteBtn = document.getElementById('delete-all-data-btn');
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', () => SettingsController.handleDeleteAllData());
+  }
 });
+
 

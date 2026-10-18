@@ -109,6 +109,12 @@ const API = {
     });
   },
 
+  async deleteAllUserData() {
+    return this.request('/api/data/delete-all', {
+      method: 'DELETE'
+    });
+  },
+
   // Export URLs
   getExportCsvUrl() {
     return '/api/export/csv';
@@ -118,4 +124,5 @@ const API = {
     return '/api/export/json';
   }
 };
+
 

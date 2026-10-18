@@ -130,6 +130,20 @@ def test_settings_endpoints():
     settings_after = client.get("/api/settings").json()
     assert settings_after["business_name"] == "Antigravity Specialty Roasters"
 
+def test_delete_all_user_data():
+    delete_res = client.delete("/api/data/delete-all")
+    assert delete_res.status_code == 200
+    data = delete_res.json()
+    assert data["status"] == "success"
+
+    # Verify reviews are cleared
+    reviews_res = client.get("/api/reviews")
+    assert len(reviews_res.json()) == 0
+
+    # Verify stats are reset
+    stats_res = client.get("/api/stats")
+    assert stats_res.json()["total_reviews"] == 0
+
 if __name__ == "__main__":
     setup_module()
     test_health()
@@ -142,4 +156,6 @@ if __name__ == "__main__":
     test_update_reply()
     test_regenerate_reply()
     test_settings_endpoints()
+    test_delete_all_user_data()
     print("All tests passed successfully!")
+

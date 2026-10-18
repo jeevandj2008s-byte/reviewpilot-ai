@@ -73,7 +73,7 @@ async def send_telegram_alert(
             response = await client.post(url, json=payload)
             data = response.json()
             if response.status_code == 200 and data.get("ok"):
-                logger.info(f"Telegram alert dispatched successfully to chat {eff_chat_id}")
+                logger.info("Telegram alert dispatched successfully to configured chat [REDACTED]")
                 return True, "Alert sent successfully to Telegram."
             else:
                 desc = data.get("description", "Unknown Telegram error")

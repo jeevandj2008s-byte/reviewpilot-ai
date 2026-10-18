@@ -280,3 +280,14 @@ def set_setting(key: str, value: str):
     conn.commit()
     conn.close()
 
+def clear_all_settings() -> int:
+    """Removes all stored runtime settings, personal business profiles, and credentials."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM settings")
+    count = cursor.rowcount
+    conn.commit()
+    conn.close()
+    return count
+
+
