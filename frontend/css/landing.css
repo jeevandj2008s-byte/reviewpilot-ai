@@ -981,25 +981,28 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.4);
   margin-bottom: 1.25rem;
 }
 
 .payment-qr-img {
-  width: 220px;
-  height: 220px;
+  width: 240px;
+  height: 240px;
   object-fit: contain;
   display: block;
+  border-radius: 8px;
 }
 
 .payment-bank-tag {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.45rem;
   color: #0f172a;
-  font-size: 0.825rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  margin-top: 0.65rem;
+  margin-top: 0.75rem;
+  text-align: center;
 }
 
 .payment-upi-box {
