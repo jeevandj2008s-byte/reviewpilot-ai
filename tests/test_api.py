@@ -162,10 +162,62 @@ def test_rate_limiting_protection():
     assert excess_res.status_code == 429
     assert "Too many" in excess_res.json()["detail"]
 
+def test_auth_registration_and_login():
+    import uuid
+    test_email = f"test_{uuid.uuid4().hex[:8]}@example.com"
+    test_pwd = "SecurePassword123!"
+
+    # 1. Register new user
+    reg_res = client.post("/api/auth/register", json={
+        "email": test_email,
+        "password": test_pwd,
+        "full_name": "Test Bistro Manager"
+    })
+    assert reg_res.status_code == 201
+    reg_data = reg_res.json()
+    assert "access_token" in reg_data
+    assert reg_data["user"]["email"] == test_email
+    assert reg_data["user"]["subscription_plan"] == "Free"
+
+    # 2. Login with valid credentials
+    login_res = client.post("/api/auth/login", json={
+        "identifier": test_email,
+        "password": test_pwd
+    })
+    assert login_res.status_code == 200
+    token = login_res.json()["access_token"]
+
+    # 3. Access protected /me endpoint
+    me_res = client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
+    assert me_res.status_code == 200
+    assert me_res.json()["email"] == test_email
+
+def test_repeated_failed_login_alert():
+    import uuid
+    victim_email = f"victim_{uuid.uuid4().hex[:8]}@example.com"
+    client.post("/api/auth/register", json={
+        "email": victim_email,
+        "password": "CorrectPassword123!",
+        "full_name": "Target Account"
+    })
+
+    # Trigger repeated failed logins
+    for attempt in range(1, 4):
+        fail_res = client.post("/api/auth/login", json={
+            "identifier": victim_email,
+            "password": "WrongPasswordAttempt!"
+        })
+        assert fail_res.status_code == 401
+        if attempt >= 3:
+            # Verify security notification message triggered
+            assert "security alert has been dispatched" in fail_res.json()["detail"]
+
 if __name__ == "__main__":
     setup_module()
     test_health()
     test_security_headers()
+    test_auth_registration_and_login()
+    test_repeated_failed_login_alert()
     test_frontend_serving()
     test_empty_stats_zero_state()
     test_batch_analyze()

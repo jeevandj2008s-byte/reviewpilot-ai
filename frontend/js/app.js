@@ -5,6 +5,7 @@
 // Global App State
 const AppState = {
   currentView: 'landing', // 'landing' | 'dashboard' | 'analyzer' | 'settings'
+  user: null, // Logged in user profile & subscription tier
   settings: {
     business_name: 'Urban Bistro & Cafe',
     business_type: 'Restaurant / Cafe',
@@ -261,10 +262,15 @@ const PaymentModalController = {
     });
   },
 
-  confirmPayment() {
+  async confirmPayment() {
     const utr = prompt('Please enter your 12-digit UPI Transaction ID / UTR or registered phone number for instant verification:');
     if (utr && utr.trim().length >= 4) {
-      showToast(`✓ Verification received for ${this.activePlanName}! Your subscription is being activated.`, 'success');
+      if (AppState.user) {
+        AppState.user.subscription_plan = this.activePlanName;
+        AppState.user.subscription_status = 'active';
+        AuthModalController.updateUIForUser(AppState.user);
+      }
+      showToast(`✓ Verification received for ${this.activePlanName}! Your subscription is now linked to your account.`, 'success');
       this.close();
       setTimeout(() => {
         navigateTo('dashboard');
@@ -320,8 +326,265 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       PaymentModalController.close();
+      AuthModalController.close();
     }
   });
+
+  // Init auth state check
+  AuthModalController.init();
 });
+
+// Authentication Modal Controller (Email, Google, Phone OTP)
+const AuthModalController = {
+  isRegisterMode: false,
+  activeTab: 'email',
+
+  init() {
+    this.checkSession();
+    this.bindEvents();
+  },
+
+  async checkSession() {
+    const token = localStorage.getItem('reviewpilot_token');
+    if (!token) {
+      this.updateUIForUser(null);
+      return;
+    }
+    try {
+      const user = await API.getMyProfile();
+      this.updateUIForUser(user);
+    } catch (err) {
+      console.warn('Session expired or invalid, clearing local session.');
+      localStorage.removeItem('reviewpilot_token');
+      this.updateUIForUser(null);
+    }
+  },
+
+  updateUIForUser(user) {
+    AppState.user = user;
+    const navSignInBtn = document.getElementById('nav-signin-btn');
+    const navUserPill = document.getElementById('nav-user-pill');
+    const navUserPlan = document.getElementById('nav-user-plan');
+    const navUserName = document.getElementById('nav-user-name');
+
+    const appSignInBtn = document.getElementById('app-signin-btn');
+    const appUserBadge = document.getElementById('app-user-badge');
+    const appUserPlan = document.getElementById('app-user-plan');
+    const appUserName = document.getElementById('app-user-name');
+
+    if (user) {
+      const planName = (user.subscription_plan || 'Free').toUpperCase();
+      const displayName = user.full_name || (user.email ? user.email.split('@')[0] : user.phone);
+
+      if (navSignInBtn) navSignInBtn.style.display = 'none';
+      if (navUserPill) {
+        navUserPill.style.display = 'inline-flex';
+        if (navUserPlan) navUserPlan.textContent = planName;
+        if (navUserName) navUserName.textContent = displayName;
+      }
+
+      if (appSignInBtn) appSignInBtn.style.display = 'none';
+      if (appUserBadge) {
+        appUserBadge.style.display = 'inline-flex';
+        if (appUserPlan) appUserPlan.textContent = planName;
+        if (appUserName) appUserName.textContent = displayName;
+      }
+    } else {
+      if (navSignInBtn) navSignInBtn.style.display = 'inline-block';
+      if (navUserPill) navUserPill.style.display = 'none';
+      if (appSignInBtn) appSignInBtn.style.display = 'inline-flex';
+      if (appUserBadge) appUserBadge.style.display = 'none';
+    }
+  },
+
+  open(mode = 'login') {
+    this.isRegisterMode = (mode === 'register');
+    this.updateModeUI();
+    const modal = document.getElementById('auth-modal');
+    if (modal) {
+      modal.classList.add('active');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+  },
+
+  close() {
+    const modal = document.getElementById('auth-modal');
+    if (modal) {
+      modal.classList.remove('active');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+  },
+
+  switchTab(tabName) {
+    this.activeTab = tabName;
+    document.querySelectorAll('.auth-tab-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.tab === tabName);
+    });
+    document.querySelectorAll('.auth-tab-content').forEach(content => {
+      content.style.display = (content.id === `auth-tab-${tabName}`) ? 'block' : 'none';
+    });
+  },
+
+  toggleRegisterMode() {
+    this.isRegisterMode = !this.isRegisterMode;
+    this.updateModeUI();
+  },
+
+  updateModeUI() {
+    const title = document.getElementById('auth-modal-title');
+    const submitBtn = document.getElementById('auth-submit-btn');
+    const toggleBtn = document.getElementById('auth-toggle-mode-btn');
+    const togglePrompt = document.getElementById('auth-toggle-prompt');
+    const nameGroup = document.getElementById('auth-name-group');
+
+    if (this.isRegisterMode) {
+      if (title) title.textContent = 'Create ReviewPilot Account';
+      if (submitBtn) submitBtn.textContent = 'Create Account';
+      if (toggleBtn) toggleBtn.textContent = 'Sign in instead';
+      if (togglePrompt) togglePrompt.textContent = 'Already have an account?';
+      if (nameGroup) nameGroup.style.display = 'block';
+    } else {
+      if (title) title.textContent = 'Sign In to ReviewPilot';
+      if (submitBtn) submitBtn.textContent = 'Sign In with Email';
+      if (toggleBtn) toggleBtn.textContent = 'Create one now';
+      if (togglePrompt) togglePrompt.textContent = "Don't have an account?";
+      if (nameGroup) nameGroup.style.display = 'none';
+    }
+  },
+
+  signOut() {
+    localStorage.removeItem('reviewpilot_token');
+    this.updateUIForUser(null);
+    showToast('You have signed out successfully.', 'info');
+  },
+
+  bindEvents() {
+    // Open Sign-in buttons
+    const navSignInBtn = document.getElementById('nav-signin-btn');
+    if (navSignInBtn) navSignInBtn.addEventListener('click', () => this.open('login'));
+
+    const appSignInBtn = document.getElementById('app-signin-btn');
+    if (appSignInBtn) appSignInBtn.addEventListener('click', () => this.open('login'));
+
+    // Sign out button
+    const signOutBtn = document.getElementById('app-signout-btn');
+    if (signOutBtn) signOutBtn.addEventListener('click', () => this.signOut());
+
+    // Close button & backdrop
+    const closeBtn = document.getElementById('auth-modal-close-btn');
+    if (closeBtn) closeBtn.addEventListener('click', () => this.close());
+
+    const authModal = document.getElementById('auth-modal');
+    if (authModal) {
+      authModal.addEventListener('click', (e) => {
+        if (e.target === authModal) this.close();
+      });
+    }
+
+    // Tab buttons
+    document.querySelectorAll('.auth-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => this.switchTab(btn.dataset.tab));
+    });
+
+    // Toggle Register / Login mode
+    const toggleModeBtn = document.getElementById('auth-toggle-mode-btn');
+    if (toggleModeBtn) {
+      toggleModeBtn.addEventListener('click', () => this.toggleRegisterMode());
+    }
+
+    // Email Form Submission
+    const emailForm = document.getElementById('auth-email-form');
+    if (emailForm) {
+      emailForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('auth-email-input').value.trim();
+        const password = document.getElementById('auth-password-input').value;
+        const fullName = document.getElementById('auth-full-name').value.trim();
+
+        if (password.length < 6) {
+          showToast('Password must be at least 6 characters long.', 'error');
+          return;
+        }
+
+        try {
+          let res;
+          if (this.isRegisterMode) {
+            res = await API.register({ email, password, full_name: fullName || email.split('@')[0] });
+            showToast(`Account created! Welcome, ${res.user.full_name}`, 'success');
+          } else {
+            res = await API.login({ identifier: email, password });
+            showToast(`Welcome back, ${res.user.full_name}! Active Plan: ${res.user.subscription_plan}`, 'success');
+          }
+
+          localStorage.setItem('reviewpilot_token', res.access_token);
+          this.updateUIForUser(res.user);
+          this.close();
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+    }
+
+    // Google Sign-In Quick Action
+    const googleBtn = document.getElementById('google-quick-auth-btn');
+    if (googleBtn) {
+      googleBtn.addEventListener('click', async () => {
+        try {
+          const simulatedEmail = prompt("Enter your Google Account email:", "manager@urbanbistro.com");
+          if (!simulatedEmail || !simulatedEmail.includes('@')) {
+            showToast('Please enter a valid Google email address.', 'warning');
+            return;
+          }
+          const res = await API.loginGoogle({
+            email: simulatedEmail,
+            full_name: simulatedEmail.split('@')[0].replace('.', ' ').toUpperCase()
+          });
+          localStorage.setItem('reviewpilot_token', res.access_token);
+          this.updateUIForUser(res.user);
+          showToast(`Google Sign-In successful! Subscription: ${res.user.subscription_plan}`, 'success');
+          this.close();
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+    }
+
+    // Phone OTP Form
+    const phoneForm = document.getElementById('auth-phone-form');
+    const sendOtpBtn = document.getElementById('auth-send-otp-btn');
+
+    if (sendOtpBtn) {
+      sendOtpBtn.addEventListener('click', () => {
+        const phone = document.getElementById('auth-phone-input').value.trim();
+        if (phone.length < 10) {
+          showToast('Please enter a valid 10-digit phone number first.', 'warning');
+          return;
+        }
+        document.getElementById('auth-otp-input').value = '123456';
+        showToast(`Verification code sent to ${phone}. (Demo OTP: 123456)`, 'info');
+      });
+    }
+
+    if (phoneForm) {
+      phoneForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const phone = document.getElementById('auth-phone-input').value.trim();
+        const otp = document.getElementById('auth-otp-input').value.trim();
+
+        try {
+          const res = await API.loginPhone({ phone, otp });
+          localStorage.setItem('reviewpilot_token', res.access_token);
+          this.updateUIForUser(res.user);
+          showToast(`Verified! Signed in with phone. Plan: ${res.user.subscription_plan}`, 'success');
+          this.close();
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+    }
+  }
+};
 
 

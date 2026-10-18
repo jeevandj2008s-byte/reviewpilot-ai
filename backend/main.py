@@ -77,6 +77,21 @@ async def security_headers_and_rate_limit_middleware(request: Request, call_next
     client_ip = request.client.host if request.client else "unknown"
     path = request.url.path
 
+    # Rate limiting on Authentication endpoints (brute-force defense)
+    if path.startswith("/api/auth/login") and request.method == "POST":
+        if not check_rate_limit(client_ip, "auth_login", max_attempts=8, window_seconds=60):
+            return JSONResponse(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                content={"detail": "Too many login attempts. Please wait 1 minute before trying again."}
+            )
+
+    if path.startswith("/api/auth/register") and request.method == "POST":
+        if not check_rate_limit(client_ip, "auth_register", max_attempts=5, window_seconds=60):
+            return JSONResponse(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                content={"detail": "Too many account registrations from this IP. Please try again later."}
+            )
+
     # Rate limiting on write/sensitive routes (Settings, Telegram test ping, Batch analysis)
     if path == "/api/telegram/test" and request.method == "POST":
         if not check_rate_limit(client_ip, "telegram_test", max_attempts=5, window_seconds=60):
@@ -148,6 +163,8 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 # Include API Routers
+from backend.routers import auth as auth_router
+app.include_router(auth_router.router)
 app.include_router(reviews.router)
 app.include_router(settings_router.router)
 app.include_router(export.router)

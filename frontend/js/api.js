@@ -11,10 +11,14 @@ const API = {
       'Accept': 'application/json'
     };
 
+    const token = localStorage.getItem('reviewpilot_token');
+    const authHeader = token ? { 'Authorization': `Bearer ${token}` } : {};
+
     const config = {
       ...options,
       headers: {
         ...defaultHeaders,
+        ...authHeader,
         ...(options.headers || {})
       }
     };
@@ -33,6 +37,39 @@ const API = {
       console.error(`API Error on [${options.method || 'GET'} ${endpoint}]:`, err);
       throw err;
     }
+  },
+
+  // Auth Methods
+  async register(payload) {
+    return this.request('/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  async login(payload) {
+    return this.request('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  async loginGoogle(payload) {
+    return this.request('/api/auth/google', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  async loginPhone(payload) {
+    return this.request('/api/auth/phone', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  async getMyProfile() {
+    return this.request('/api/auth/me');
   },
 
   // Stats

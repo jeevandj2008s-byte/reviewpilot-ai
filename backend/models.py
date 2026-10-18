@@ -91,3 +91,43 @@ class TelegramTestRequest(BaseModel):
     chat_id: Optional[str] = None
     message: Optional[str] = None
 
+# Authentication & Account Security Models
+class UserRegisterRequest(BaseModel):
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    password: Optional[str] = None
+    full_name: str
+    auth_provider: str = "email" # 'email', 'google', 'phone'
+
+class UserLoginRequest(BaseModel):
+    identifier: str # Email or Phone number
+    password: str
+
+class GoogleAuthRequest(BaseModel):
+    credential: Optional[str] = None
+    email: str
+    full_name: str
+    google_id: Optional[str] = None
+
+class PhoneAuthRequest(BaseModel):
+    phone: str
+    otp: str # 6-digit OTP verification
+    full_name: Optional[str] = None
+
+class UserProfile(BaseModel):
+    id: str
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    full_name: str
+    auth_provider: str
+    subscription_plan: str
+    subscription_status: str
+    created_at: str
+
+class AuthResponse(BaseModel):
+    status: str
+    access_token: str
+    token_type: str = "bearer"
+    user: UserProfile
+
+

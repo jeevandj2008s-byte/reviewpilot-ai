@@ -38,6 +38,34 @@ def init_db():
         value TEXT NOT NULL
     )
     """)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        email TEXT UNIQUE,
+        phone TEXT UNIQUE,
+        full_name TEXT NOT NULL,
+        password_hash TEXT,
+        auth_provider TEXT DEFAULT 'email',
+        is_verified INTEGER DEFAULT 1,
+        subscription_plan TEXT DEFAULT 'Free',
+        subscription_status TEXT DEFAULT 'active',
+        subscription_expires_at TEXT,
+        failed_login_attempts INTEGER DEFAULT 0,
+        locked_until TEXT,
+        last_notified_suspicious TEXT,
+        created_at TEXT NOT NULL
+    )
+    """)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS login_activity (
+        id TEXT PRIMARY KEY,
+        identifier TEXT NOT NULL,
+        ip_address TEXT,
+        user_agent TEXT,
+        status TEXT NOT NULL,
+        attempted_at TEXT NOT NULL
+    )
+    """)
     conn.commit()
     conn.close()
 
@@ -289,5 +317,117 @@ def clear_all_settings() -> int:
     conn.commit()
     conn.close()
     return count
+
+# User Account & Auth Database Queries
+def get_user_by_email(email: str) -> Optional[Dict[str, Any]]:
+    if not email:
+        return None
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE LOWER(email) = LOWER(?)", (email.strip(),))
+    row = cursor.fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+def get_user_by_phone(phone: str) -> Optional[Dict[str, Any]]:
+    if not phone:
+        return None
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE phone = ?", (phone.strip(),))
+    row = cursor.fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+def get_user_by_id(user_id: str) -> Optional[Dict[str, Any]]:
+    if not user_id:
+        return None
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+    row = cursor.fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+def create_user(
+    user_id: str,
+    email: Optional[str],
+    phone: Optional[str],
+    full_name: str,
+    password_hash: Optional[str],
+    auth_provider: str = 'email',
+    subscription_plan: str = 'Free',
+    subscription_status: str = 'active'
+) -> Dict[str, Any]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    now_iso = datetime.utcnow().isoformat()
+    cursor.execute("""
+    INSERT INTO users (
+        id, email, phone, full_name, password_hash,
+        auth_provider, is_verified, subscription_plan, subscription_status,
+        failed_login_attempts, created_at
+    ) VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?, 0, ?)
+    """, (
+        user_id,
+        email.strip().lower() if email else None,
+        phone.strip() if phone else None,
+        full_name.strip(),
+        password_hash,
+        auth_provider,
+        subscription_plan,
+        subscription_status,
+        now_iso
+    ))
+    conn.commit()
+    conn.close()
+    return get_user_by_id(user_id)
+
+def update_user_subscription(user_id: str, plan: str, status: str = 'active'):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+    UPDATE users SET subscription_plan = ?, subscription_status = ? WHERE id = ?
+    """, (plan, status, user_id))
+    conn.commit()
+    conn.close()
+
+def record_login_attempt(identifier: str, ip_address: str, user_agent: str, status: str):
+    conn = get_connection()
+    cursor = conn.cursor()
+    attempt_id = str(datetime.utcnow().timestamp())
+    now_iso = datetime.utcnow().isoformat()
+    cursor.execute("""
+    INSERT INTO login_activity (id, identifier, ip_address, user_agent, status, attempted_at)
+    VALUES (?, ?, ?, ?, ?, ?)
+    """, (attempt_id, identifier.lower(), ip_address, user_agent, status, now_iso))
+    conn.commit()
+    conn.close()
+
+def update_failed_login(user_id: str, failed_count: int, locked_until: Optional[str] = None):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+    UPDATE users SET failed_login_attempts = ?, locked_until = ? WHERE id = ?
+    """, (failed_count, locked_until, user_id))
+    conn.commit()
+    conn.close()
+
+def reset_failed_login(user_id: str):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+    UPDATE users SET failed_login_attempts = 0, locked_until = NULL WHERE id = ?
+    """, (user_id,))
+    conn.commit()
+    conn.close()
+
+def set_last_notified_suspicious(user_id: str):
+    conn = get_connection()
+    cursor = conn.cursor()
+    now_iso = datetime.utcnow().isoformat()
+    cursor.execute("UPDATE users SET last_notified_suspicious = ? WHERE id = ?", (now_iso, user_id))
+    conn.commit()
+    conn.close()
 
 

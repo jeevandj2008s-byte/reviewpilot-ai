@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     host: str = Field(default="0.0.0.0", alias="HOST")
     database_path: str = Field(default="reviewpilot.db", alias="DATABASE_PATH")
     allowed_origins: str = Field(default="", alias="ALLOWED_ORIGINS")
+    jwt_secret_key: str = Field(default="reviewpilot_super_secret_jwt_signing_key_2026_dev_prod", alias="JWT_SECRET_KEY")
+    jwt_algorithm: str = Field(default="HS256", alias="JWT_ALGORITHM")
+    jwt_access_token_expire_minutes: int = Field(default=1440, alias="JWT_EXPIRE_MINUTES") # 24 hours
 
     class Config:
         env_file = ".env"
