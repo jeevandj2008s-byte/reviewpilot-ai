@@ -468,9 +468,12 @@ const AuthModalController = {
     const appSignInBtn = document.getElementById('app-signin-btn');
     if (appSignInBtn) appSignInBtn.addEventListener('click', () => this.open('login'));
 
-    // Sign out button
+    // Sign out buttons (Landing navbar & App header)
     const signOutBtn = document.getElementById('app-signout-btn');
     if (signOutBtn) signOutBtn.addEventListener('click', () => this.signOut());
+
+    const navSignOutBtn = document.getElementById('nav-signout-btn');
+    if (navSignOutBtn) navSignOutBtn.addEventListener('click', () => this.signOut());
 
     // Close button & backdrop
     const closeBtn = document.getElementById('auth-modal-close-btn');
@@ -501,7 +504,8 @@ const AuthModalController = {
         e.preventDefault();
         const email = document.getElementById('auth-email-input').value.trim();
         const password = document.getElementById('auth-password-input').value;
-        const fullName = document.getElementById('auth-full-name').value.trim();
+        const nameInput = document.getElementById('auth-full-name');
+        const fullName = nameInput ? nameInput.value.trim() : '';
 
         if (password.length < 6) {
           showToast('Password must be at least 6 characters long.', 'error');
@@ -533,6 +537,9 @@ const AuthModalController = {
       googleForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const googleEmail = document.getElementById('auth-google-email-input').value.trim();
+        const googleNameInput = document.getElementById('auth-google-name-input');
+        const googleName = googleNameInput ? googleNameInput.value.trim() : '';
+
         if (!googleEmail || !googleEmail.includes('@')) {
           showToast('Please enter a valid Google email address.', 'warning');
           return;
@@ -540,11 +547,11 @@ const AuthModalController = {
         try {
           const res = await API.loginGoogle({
             email: googleEmail,
-            full_name: googleEmail.split('@')[0].replace('.', ' ').toUpperCase()
+            full_name: googleName || googleEmail.split('@')[0].replace('.', ' ').toUpperCase()
           });
           localStorage.setItem('reviewpilot_token', res.access_token);
           this.updateUIForUser(res.user);
-          showToast(`Google Sign-In successful! Subscription: ${res.user.subscription_plan}`, 'success');
+          showToast(`Signed in as ${res.user.full_name}! Active Plan: ${res.user.subscription_plan}`, 'success');
           this.close();
         } catch (err) {
           showToast(err.message, 'error');
@@ -573,12 +580,14 @@ const AuthModalController = {
         e.preventDefault();
         const phone = document.getElementById('auth-phone-input').value.trim();
         const otp = document.getElementById('auth-otp-input').value.trim();
+        const phoneNameInput = document.getElementById('auth-phone-name-input');
+        const phoneName = phoneNameInput ? phoneNameInput.value.trim() : '';
 
         try {
-          const res = await API.loginPhone({ phone, otp });
+          const res = await API.loginPhone({ phone, otp, full_name: phoneName || `User ${phone.slice(-4)}` });
           localStorage.setItem('reviewpilot_token', res.access_token);
           this.updateUIForUser(res.user);
-          showToast(`Verified! Signed in with phone. Plan: ${res.user.subscription_plan}`, 'success');
+          showToast(`Verified! Signed in as ${res.user.full_name}. Plan: ${res.user.subscription_plan}`, 'success');
           this.close();
         } catch (err) {
           showToast(err.message, 'error');
