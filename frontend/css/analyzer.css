@@ -6,11 +6,13 @@
 }
 
 .analyzer-input-card {
-  background: white;
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
   padding: 1.75rem;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
 }
 
 .analyzer-header {
@@ -23,9 +25,10 @@
 }
 
 .analyzer-header-title h2 {
-  font-size: 1.35rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-family: var(--font-display);
+  font-size: 1.55rem;
+  font-weight: 400;
+  letter-spacing: -0.015em;
 }
 
 .analyzer-header-title p {
@@ -79,7 +82,7 @@
   font-size: 0.925rem;
   line-height: 1.6;
   color: var(--text-main);
-  background-color: #fafbfc;
+  background-color: rgba(7, 16, 38, 0.7);
   resize: vertical;
   transition: var(--transition);
 }
@@ -87,8 +90,8 @@
 .reviews-textarea:focus {
   outline: none;
   border-color: var(--primary);
-  background-color: #ffffff;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+  background-color: rgba(10, 22, 52, 0.85);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
 }
 
 .textarea-footer {
@@ -147,7 +150,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   font-size: 0.9rem;
-  background: white;
+  background: rgba(7, 16, 38, 0.7);
   color: var(--text-main);
   transition: var(--transition);
 }
@@ -155,7 +158,8 @@
 .form-input:focus, .form-select:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+  background: rgba(10, 22, 52, 0.85);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
 }
 
 /* Tone Selector Radio Pills */
@@ -167,7 +171,7 @@
 
 .tone-pill-btn {
   border: 1px solid var(--border);
-  background: white;
+  background: rgba(14, 30, 68, 0.5);
   border-radius: var(--radius-md);
   padding: 0.55rem 0.5rem;
   text-align: center;
@@ -180,7 +184,8 @@
 
 .tone-pill-btn:hover {
   background: var(--bg-subtle);
-  border-color: var(--text-light);
+  border-color: var(--primary-border);
+  color: var(--text-main);
 }
 
 .tone-pill-btn.active {
@@ -188,6 +193,7 @@
   border-color: var(--primary);
   color: var(--primary);
   font-weight: 600;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
 }
 
 /* Analyzer Bottom Actions Bar */
@@ -220,12 +226,14 @@
 /* Progress / Loading Bar */
 .analyzer-progress-wrapper {
   display: none;
-  background: white;
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
   margin-top: 1.5rem;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
   text-align: center;
 }
 
@@ -284,7 +292,9 @@
 }
 
 .results-banner {
-  background: white;
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 1.25rem 1.5rem;
@@ -294,7 +304,7 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 1rem;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
 }
 
 .banner-stats {
@@ -347,8 +357,9 @@
 }
 
 .filter-tab.active {
-  background: white;
-  color: var(--text-main);
+  background: rgba(56, 189, 248, 0.2);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.35);
   box-shadow: var(--shadow-sm);
   font-weight: 600;
 }
@@ -367,11 +378,13 @@
 }
 
 .review-card {
-  background: white;
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
   padding: 1.5rem;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -379,8 +392,8 @@
 }
 
 .review-card:hover {
-  box-shadow: var(--shadow-md);
-  border-color: #cbd5e1;
+  box-shadow: var(--shadow-lg);
+  border-color: rgba(56, 189, 248, 0.4);
 }
 
 .review-card.urgent-review-card {
@@ -406,8 +419,8 @@
   font-size: 0.975rem;
   color: var(--text-main);
   line-height: 1.6;
-  background: #fbfcfe;
-  border-left: 3px solid #cbd5e1;
+  background: rgba(7, 16, 38, 0.65);
+  border-left: 3px solid rgba(56, 189, 248, 0.6);
   padding: 0.85rem 1.15rem;
   border-radius: 0 var(--radius-md) var(--radius-md) 0;
 }
@@ -427,11 +440,10 @@
 
 /* Reply Box */
 .generated-reply-box {
-  background-color: #ffffff;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 1.15rem 1.25rem;
-  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  background: linear-gradient(180deg, rgba(16, 33, 72, 0.75) 0%, rgba(10, 22, 50, 0.85) 100%);
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -456,13 +468,14 @@
 .reply-body-text {
   font-size: 0.925rem;
   line-height: 1.6;
-  color: #1e293b;
+  color: var(--text-secondary);
 }
 
 .reply-inline-textarea {
   width: 100%;
   min-height: 90px;
   padding: 0.75rem;
+  background: rgba(7, 16, 38, 0.75);
   border: 1px solid var(--primary-border);
   border-radius: var(--radius-md);
   font-size: 0.925rem;
@@ -474,7 +487,8 @@
 
 .reply-inline-textarea:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+  background: rgba(10, 22, 52, 0.85);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
 }
 
 .reply-footer-actions {

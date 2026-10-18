@@ -6,10 +6,10 @@
   <title>ReviewPilot — AI Customer Review Analysis & Instant Reply Management</title>
   <meta name="description" content="Turn customer reviews into better relationships. Analyze sentiment, generate thoughtful replies, and get alerted when a customer needs immediate attention.">
   
-  <!-- Google Fonts: Inter -->
+  <!-- Google Fonts: Calistoga (Display), Inter (UI & Body), JetBrains Mono (Labels/Badges) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Calistoga&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Modular Stylesheets -->
   <link rel="stylesheet" href="/static/css/main.css">
@@ -34,9 +34,7 @@
       <div class="landing-nav-container">
         <a href="#landing" class="brand-logo" data-navigate="landing">
           <div class="brand-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-            </svg>
+            <img src="/static/images/logo.jpg" alt="ReviewPilot Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
           </div>
           <span>ReviewPilot</span>
         </a>
@@ -54,27 +52,58 @@
       </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="landing-hero">
-      <div class="hero-pill">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        AI Review Management for Small Businesses
-      </div>
-      <h1 class="hero-heading">Every review deserves<br>the right response.</h1>
-      <p class="hero-subtext">
-        Turn customer reviews into better relationships. Analyze sentiment, generate thoughtful replies, and get alerted when a customer needs immediate attention.
-      </p>
+    <!-- Hero Section — Aceternity UI Lamp Effect (dark blue theme) -->
+    <section id="hero-lamp" class="lamp-container">
 
-      <div class="hero-cta-group">
-        <button class="btn btn-primary btn-lg" data-navigate="analyzer">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-          Analyze reviews
-        </button>
-        <a href="#how-it-works" class="btn btn-secondary btn-lg">
-          See how it works
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </a>
+      <!-- Lamp Stage: all purely visual light elements -->
+      <div class="lamp-stage" aria-hidden="true">
+        <!-- Top edge mask so the beams emerge cleanly from a hard line -->
+        <div class="lamp-top-mask"></div>
+
+        <!-- Left conic beam -->
+        <div class="lamp-beam lamp-beam-left"></div>
+
+        <!-- Right conic beam -->
+        <div class="lamp-beam lamp-beam-right"></div>
+
+        <!-- Wide atmospheric floor glow -->
+        <div class="lamp-blur-floor"></div>
+
+        <!-- Deep ambient sphere -->
+        <div class="lamp-ambient-glow"></div>
+
+        <!-- Bright core sphere -->
+        <div class="lamp-core-glow"></div>
+
+        <!-- The shiny horizontal bar at the lamp origin -->
+        <div class="lamp-line"></div>
       </div>
+
+      <!-- Hero content rendered above the lamp stage -->
+      <div class="lamp-content">
+        <div class="hero-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          AI Review Management for Small Businesses
+        </div>
+
+        <h1 class="hero-heading">Every review deserves<br>the right response.</h1>
+
+        <p class="hero-subtext">
+          Turn customer reviews into better relationships. Analyze sentiment, generate thoughtful replies, and get alerted when a customer needs immediate attention.
+        </p>
+
+        <div class="hero-cta-group">
+          <button class="btn btn-primary btn-lg" data-navigate="analyzer">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Analyze reviews
+          </button>
+          <a href="#how-it-works" class="btn btn-secondary btn-lg">
+            See how it works
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+      </div>
+
     </section>
 
     <!-- Product Dashboard Preview Mockup -->
@@ -118,11 +147,11 @@
             <div class="preview-urgent-banner">
               ⚠️ Trigger: Health hazard reported (customer mentioned severe food poisoning symptoms)
             </div>
-            <p style="font-size: 0.9rem; color: #334155; font-style: italic;">
+            <p style="font-size: 0.9rem; color: #cbd5e1; font-style: italic;">
               "Ordered the seafood pasta for dinner on Friday and woke up with violent food poisoning. I was in bed all weekend and missed work. Completely unacceptable!"
             </p>
-            <div style="background-color: #f8fafc; border-left: 3px solid #4f46e5; padding: 0.75rem 1rem; border-radius: 4px; font-size: 0.85rem; color: #0f172a;">
-              <strong>Empathetic Response Draft:</strong> "We are deeply distressed to read this and take customer health with absolute seriousness. Please contact our leadership directly at management@bistrolounge.com so we can investigate this immediately."
+            <div style="background-color: rgba(14, 30, 68, 0.7); border-left: 3px solid #38bdf8; padding: 0.75rem 1rem; border-radius: 4px; font-size: 0.85rem; color: #f8fafc;">
+              <strong style="color: #38bdf8;">Empathetic Response Draft:</strong> "We are deeply distressed to read this and take customer health with absolute seriousness. Please contact our leadership directly at management@bistrolounge.com so we can investigate this immediately."
             </div>
           </div>
         </div>
@@ -173,7 +202,7 @@
     </section>
 
     <!-- 3-Step How It Works Section -->
-    <section id="how-it-works" class="landing-section" style="background-color: #ffffff; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+    <section id="how-it-works" class="landing-section">
       <div class="section-header">
         <div class="section-tag">Simple Workflow</div>
         <h2 class="section-title">How ReviewPilot works</h2>
@@ -215,7 +244,7 @@
           <div class="pricing-header">
             <h3 class="pricing-title">Starter</h3>
             <p class="text-sm text-muted">For single stores getting started</p>
-            <div class="pricing-price">$0 <span class="pricing-period">/ month</span></div>
+            <div class="pricing-price">₹0 <span class="pricing-period">/ month</span></div>
           </div>
           <ul class="pricing-features">
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Up to 50 reviews analyzed per month</li>
@@ -232,7 +261,7 @@
           <div class="pricing-header">
             <h3 class="pricing-title">Growth</h3>
             <p class="text-sm text-muted">For busy restaurants and salons</p>
-            <div class="pricing-price">$29 <span class="pricing-period">/ month</span></div>
+            <div class="pricing-price">₹299 <span class="pricing-period">/ month</span></div>
           </div>
           <ul class="pricing-features">
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Up to 1,000 reviews analyzed per month</li>
@@ -249,7 +278,7 @@
           <div class="pricing-header">
             <h3 class="pricing-title">Business Pro</h3>
             <p class="text-sm text-muted">For multi-unit franchises & agencies</p>
-            <div class="pricing-price">$79 <span class="pricing-period">/ month</span></div>
+            <div class="pricing-price">₹699 <span class="pricing-period">/ month</span></div>
           </div>
           <ul class="pricing-features">
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Unlimited review analyses</li>
@@ -264,7 +293,7 @@
     </section>
 
     <!-- FAQ Section -->
-    <section id="faq" class="landing-section" style="background: white; border-top: 1px solid var(--border);">
+    <section id="faq" class="landing-section">
       <div class="section-header">
         <div class="section-tag">Frequently Asked Questions</div>
         <h2 class="section-title">Everything you need to know</h2>
@@ -329,7 +358,7 @@
         <div class="footer-brand">
           <div class="brand-logo">
             <div class="brand-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              <img src="/static/images/logo.jpg" alt="ReviewPilot Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
             </div>
             <span>ReviewPilot</span>
           </div>
@@ -380,7 +409,7 @@
         <div class="sidebar-header">
           <a href="#landing" class="brand-logo" data-navigate="landing">
             <div class="brand-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              <img src="/static/images/logo.jpg" alt="ReviewPilot Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
             </div>
             <span>ReviewPilot</span>
           </a>
@@ -467,7 +496,10 @@
             <!-- Zero State Container -->
             <div id="dashboard-zero-state" class="card zero-state-container" style="display: none;">
               <div class="zero-state-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 8h22a14 14 0 0 1 0 28H26l14 20H30L16 36V56h-4V8zm4 4v20h18a10 10 0 0 0 0-20H16z" fill="#4f46e5"/>
+                  <path d="M30 14l14 10-14 10V28H22v-8h8V14z" fill="#6366f1" opacity="0.8"/>
+                </svg>
               </div>
               <h3>No reviews analyzed yet</h3>
               <p>Your dashboard analytics will appear here as soon as you analyze your first batch of customer reviews. We never fabricate data or show synthetic numbers.</p>
@@ -879,6 +911,7 @@
   <script src="/static/js/dashboard.js"></script>
   <script src="/static/js/analyzer.js"></script>
   <script src="/static/js/settings.js"></script>
+  <script src="/static/js/lamp.js"></script>
 </body>
 </html>
 

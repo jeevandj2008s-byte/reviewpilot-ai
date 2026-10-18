@@ -9,9 +9,10 @@
 }
 
 .dashboard-title-group h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 400;
+  letter-spacing: -0.015em;
 }
 
 .dashboard-title-group p {
@@ -35,7 +36,8 @@
 }
 
 .kpi-card {
-  background: white;
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 1.25rem 1.5rem;
@@ -44,6 +46,12 @@
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  transition: var(--transition);
+}
+
+.kpi-card:hover {
+  border-color: rgba(56, 189, 248, 0.35);
+  box-shadow: var(--shadow-md);
 }
 
 .kpi-top {
@@ -54,11 +62,12 @@
 }
 
 .kpi-label {
-  font-size: 0.85rem;
-  font-weight: 500;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.08em;
 }
 
 .kpi-icon {
@@ -74,7 +83,7 @@
   font-size: 2.15rem;
   font-weight: 700;
   line-height: 1;
-  color: #0f172a;
+  color: var(--text-main);
 }
 
 .kpi-sub {
@@ -88,7 +97,7 @@
 
 .kpi-card.urgent-card {
   border-color: var(--urgent-border);
-  background: linear-gradient(180deg, #ffffff 0%, var(--urgent-bg) 100%);
+  background: linear-gradient(180deg, rgba(225, 29, 72, 0.12) 0%, rgba(225, 29, 72, 0.25) 100%);
 }
 
 .kpi-card.urgent-card .kpi-val {
@@ -104,7 +113,8 @@
 }
 
 .chart-card {
-  background: white;
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
@@ -123,6 +133,7 @@
 .chart-title {
   font-size: 1.05rem;
   font-weight: 600;
+  color: var(--text-main);
 }
 
 .chart-container-box {
@@ -155,27 +166,28 @@
   justify-content: space-between;
   font-size: 0.85rem;
   font-weight: 500;
+  color: var(--text-secondary);
 }
 
 .cat-bar-bg {
   width: 100%;
   height: 8px;
-  background-color: var(--bg-subtle);
+  background-color: rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-full);
   overflow: hidden;
 }
 
 .cat-bar-fill {
   height: 100%;
-  background-color: var(--primary);
+  background: var(--primary-gradient);
   border-radius: var(--radius-full);
   transition: width 0.4s ease;
 }
 
 /* Complaint Highlight Card */
 .complaint-highlight {
-  background: #fef2f2;
-  border: 1px solid var(--neg-border);
+  background: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(239, 68, 68, 0.35);
   border-radius: var(--radius-md);
   padding: 1rem 1.25rem;
   margin-bottom: 1.5rem;
@@ -188,7 +200,7 @@
   width: 40px;
   height: 40px;
   border-radius: var(--radius-sm);
-  background-color: #fee2e2;
+  background-color: rgba(239, 68, 68, 0.25);
   color: var(--neg-solid);
   display: flex;
   align-items: center;
@@ -197,19 +209,20 @@
 }
 
 .complaint-text h4 {
-  color: #991b1b;
+  color: #fca5a5;
   font-size: 0.95rem;
   margin-bottom: 0.2rem;
 }
 
 .complaint-text p {
-  color: #7f1d1d;
+  color: #fecaca;
   font-size: 0.85rem;
 }
 
 /* Recent Reviews Section */
 .recent-reviews-section {
-  background: white;
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
@@ -232,6 +245,7 @@
 }
 
 .recent-item {
+  background: rgba(14, 30, 68, 0.55);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 1.25rem;
@@ -242,7 +256,7 @@
 }
 
 .recent-item:hover {
-  border-color: var(--primary-border);
+  border-color: rgba(56, 189, 248, 0.4);
   box-shadow: var(--shadow-sm);
 }
 
@@ -273,7 +287,7 @@
 }
 
 .recent-reply-box {
-  background-color: var(--bg-subtle);
+  background-color: rgba(7, 16, 38, 0.75);
   border-left: 3px solid var(--primary);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   padding: 0.75rem 1rem;
