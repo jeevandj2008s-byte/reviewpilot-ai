@@ -26,9 +26,17 @@ wheels/
 venv/
 ENV/
 
-# Environment Variables
+# Environment Variables and Credentials
 .env
-.env.local
+.env.*
+!.env.example
+*.env
+*.pem
+*.key
+*.cert
+*.crt
+credentials.json
+secrets/
 
 # Database
 *.sqlite3

@@ -126,15 +126,20 @@ cp .env.example .env
 ```
 *(Optional)* Add your Anthropic API key and Telegram Bot credentials:
 ```env
-ANTHROPIC_API_KEY=sk-ant-api03-...
+ANTHROPIC_API_KEY=your_anthropic_api_key_here
 ANTHROPIC_MODEL=claude-3-5-sonnet-20241022
-TELEGRAM_BOT_TOKEN=123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ
-TELEGRAM_CHAT_ID=123456789
+TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
+TELEGRAM_CHAT_ID=your_telegram_chat_id_here
 TELEGRAM_ALERTS_ENABLED=true
 BUSINESS_NAME=Urban Bistro & Cafe
 BUSINESS_TYPE=Restaurant / Cafe
 ```
 > **Note**: Even without an Anthropic API key or Telegram bot, ReviewPilot operates out-of-the-box using its built-in sentiment simulation engine!
+
+> ⚠️ **SECURITY & SECRET MANAGEMENT NOTICE**
+> - **Never commit `.env` or sensitive credentials to Git.** All secrets must be provided via environment variables in production or your deployment provider's secret manager (e.g. Render, Railway, AWS).
+> - **Secret Rotation Warning**: If any API key, database URI, or bot token was previously hardcoded or committed to git history at any point, **rotate that secret immediately** in the respective provider's console (Anthropic Console, Telegram BotFather, etc.). Changing the value in current source files does not eliminate old values from git commit history.
+> - **Client-Side Safety**: All sensitive keys (Anthropic API keys, Telegram Bot Tokens, Database connection paths) remain strictly on the server backend. No secrets are ever exposed or returned in client-side responses.
 
 ### 4. Run the Development Server
 ```bash
