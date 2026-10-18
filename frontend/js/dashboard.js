@@ -5,6 +5,16 @@
 const DashboardController = {
   sentimentChart: null,
 
+  escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  },
+
   async loadStats() {
     try {
       const stats = await API.getStats();
@@ -171,17 +181,17 @@ const DashboardController = {
       item.innerHTML = `
         <div class="recent-item-top">
           <div class="recent-badges">
-            <span class="badge ${sentimentBadgeClass}">${r.sentiment}</span>
-            <span class="badge badge-category">${r.category}</span>
+            <span class="badge ${sentimentBadgeClass}">${this.escapeHtml(r.sentiment)}</span>
+            <span class="badge badge-category">${this.escapeHtml(r.category)}</span>
             ${urgentBadgeHtml}
             ${telegramPill}
           </div>
           <span class="recent-time">${this.formatTimestamp(r.created_at)}</span>
         </div>
-        <p class="recent-review-text">"${r.review_text}"</p>
+        <p class="recent-review-text">&ldquo;${this.escapeHtml(r.review_text)}&rdquo;</p>
         <div class="recent-reply-box">
           <div class="recent-reply-text">
-            <strong>AI Reply (${r.tone}):</strong> ${r.generated_reply}
+            <strong>AI Reply (${this.escapeHtml(r.tone)}):</strong> ${this.escapeHtml(r.generated_reply)}
           </div>
           <button class="btn btn-secondary btn-sm copy-recent-btn" data-reply="${encodeURIComponent(r.generated_reply)}">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>

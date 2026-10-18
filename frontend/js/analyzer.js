@@ -8,6 +8,16 @@ const AnalyzerController = {
   currentFilter: 'all',
   currentSearchQuery: '',
 
+  escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  },
+
   init() {
     this.bindEvents();
     this.updateCounters();
@@ -329,23 +339,23 @@ const AnalyzerController = {
     const urgencyCalloutHtml = item.is_urgent && item.urgent_reason
       ? `<div class="urgency-callout">
            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
-           <span><strong>Why this is urgent:</strong> ${item.urgent_reason}</span>
+           <span><strong>Why this is urgent:</strong> ${this.escapeHtml(item.urgent_reason)}</span>
          </div>`
       : '';
 
     card.innerHTML = `
       <div class="review-card-header">
         <div class="badges-group">
-          <span class="badge ${sentimentClass}">${item.sentiment} (${confidenceScorePct}%)</span>
-          <span class="badge badge-category">${item.category}</span>
+          <span class="badge ${sentimentClass}">${this.escapeHtml(item.sentiment)} (${confidenceScorePct}%)</span>
+          <span class="badge badge-category">${this.escapeHtml(item.category)}</span>
           ${urgentBadgeHtml}
           ${telegramSentHtml}
         </div>
-        <span class="text-xs text-muted">ID: ${item.id.slice(0, 8)}</span>
+        <span class="text-xs text-muted">ID: ${this.escapeHtml(item.id.slice(0, 8))}</span>
       </div>
 
       <div class="review-text-quote">
-        "${item.review_text}"
+        &ldquo;${this.escapeHtml(item.review_text)}&rdquo;
       </div>
 
       ${urgencyCalloutHtml}
@@ -354,17 +364,17 @@ const AnalyzerController = {
         <div class="reply-header-meta">
           <span class="reply-tag">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            Generated Reply (${item.tone})
+            Generated Reply (${this.escapeHtml(item.tone)})
           </span>
-          <span class="copy-feedback-pill" id="copy-feedback-${item.id}">✓ Copied</span>
+          <span class="copy-feedback-pill" id="copy-feedback-${this.escapeHtml(item.id)}">✓ Copied</span>
         </div>
 
-        <div class="reply-display-area" id="reply-display-${item.id}">
-          <p class="reply-body-text" id="reply-text-${item.id}">${item.generated_reply}</p>
+        <div class="reply-display-area" id="reply-display-${this.escapeHtml(item.id)}">
+          <p class="reply-body-text" id="reply-text-${this.escapeHtml(item.id)}">${this.escapeHtml(item.generated_reply)}</p>
         </div>
 
-        <div class="reply-edit-area" id="reply-edit-${item.id}" style="display: none;">
-          <textarea class="reply-inline-textarea" id="reply-textarea-${item.id}">${item.generated_reply}</textarea>
+        <div class="reply-edit-area" id="reply-edit-${this.escapeHtml(item.id)}" style="display: none;">
+          <textarea class="reply-inline-textarea" id="reply-textarea-${this.escapeHtml(item.id)}">${this.escapeHtml(item.generated_reply)}</textarea>
           <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 0.5rem;">
             <button class="btn btn-secondary btn-sm cancel-edit-btn" data-id="${item.id}">Cancel</button>
             <button class="btn btn-primary btn-sm save-edit-btn" data-id="${item.id}">Save Reply</button>
