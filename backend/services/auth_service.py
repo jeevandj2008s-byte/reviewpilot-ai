@@ -88,3 +88,4 @@ def send_suspicious_login_alert(email: str, ip_address: str, failed_count: int):
     )
     # In production with SMTP configured, this would dispatch via aiosmtplib / SendGrid.
     # We also keep this logged and surface in user's security dashboard.
+

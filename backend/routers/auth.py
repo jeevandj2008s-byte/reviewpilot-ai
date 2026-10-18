@@ -307,3 +307,4 @@ async def get_my_profile(current_user: Optional[UserProfile] = Depends(get_curre
     if not current_user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated. Please sign in.")
     return current_user
+

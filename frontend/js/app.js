@@ -527,19 +527,20 @@ const AuthModalController = {
       });
     }
 
-    // Google Sign-In Quick Action
-    const googleBtn = document.getElementById('google-quick-auth-btn');
-    if (googleBtn) {
-      googleBtn.addEventListener('click', async () => {
+    // Google Sign-In Form Action
+    const googleForm = document.getElementById('auth-google-form');
+    if (googleForm) {
+      googleForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const googleEmail = document.getElementById('auth-google-email-input').value.trim();
+        if (!googleEmail || !googleEmail.includes('@')) {
+          showToast('Please enter a valid Google email address.', 'warning');
+          return;
+        }
         try {
-          const simulatedEmail = prompt("Enter your Google Account email:", "manager@urbanbistro.com");
-          if (!simulatedEmail || !simulatedEmail.includes('@')) {
-            showToast('Please enter a valid Google email address.', 'warning');
-            return;
-          }
           const res = await API.loginGoogle({
-            email: simulatedEmail,
-            full_name: simulatedEmail.split('@')[0].replace('.', ' ').toUpperCase()
+            email: googleEmail,
+            full_name: googleEmail.split('@')[0].replace('.', ' ').toUpperCase()
           });
           localStorage.setItem('reviewpilot_token', res.access_token);
           this.updateUIForUser(res.user);
