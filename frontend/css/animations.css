@@ -1,0 +1,61 @@
+/* animations.css - Centralized animation definitions */
+
+/* Utility to respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+}
+
+/* Fade In */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 0.8s forwards ease-out;
+}
+
+/* Fade Up (fade in and slide up) */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-up {
+  opacity: 0;
+  animation: fadeUp 0.8s forwards ease-out;
+}
+
+/* Slide Up (no fade) */
+@keyframes slideUp {
+  from { transform: translateY(30px); }
+  to { transform: translateY(0); }
+}
+
+.slide-up {
+  transform: translateY(30px);
+  animation: slideUp 0.6s forwards ease-out;
+}
+
+/* Scale Up */
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.scale-up {
+  opacity: 0;
+  animation: scaleUp 0.6s forwards ease-out;
+}
+
+/* Stagger helper – can be set via animation-delay inline */
+
+/* Navbar scroll transition – handled via JS by toggling .scrolled class */
+.landing-navbar {
+  transition: background-color 0.4s ease, backdrop-filter 0.4s ease;
+}
+.landing-navbar.scrolled {
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+}
