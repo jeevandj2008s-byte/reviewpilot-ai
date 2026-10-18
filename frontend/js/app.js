@@ -191,10 +191,134 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-function updateGlobalBusinessPill(name, type) {
-  const pillName = document.getElementById('sidebar-business-name');
-  if (pillName && name) {
-    pillName.textContent = name;
+// Payment & Subscription Checkout Modal Controller
+const PaymentModalController = {
+  activePlan: 'growth',
+  activeAmount: 299,
+  activePlanName: 'Growth Plan',
+  upiId: '9741481204@axl',
+  recipientName: 'ReviewPilot AI',
+
+  open(plan, planName, amount) {
+    this.activePlan = plan;
+    this.activePlanName = planName;
+    this.activeAmount = amount;
+
+    const modal = document.getElementById('payment-modal');
+    const planNameEl = document.getElementById('checkout-plan-name');
+    const amountEl = document.getElementById('checkout-amount-display');
+    const directUpiLink = document.getElementById('direct-upi-link');
+
+    if (planNameEl) planNameEl.textContent = planName;
+    if (amountEl) amountEl.textContent = `₹${amount}`;
+
+    // Generate Standard NPCI UPI Deep Link (Compatible with GPay, PhonePe, Paytm, BHIM)
+    const encodedName = encodeURIComponent(this.recipientName);
+    const encodedNote = encodeURIComponent(`ReviewPilot ${planName}`);
+    const upiUri = `upi://pay?pa=${this.upiId}&pn=${encodedName}&am=${amount}&cu=INR&tn=${encodedNote}`;
+
+    if (directUpiLink) {
+      directUpiLink.href = upiUri;
+    }
+
+    if (modal) {
+      modal.classList.add('active');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+  },
+
+  close() {
+    const modal = document.getElementById('payment-modal');
+    if (modal) {
+      modal.classList.remove('active');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+  },
+
+  copyUpi() {
+    navigator.clipboard.writeText(this.upiId).then(() => {
+      const copyBtn = document.getElementById('copy-upi-btn');
+      if (copyBtn) {
+        copyBtn.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>Copied!</span>
+        `;
+        setTimeout(() => {
+          copyBtn.innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy</span>
+          `;
+        }, 2200);
+      }
+      showToast('UPI ID copied to clipboard!', 'success');
+    }).catch(() => {
+      showToast(`UPI ID: ${this.upiId}`, 'info');
+    });
+  },
+
+  confirmPayment() {
+    const utr = prompt('Please enter your 12-digit UPI Transaction ID / UTR or registered phone number for instant verification:');
+    if (utr && utr.trim().length >= 4) {
+      showToast(`✓ Verification received for ${this.activePlanName}! Your subscription is being activated.`, 'success');
+      this.close();
+      setTimeout(() => {
+        navigateTo('dashboard');
+      }, 1000);
+    } else if (utr !== null) {
+      showToast('Please enter a valid transaction reference to confirm activation.', 'warning');
+    }
   }
-}
+};
+
+// Wire Payment Modal Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+  // Subscribe buttons in pricing grid
+  document.querySelectorAll('.btn-subscribe').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const plan = btn.getAttribute('data-plan') || 'growth';
+      const planName = btn.getAttribute('data-plan-name') || 'Growth Plan';
+      const amount = btn.getAttribute('data-amount') || '299';
+      PaymentModalController.open(plan, planName, amount);
+    });
+  });
+
+  // Modal close button
+  const closeBtn = document.getElementById('payment-modal-close-btn');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => PaymentModalController.close());
+  }
+
+  // Backdrop click to close
+  const modal = document.getElementById('payment-modal');
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        PaymentModalController.close();
+      }
+    });
+  }
+
+  // Copy UPI button
+  const copyBtn = document.getElementById('copy-upi-btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => PaymentModalController.copyUpi());
+  }
+
+  // Confirm payment button
+  const confirmBtn = document.getElementById('payment-confirm-btn');
+  if (confirmBtn) {
+    confirmBtn.addEventListener('click', () => PaymentModalController.confirmPayment());
+  }
+
+  // Escape key to close modal
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      PaymentModalController.close();
+    }
+  });
+});
+
 

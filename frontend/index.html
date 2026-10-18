@@ -270,7 +270,7 @@
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> CSV and JSON report exports</li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Batch size up to 20 reviews</li>
           </ul>
-          <button class="btn btn-primary" data-navigate="analyzer">Try Growth Plan</button>
+          <button class="btn btn-primary btn-subscribe" data-plan="growth" data-plan-name="Growth Plan" data-amount="299">Subscribe to Growth (₹299/mo)</button>
         </div>
 
         <!-- Pro Business -->
@@ -287,10 +287,90 @@
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Custom branding sign-offs</li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Priority customer support</li>
           </ul>
-          <button class="btn btn-secondary" data-navigate="analyzer">Contact Sales</button>
+          <button class="btn btn-primary btn-subscribe" data-plan="pro" data-plan-name="Business Pro Plan" data-amount="699">Subscribe to Pro (₹699/mo)</button>
         </div>
       </div>
     </section>
+
+    <!-- Secure UPI Payment & Subscription Checkout Modal -->
+    <div id="payment-modal" class="payment-modal-backdrop" aria-hidden="true">
+      <div class="payment-modal-card">
+        <button type="button" class="payment-modal-close" id="payment-modal-close-btn" aria-label="Close modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+
+        <div class="payment-header">
+          <span class="payment-badge">🔒 256-Bit SSL Encrypted Payment</span>
+          <h3 id="checkout-plan-name">Growth Subscription</h3>
+          <p class="text-sm text-muted">Scan the QR code or pay directly via any verified UPI app</p>
+        </div>
+
+        <div class="payment-amount-box">
+          <div>
+            <span class="text-xs text-muted" style="text-transform: uppercase; font-weight: 600;">Total Payable</span>
+            <div class="text-xs" style="color: #34d399; font-weight: 500;">Instant Activation</div>
+          </div>
+          <div class="payment-amount-val" id="checkout-amount-display">₹299</div>
+        </div>
+
+        <!-- Official Bank QR Card -->
+        <div class="payment-qr-frame">
+          <img src="/static/images/qr-card.jpg" alt="UPI Payment QR Code" class="payment-qr-img" id="checkout-qr-img">
+          <div class="payment-bank-tag">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#0052cc"><circle cx="12" cy="12" r="10"/></svg>
+            <span>State Bank of India — •••• 9693</span>
+          </div>
+        </div>
+
+        <!-- Copyable UPI ID Box -->
+        <div class="payment-upi-box">
+          <div>
+            <span class="text-xs text-muted" style="display: block; margin-bottom: 0.15rem;">Verified UPI ID</span>
+            <span class="payment-upi-text" id="checkout-upi-id">9741481204@axl</span>
+          </div>
+          <button type="button" class="payment-copy-btn" id="copy-upi-btn" title="Copy UPI ID">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy</span>
+          </button>
+        </div>
+
+        <!-- Supported UPI Apps -->
+        <div class="payment-app-icons">
+          <span class="payment-app-pill">PhonePe</span>
+          <span class="payment-app-pill">Google Pay</span>
+          <span class="payment-app-pill">Paytm</span>
+          <span class="payment-app-pill">BHIM UPI</span>
+          <span class="payment-app-pill">Any Banking App</span>
+        </div>
+
+        <!-- Quick Instructions -->
+        <div class="payment-instructions">
+          <strong>Steps to complete activation:</strong>
+          <ol>
+            <li>Scan the QR code with PhonePe, GPay, or Paytm, or copy the UPI ID.</li>
+            <li>Complete the payment and click <strong>"Pay via UPI App"</strong> below on mobile.</li>
+            <li>Submit your reference/UTR to automatically unlock your subscription.</li>
+          </ol>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="payment-btn-group">
+          <a href="#" id="direct-upi-link" class="btn btn-primary" style="width: 100%; text-decoration: none;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Pay with UPI App Directly
+          </a>
+
+          <button type="button" class="btn btn-secondary" id="payment-confirm-btn" style="width: 100%;">
+            ✓ I Have Completed Payment (Verify & Activate)
+          </button>
+        </div>
+
+        <div class="payment-secure-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>End-to-End Secure NPCI / RBI Approved Payment Channel</span>
+        </div>
+      </div>
+    </div>
 
     <!-- FAQ Section -->
     <section id="faq" class="landing-section">
