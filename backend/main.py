@@ -21,14 +21,112 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Enable CORS for cross-origin flexibility
+import time
+import uuid
+import logging
+from collections import defaultdict
+from fastapi import Request, HTTPException, status
+from fastapi.responses import JSONResponse
+
+logger = logging.getLogger("reviewpilot.server")
+
+# In-memory sliding-window rate limiter for sensitive endpoints
+# Protects write / verification endpoints (e.g. settings updates, test pings, batch analyze)
+RATE_LIMIT_STORE = defaultdict(list)
+
+def check_rate_limit(client_ip: str, route_key: str, max_attempts: int, window_seconds: int) -> bool:
+    """Checks if a client IP has exceeded the allowed request threshold within window_seconds."""
+    now = time.time()
+    key = f"{client_ip}:{route_key}"
+    # Keep timestamps within the sliding window
+    RATE_LIMIT_STORE[key] = [ts for ts in RATE_LIMIT_STORE[key] if now - ts < window_seconds]
+    if len(RATE_LIMIT_STORE[key]) >= max_attempts:
+        return False
+    RATE_LIMIT_STORE[key].append(now)
+    return True
+
+# Determine allowed CORS origins
+cors_origins = [o.strip() for o in settings.allowed_origins.split(",") if o.strip()]
+if not cors_origins:
+    if settings.environment == "production":
+        # In production without explicit external origins, restrict to same-origin
+        cors_origins = ["https://reviewpilot-web.onrender.com"]
+    else:
+        # Development local origins
+        cors_origins = [
+            f"http://localhost:{settings.port}",
+            f"http://127.0.0.1:{settings.port}",
+            "http://localhost:8000",
+            "http://127.0.0.1:8000"
+        ]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "Accept", "X-Requested-With"],
 )
+
+# Global Security Headers & Rate Limiting Middleware
+@app.middleware("http")
+async def security_headers_and_rate_limit_middleware(request: Request, call_next):
+    client_ip = request.client.host if request.client else "unknown"
+    path = request.url.path
+
+    # Rate limiting on write/sensitive routes (Settings, Telegram test ping, Batch analysis)
+    if path == "/api/telegram/test" and request.method == "POST":
+        if not check_rate_limit(client_ip, "telegram_test", max_attempts=5, window_seconds=60):
+            return JSONResponse(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                content={"detail": "Too many verification requests. Please try again in 1 minute."}
+            )
+
+    if path == "/api/settings" and request.method == "POST":
+        if not check_rate_limit(client_ip, "settings_update", max_attempts=10, window_seconds=60):
+            return JSONResponse(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                content={"detail": "Too many settings modification requests. Please slow down."}
+            )
+
+    if path == "/api/analyze" and request.method == "POST":
+        if not check_rate_limit(client_ip, "analyze_batch", max_attempts=20, window_seconds=60):
+            return JSONResponse(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                content={"detail": "Rate limit exceeded for review batch analysis. Please try again shortly."}
+            )
+
+    response = await call_next(request)
+
+    # Inject Production Security Headers
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "font-src 'self' https://fonts.gstatic.com; "
+        "img-src 'self' data: https:; "
+        "connect-src 'self' https://api.anthropic.com https://api.telegram.org; "
+        "frame-ancestors 'none';"
+    )
+
+    return response
+
+# Global sanitized exception handler — never leak stack traces, database details, or file paths
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    correlation_id = str(uuid.uuid4())
+    logger.error(f"Unhandled server exception [{correlation_id}] on {request.method} {request.url.path}: {exc}", exc_info=True)
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={
+            "detail": f"An internal server error occurred. (Correlation ID: {correlation_id})"
+        }
+    )
 
 # Include API Routers
 app.include_router(reviews.router)

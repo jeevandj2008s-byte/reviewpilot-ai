@@ -12,9 +12,11 @@ class Settings(BaseSettings):
     business_name: str = Field(default="Urban Bistro & Cafe", alias="BUSINESS_NAME")
     business_type: str = Field(default="Restaurant / Cafe", alias="BUSINESS_TYPE")
     environment: str = Field(default="development", alias="ENVIRONMENT")
+    debug: bool = Field(default=False, alias="DEBUG")
     port: int = Field(default=8000, alias="PORT")
     host: str = Field(default="0.0.0.0", alias="HOST")
     database_path: str = Field(default="reviewpilot.db", alias="DATABASE_PATH")
+    allowed_origins: str = Field(default="", alias="ALLOWED_ORIGINS")
 
     class Config:
         env_file = ".env"
@@ -22,4 +24,9 @@ class Settings(BaseSettings):
         extra = "ignore"
 
 settings = Settings()
+
+# Critical Environment Variable Startup Check
+if not settings.database_path:
+    raise RuntimeError("CRITICAL CONFIGURATION ERROR: 'DATABASE_PATH' environment variable must be set.")
+
 

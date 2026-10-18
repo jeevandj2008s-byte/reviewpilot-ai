@@ -54,9 +54,12 @@ async def analyze_reviews_batch(payload: AnalyzeBatchRequest):
         )
         return response
     except Exception as exc:
+        import uuid, logging
+        correlation_id = str(uuid.uuid4())
+        logging.getLogger("reviewpilot.reviews").error(f"Analysis workflow error [{correlation_id}]: {exc}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Analysis workflow failed: {str(exc)}"
+            detail=f"Analysis request could not be processed. Please try again. (Correlation ID: {correlation_id})"
         )
 
 @router.get("/reviews", response_model=List[ReviewAnalysis])

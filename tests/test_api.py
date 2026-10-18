@@ -144,9 +144,28 @@ def test_delete_all_user_data():
     stats_res = client.get("/api/stats")
     assert stats_res.json()["total_reviews"] == 0
 
+def test_security_headers():
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert response.headers.get("X-Content-Type-Options") == "nosniff"
+    assert response.headers.get("X-Frame-Options") == "DENY"
+    assert "max-age=31536000" in response.headers.get("Strict-Transport-Security", "")
+    assert "default-src 'self'" in response.headers.get("Content-Security-Policy", "")
+
+def test_rate_limiting_protection():
+    # Attempt rapid repeated requests to test endpoint
+    for _ in range(5):
+        res = client.post("/api/telegram/test", json={"bot_token": "fake", "chat_id": "123"})
+    
+    # 6th attempt should trigger 429 Too Many Requests
+    excess_res = client.post("/api/telegram/test", json={"bot_token": "fake", "chat_id": "123"})
+    assert excess_res.status_code == 429
+    assert "Too many" in excess_res.json()["detail"]
+
 if __name__ == "__main__":
     setup_module()
     test_health()
+    test_security_headers()
     test_frontend_serving()
     test_empty_stats_zero_state()
     test_batch_analyze()
@@ -157,5 +176,7 @@ if __name__ == "__main__":
     test_regenerate_reply()
     test_settings_endpoints()
     test_delete_all_user_data()
+    test_rate_limiting_protection()
     print("All tests passed successfully!")
+
 
