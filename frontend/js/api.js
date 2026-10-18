@@ -152,6 +152,13 @@ const API = {
     });
   },
 
+  async aiChat(payload) {
+    return this.request('/api/ai/chat', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
   // Export URLs
   getExportCsvUrl() {
     return '/api/export/csv';

@@ -72,7 +72,10 @@ class SettingsPayload(BaseModel):
     anthropic_model: Optional[str] = None
     telegram_bot_token: Optional[str] = None
     telegram_chat_id: Optional[str] = None
+    telegram_phone: Optional[str] = None
     telegram_alerts_enabled: Optional[bool] = None
+    email_notifications_enabled: Optional[bool] = None
+    notification_email: Optional[str] = None
     business_name: Optional[str] = None
     business_type: Optional[str] = None
 
@@ -82,6 +85,9 @@ class SettingsResponse(BaseModel):
     telegram_alerts_enabled: bool
     telegram_bot_configured: bool
     telegram_chat_id: Optional[str] = None
+    telegram_phone: Optional[str] = None
+    email_notifications_enabled: bool = True
+    notification_email: Optional[str] = None
     business_name: str
     business_type: str
     environment: str

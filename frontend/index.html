@@ -522,11 +522,11 @@
 
         <div class="faq-item">
           <button class="faq-question">
-            <span>Do I need my own Anthropic Claude API key?</span>
+            <span>Do I need to set up any API keys or paid accounts?</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div class="faq-answer">
-            ReviewPilot is equipped with a resilient AI engine that works immediately without any setup. If you wish to connect your Anthropic Claude account directly, you can simply input your API key in Settings, and all analyses will be routed securely through Claude 3.5 Sonnet.
+            No! ReviewPilot includes a powerful built-in AI engine that works immediately — zero API keys, zero configuration, and no monthly API billing. Simply sign in and start analyzing reviews right away. Advanced users who wish to connect their own Anthropic Claude key can still optionally do so in Settings.
           </div>
         </div>
 
@@ -990,21 +990,20 @@
           </div>
 
           <!-- ========================================== -->
-          <!-- C. SETTINGS & INTEGRATIONS PANEL           -->
+          <!-- C. SETTINGS & NOTIFICATIONS PANEL          -->
           <!-- ========================================== -->
           <div id="settings-panel" class="view-panel">
             <div style="max-width: 820px; margin: 0 auto; display: flex; flex-direction: column; gap: 2rem;">
               <div>
-                <h1 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.25rem;">Settings & Integrations</h1>
-                <p class="text-muted">Configure Anthropic Claude API credentials, Telegram urgent alerts, and default store branding.</p>
+                <h1 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.25rem;">Settings & Notifications</h1>
+                <p class="text-muted">Manage your business profile and how you receive alerts. Zero technical setup required!</p>
               </div>
 
               <form id="settings-form" class="card" style="display: flex; flex-direction: column; gap: 1.75rem;">
-                <!-- Business Branding -->
+                <!-- Business Profile -->
                 <div>
-                  <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 0.25rem;">Business Profile</h3>
-                  <p class="text-sm text-muted" style="margin-bottom: 1rem;">Used to personalize drafted responses and greeting sign-offs.</p>
-
+                  <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 0.25rem;">🏪 Your Business</h3>
+                  <p class="text-sm text-muted" style="margin-bottom: 1rem;">Used to personalize drafted responses with your exact business name.</p>
                   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                     <div class="form-group">
                       <label>Business Name</label>
@@ -1012,78 +1011,170 @@
                     </div>
                     <div class="form-group">
                       <label>Business Category</label>
-                      <input type="text" id="settings-biz-type" class="form-input" placeholder="e.g. Restaurant / Cafe">
+                      <select id="settings-biz-type" class="form-select">
+                        <option value="Restaurant / Cafe">🍕 Restaurant / Cafe</option>
+                        <option value="Salon / Spa">✂️ Salon / Spa</option>
+                        <option value="Gym / Fitness">🏋️ Gym / Fitness</option>
+                        <option value="Retail / Shop">🛍️ Retail / Shop</option>
+                        <option value="Hotel / Stay">🏨 Hotel / Stay</option>
+                        <option value="Clinic / Healthcare">🏥 Clinic / Healthcare</option>
+                        <option value="Other">📦 Other Business</option>
+                      </select>
                     </div>
                   </div>
                 </div>
 
                 <hr style="border: none; border-top: 1px solid var(--border);">
 
-                <!-- Telegram Integration -->
+                <!-- Notification Preferences -->
                 <div>
-                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.25rem;">
-                    <h3 style="font-size: 1.15rem; font-weight: 600;">Telegram Urgent Alerts</h3>
-                    <span id="settings-telegram-status-pill" class="badge badge-category">Not Configured</span>
-                  </div>
-                  <p class="text-sm text-muted" style="margin-bottom: 1.25rem;">
-                    Receive instant push alerts on Telegram when an urgent safety risk, health violation, or high-escalation review is detected.
-                  </p>
+                  <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 0.25rem;">🔔 Instant Review Alerts</h3>
+                  <p class="text-sm text-muted" style="margin-bottom: 1.25rem;">Choose how you want to be alerted when an urgent safety risk or severe complaint is detected. No bots to create!</p>
 
                   <div style="display: flex; flex-direction: column; gap: 1rem;">
-                    <div class="form-group">
-                      <label>Telegram Bot Token (from @BotFather)</label>
-                      <input type="password" id="settings-telegram-token" class="form-input" placeholder="123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ">
-                      <span class="text-xs text-muted" style="display: block; margin-top: 0.35rem;">Create a bot on Telegram via @BotFather to get your token.</span>
+                    <!-- Email Alerts Box -->
+                    <div style="background: rgba(56, 189, 248, 0.06); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: var(--radius); padding: 1.25rem;">
+                      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                          <span style="font-size: 1.25rem;">📧</span>
+                          <div>
+                            <h4 style="font-size: 0.95rem; font-weight: 600; margin: 0;">Account Email Alerts</h4>
+                            <span class="text-xs text-muted">Receive safety escalations directly to your inbox</span>
+                          </div>
+                        </div>
+                        <label class="telegram-toggle-box" style="margin: 0;">
+                          <input type="checkbox" id="settings-email-alerts" checked>
+                          <span style="font-size: 0.8rem;">Enabled</span>
+                        </label>
+                      </div>
+                      <div class="form-group" style="margin-bottom: 0; margin-top: 0.75rem;">
+                        <label style="font-size: 0.8rem;">Notification Email (auto-synced with your login)</label>
+                        <input type="email" id="settings-notification-email" class="form-input" placeholder="your.email@gmail.com">
+                      </div>
                     </div>
 
-                    <div class="form-group">
-                      <label>Telegram Chat ID</label>
-                      <input type="text" id="settings-telegram-chat-id" class="form-input" placeholder="e.g. 123456789 or @your_channel">
-                      <span class="text-xs text-muted" style="display: block; margin-top: 0.35rem;">Find your personal chat ID via @userinfobot or invite your bot to your group/channel.</span>
-                    </div>
-
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 0.5rem;">
-                      <label class="telegram-toggle-box">
-                        <input type="checkbox" id="settings-telegram-alerts">
-                        <span>Enable urgent push alerts to Telegram</span>
-                      </label>
-
+                    <!-- Telegram Alerts Box (Simplified) -->
+                    <div style="background: rgba(56, 189, 248, 0.06); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: var(--radius); padding: 1.25rem;">
+                      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                          <span style="font-size: 1.25rem;">✈️</span>
+                          <div>
+                            <h4 style="font-size: 0.95rem; font-weight: 600; margin: 0;">Telegram Phone Notifications</h4>
+                            <span class="text-xs text-muted">Instant push alerts straight to your Telegram</span>
+                          </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                          <span id="settings-telegram-status-pill" class="badge badge-category" style="font-size: 0.7rem;">Not Connected</span>
+                          <label class="telegram-toggle-box" style="margin: 0;">
+                            <input type="checkbox" id="settings-telegram-alerts">
+                            <span style="font-size: 0.8rem;">Enabled</span>
+                          </label>
+                        </div>
+                      </div>
+                      <p class="text-xs text-muted" style="margin-bottom: 0.75rem;">Just enter your Telegram phone number — our centralized alert bot notifies you immediately. Zero BotFather setup!</p>
+                      <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.8rem;">Your Telegram Mobile Number</label>
+                        <input type="tel" id="settings-telegram-phone" class="form-input" placeholder="+91 9876543210">
+                      </div>
                       <button type="button" class="btn btn-secondary btn-sm" id="test-telegram-btn">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                        Test Telegram Connection
+                        Send Test Alert
                       </button>
+                      <div id="telegram-test-result" class="validation-alert" style="display: none; margin-top: 0.5rem;"></div>
                     </div>
-
-                    <div id="telegram-test-result" class="validation-alert" style="display: none; margin-top: 0.5rem;"></div>
                   </div>
                 </div>
 
                 <hr style="border: none; border-top: 1px solid var(--border);">
 
-                <!-- Anthropic Claude Configuration -->
+                <!-- Built-in AI Status & Features -->
                 <div>
-                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.25rem;">
-                    <h3 style="font-size: 1.15rem; font-weight: 600;">Anthropic Claude AI API</h3>
-                    <span id="settings-ai-status-pill" class="badge badge-neutral">Simulation Engine</span>
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <h3 style="font-size: 1.15rem; font-weight: 600;">🤖 AI Review Engine</h3>
+                    <span id="settings-ai-status-pill" class="badge badge-positive">Built-in AI Active</span>
                   </div>
-                  <p class="text-sm text-muted" style="margin-bottom: 1.25rem;">
-                    Connect your Anthropic API key to unlock Claude 3.5 Sonnet analysis. If left empty, ReviewPilot runs using the high-accuracy built-in simulation engine.
+                  <p class="text-sm text-muted" style="margin-bottom: 0.75rem;">
+                    ReviewPilot runs using a high-accuracy built-in natural language engine — completely free with zero setup or API subscriptions!
                   </p>
+                  <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: var(--radius); padding: 0.85rem 1rem;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.5rem;">
+                      <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem;"><span style="color: #10b981; font-weight: bold;">✓</span> Sentiment Scoring</div>
+                      <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem;"><span style="color: #10b981; font-weight: bold;">✓</span> Topic & Root Cause</div>
+                      <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem;"><span style="color: #10b981; font-weight: bold;">✓</span> Urgent Risk Detection</div>
+                      <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem;"><span style="color: #10b981; font-weight: bold;">✓</span> Auto Reply Generator</div>
+                      <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem;"><span style="color: #10b981; font-weight: bold;">✓</span> Voice & Chat Assistant</div>
+                    </div>
+                  </div>
 
-                  <div style="display: flex; flex-direction: column; gap: 1rem;">
-                    <div class="form-group">
-                      <label>Anthropic API Key</label>
-                      <input type="password" id="settings-anthropic-key" class="form-input" placeholder="sk-ant-api03-...">
-                      <span class="text-xs text-muted" style="display: block; margin-top: 0.35rem;">Obtain from <a href="https://console.anthropic.com/" target="_blank" rel="noopener" style="color: var(--primary); text-decoration: underline;">Anthropic Console</a>. Kept strictly on the backend.</span>
+                  <!-- Optional Collapsible for advanced users only -->
+                  <details style="margin-top: 1rem;">
+                    <summary style="cursor: pointer; font-size: 0.825rem; color: var(--text-muted); font-weight: 500;">⚙️ Advanced Options: Connect Your Own Anthropic API Key (Optional)</summary>
+                    <div style="margin-top: 0.75rem; padding: 1rem; background: rgba(30, 41, 59, 0.45); border-radius: var(--radius); border: 1px solid var(--border);">
+                      <p class="text-xs text-muted" style="margin-bottom: 0.75rem;">If you have your own Anthropic Claude account, you can route queries through Claude 3.5 Sonnet. Not required for normal operation.</p>
+                      <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.8rem;">Anthropic API Key</label>
+                        <input type="password" id="settings-anthropic-key" class="form-input" placeholder="sk-ant-api03-... (optional)">
+                      </div>
+                      <div class="form-group" style="margin-bottom: 0;">
+                        <label style="font-size: 0.8rem;">Model Selection</label>
+                        <select id="settings-anthropic-model" class="form-select">
+                          <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet (Recommended)</option>
+                          <option value="claude-3-haiku-20240307">Claude 3 Haiku (Fastest)</option>
+                        </select>
+                      </div>
+                    </div>
+                  </details>
+                </div>
+
+                <hr style="border: none; border-top: 1px solid var(--border);">
+
+                <!-- Interactive AI Voice & Chat Assistant Section -->
+                <div>
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <div style="display: flex; align-items: center; gap: 0.6rem;">
+                      <span style="font-size: 1.4rem;">🎙️</span>
+                      <div>
+                        <h3 style="font-size: 1.15rem; font-weight: 600; margin: 0;">Ask ReviewPilot AI Assistant</h3>
+                        <p class="text-xs text-muted" style="margin: 0;">Speak via your microphone or type your question for instant advice.</p>
+                      </div>
+                    </div>
+                    <span class="badge badge-positive" style="font-size: 0.75rem;">● Online & Free</span>
+                  </div>
+
+                  <!-- Assistant Chat Box -->
+                  <div style="background: rgba(12, 26, 58, 0.7); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: var(--radius); overflow: hidden; margin-top: 1rem;">
+                    <!-- Message Log -->
+                    <div id="settings-ai-messages" style="padding: 1rem; max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.65rem;">
+                      <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); padding: 0.75rem 1rem; border-radius: 10px; font-size: 0.875rem; color: #f8fafc; align-self: flex-start; max-width: 90%;">
+                        👋 Hi! Tell me or ask me about any issue:
+                        <ul style="margin: 0.4rem 0 0.2rem 1.2rem; font-size: 0.825rem; color: #cbd5e1;">
+                          <li>"How should I respond to a customer complaining about food/wait times?"</li>
+                          <li>"How can I turn a 1-star review into a positive customer?"</li>
+                          <li>"How do Telegram and email alerts work?"</li>
+                        </ul>
+                      </div>
                     </div>
 
-                    <div class="form-group">
-                      <label>Claude Model</label>
-                      <select id="settings-anthropic-model" class="form-select">
-                        <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet (Recommended — Highest Quality & Tone)</option>
-                        <option value="claude-3-haiku-20240307">Claude 3 Haiku (Fastest & Lightest)</option>
-                        <option value="claude-3-7-sonnet-20250219">Claude 3.7 Sonnet (Advanced Reasoning)</option>
-                      </select>
+                    <!-- Suggested Prompts -->
+                    <div id="settings-ai-suggestions" style="padding: 0.5rem 1rem; display: flex; flex-wrap: wrap; gap: 0.4rem; border-top: 1px solid rgba(56, 189, 248, 0.12); background: rgba(8, 17, 36, 0.5);">
+                      <button type="button" class="preset-pill ai-inline-preset" data-query="How do I handle a negative 1-star review?">😟 Handle 1-star review</button>
+                      <button type="button" class="preset-pill ai-inline-preset" data-query="How can I get more 5-star customer ratings?">⭐ Boost my ratings</button>
+                      <button type="button" class="preset-pill ai-inline-preset" data-query="What triggers an urgent alert in ReviewPilot?">🚨 Urgent alert triggers</button>
+                      <button type="button" class="preset-pill ai-inline-preset" data-query="How do Telegram and email notifications work?">🔔 Notification setup</button>
+                    </div>
+
+                    <!-- Input Bar with Mic Button -->
+                    <div style="padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; border-top: 1px solid rgba(56, 189, 248, 0.18); background: rgba(8, 17, 36, 0.9);">
+                      <input type="text" id="settings-ai-input" class="form-input" placeholder="Type or click the mic to speak your question..." style="flex: 1; font-size: 0.85rem;" autocomplete="off">
+                      
+                      <button type="button" id="settings-ai-mic-btn" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45rem 0.85rem; border-color: rgba(56, 189, 248, 0.4);" title="Speak using microphone">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                        <span id="settings-ai-mic-label">Speak</span>
+                      </button>
+
+                      <button type="button" id="settings-ai-send-btn" class="btn btn-primary btn-sm" style="padding: 0.45rem 0.95rem;">
+                        Send
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1104,7 +1195,7 @@
                   <span class="badge badge-negative">GDPR / Privacy Compliant</span>
                 </div>
                 <p class="text-sm text-muted">
-                  Permanently erase all your personal data, stored customer reviews, drafted replies, Telegram configuration, and Anthropic API credentials from the system. This action is irreversible.
+                  Permanently erase all your personal data, stored customer reviews, drafted replies, and notification settings from the system. This action is irreversible.
                 </p>
                 <div>
                   <button type="button" class="btn btn-outline-danger" id="delete-all-data-btn">

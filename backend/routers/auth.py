@@ -1,6 +1,6 @@
 import uuid
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Request, Depends, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -166,7 +166,7 @@ async def login_account(payload: UserLoginRequest, request: Request):
         # Temporary lock on 5 failed attempts (5-minute lock)
         new_lock = None
         if failed_attempts >= 5:
-            new_lock = (datetime.utcnow() + datetime.timedelta(minutes=5)).isoformat()
+            new_lock = (datetime.utcnow() + timedelta(minutes=5)).isoformat()
 
         update_failed_login(user_id, failed_attempts, new_lock)
 

@@ -12,7 +12,10 @@ async def fetch_settings():
     db_key = get_setting("anthropic_api_key")
     db_token = get_setting("telegram_bot_token")
     db_chat_id = get_setting("telegram_chat_id")
+    db_phone = get_setting("telegram_phone")
     db_alerts = get_setting("telegram_alerts_enabled")
+    db_email_alerts = get_setting("email_notifications_enabled")
+    db_notif_email = get_setting("notification_email")
     db_b_name = get_setting("business_name")
     db_b_type = get_setting("business_type")
     db_model = get_setting("anthropic_model")
@@ -21,13 +24,17 @@ async def fetch_settings():
     eff_token = db_token or settings.telegram_bot_token
     eff_chat_id = db_chat_id or settings.telegram_chat_id
     eff_alerts = (db_alerts.lower() in ("true", "1", "yes")) if db_alerts is not None else settings.telegram_alerts_enabled
+    eff_email_alerts = (db_email_alerts.lower() in ("true", "1", "yes")) if db_email_alerts is not None else True
 
     return SettingsResponse(
         has_anthropic_key=bool(eff_key and not eff_key.startswith("your_anthropic_api_key")),
         anthropic_model=db_model or settings.anthropic_model,
         telegram_alerts_enabled=eff_alerts,
-        telegram_bot_configured=bool(eff_token),
+        telegram_bot_configured=bool(eff_token or db_phone),
         telegram_chat_id=eff_chat_id,
+        telegram_phone=db_phone,
+        email_notifications_enabled=eff_email_alerts,
+        notification_email=db_notif_email,
         business_name=db_b_name or settings.business_name,
         business_type=db_b_type or settings.business_type,
         environment=settings.environment
@@ -44,8 +51,14 @@ async def update_settings(payload: SettingsPayload):
         set_setting("telegram_bot_token", payload.telegram_bot_token.strip())
     if payload.telegram_chat_id is not None:
         set_setting("telegram_chat_id", payload.telegram_chat_id.strip())
+    if payload.telegram_phone is not None:
+        set_setting("telegram_phone", payload.telegram_phone.strip())
     if payload.telegram_alerts_enabled is not None:
         set_setting("telegram_alerts_enabled", "true" if payload.telegram_alerts_enabled else "false")
+    if payload.email_notifications_enabled is not None:
+        set_setting("email_notifications_enabled", "true" if payload.email_notifications_enabled else "false")
+    if payload.notification_email is not None:
+        set_setting("notification_email", payload.notification_email.strip())
     if payload.business_name is not None:
         set_setting("business_name", payload.business_name.strip())
     if payload.business_type is not None:

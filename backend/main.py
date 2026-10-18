@@ -137,7 +137,7 @@ async def security_headers_and_rate_limit_middleware(request: Request, call_next
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-    response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+    response.headers["Permissions-Policy"] = "geolocation=(), camera=()"
     response.headers["Content-Security-Policy"] = (
         "default-src 'self'; "
         "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
@@ -164,7 +164,9 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 # Include API Routers
 from backend.routers import auth as auth_router
+from backend.routers import ai_chat as ai_chat_router
 app.include_router(auth_router.router)
+app.include_router(ai_chat_router.router)
 app.include_router(reviews.router)
 app.include_router(settings_router.router)
 app.include_router(export.router)
