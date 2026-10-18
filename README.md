@@ -3,7 +3,14 @@
 > **Turn customer reviews into better relationships.**  
 > Analyze sentiment, generate thoughtful replies, and get alerted when a customer needs immediate attention.
 
-ReviewPilot is a production-ready, full-stack web application designed for small businesses—including cafes, restaurants, salons, gyms, and retail stores—to rapidly process batches of customer reviews, understand root cause topics, draft contextual replies, and receive instant push notifications when high-risk or urgent feedback is detected.
+[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-blue?logo=github)](https://github.com/jeevandj2008s-byte/reviewpilot-ai)
+[![Deployment](https://img.shields.io/badge/Render-Live%20Deploy-success?logo=render)](https://reviewpilot-web.onrender.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+
+**Live Web Application URL:** [https://reviewpilot-web.onrender.com](https://reviewpilot-web.onrender.com)  
+**GitHub Repository:** [https://github.com/jeevandj2008s-byte/reviewpilot-ai](https://github.com/jeevandj2008s-byte/reviewpilot-ai)
+
+ReviewPilot is a production-ready, full-stack web application designed for small businesses—including cafes, restaurants, salons, gyms, and retail stores—to rapidly process batches of customer reviews, understand root cause topics, draft contextual replies, and receive instant push notifications when high-risk or urgent feedback is detected. Zero technical setup, zero API keys required for core review analysis!
 
 ---
 
