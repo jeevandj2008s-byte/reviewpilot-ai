@@ -26,6 +26,12 @@ class ReviewAnalysis(BaseModel):
     generated_reply: str
     telegram_sent: bool = False
     created_at: str
+    platform: Optional[str] = "manual"
+    platform_review_id: Optional[str] = None
+    platform_location_id: Optional[str] = None
+    author_name: Optional[str] = None
+    star_rating: Optional[float] = None
+    published_at: Optional[str] = None
 
 class AnalyzeBatchRequest(BaseModel):
     reviews: List[str] = Field(..., max_length=20, min_length=1, description="Up to 20 reviews, one per entry")
@@ -78,6 +84,7 @@ class SettingsPayload(BaseModel):
     notification_email: Optional[str] = None
     business_name: Optional[str] = None
     business_type: Optional[str] = None
+    business_timezone: Optional[str] = None
 
 class SettingsResponse(BaseModel):
     has_anthropic_key: bool
@@ -90,6 +97,7 @@ class SettingsResponse(BaseModel):
     notification_email: Optional[str] = None
     business_name: str
     business_type: str
+    business_timezone: str = "UTC"
     environment: str
 
 class TelegramTestRequest(BaseModel):
@@ -136,4 +144,61 @@ class AuthResponse(BaseModel):
     token_type: str = "bearer"
     user: UserProfile
 
+# Platform Connection & Automatic Sync Models
+class PlatformLocation(BaseModel):
+    id: str
+    platform_location_id: str
+    location_name: str
+    address: Optional[str] = None
+    is_selected: bool = False
 
+class PlatformConnection(BaseModel):
+    id: str
+    platform: str # 'google', 'yelp', 'tripadvisor'
+    account_id: Optional[str] = None
+    account_name: Optional[str] = None
+    location_id: Optional[str] = None
+    location_name: Optional[str] = None
+    status: str = "connected" # 'connected', 'expired', 'error', 'disconnected'
+    last_synced_at: Optional[str] = None
+    last_sync_count: int = 0
+    error_message: Optional[str] = None
+    created_at: str
+    updated_at: str
+    available_locations: List[PlatformLocation] = []
+
+class SelectLocationRequest(BaseModel):
+    location_id: str
+    location_name: Optional[str] = None
+
+class SyncReviewsRequest(BaseModel):
+    period: str = Field(default="7d", description="Allowed: '2d', '7d', '14d', '30d', 'custom'")
+    start_date: Optional[str] = Field(default=None, description="ISO date YYYY-MM-DD for custom range")
+    end_date: Optional[str] = Field(default=None, description="ISO date YYYY-MM-DD for custom range")
+    tone: ReplyTone = ReplyTone.FRIENDLY
+    notify_telegram: bool = True
+
+class SyncReviewsResponse(BaseModel):
+    status: str
+    platform: str
+    location_id: Optional[str] = None
+    period: str
+    start_date: str
+    end_date: str
+    total_fetched: int
+    new_analyzed: int
+    already_existing: int
+    urgent_count: int
+    telegram_sent_count: int
+    results: List[ReviewAnalysis]
+    message: str
+
+class ConnectApiKeyRequest(BaseModel):
+    platform: str = Field(..., description="'yelp' or 'tripadvisor'")
+    api_key: Optional[str] = Field(default=None, description="Platform API key if custom")
+    business_id: str = Field(..., description="Yelp Business ID/Alias or TripAdvisor Location ID")
+    business_name: Optional[str] = None
+
+class GoogleAuthUrlResponse(BaseModel):
+    auth_url: str
+    state: str

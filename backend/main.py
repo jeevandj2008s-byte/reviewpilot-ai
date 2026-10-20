@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from backend.config import settings
 from backend.database import init_db
-from backend.routers import reviews, settings as settings_router, export
+from backend.routers import reviews, settings as settings_router, export, platforms as platforms_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -67,7 +67,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization", "Accept", "X-Requested-With"],
 )
 
@@ -92,7 +92,7 @@ async def security_headers_and_rate_limit_middleware(request: Request, call_next
                 content={"detail": "Too many account registrations from this IP. Please try again later."}
             )
 
-    # Rate limiting on write/sensitive routes (Settings, Telegram test ping, Batch analysis)
+    # Rate limiting on write/sensitive routes (Settings, Telegram test ping, Batch analysis, Platform Sync)
     if path == "/api/telegram/test" and request.method == "POST":
         if not check_rate_limit(client_ip, "telegram_test", max_attempts=5, window_seconds=60):
             return JSONResponse(
@@ -112,6 +112,14 @@ async def security_headers_and_rate_limit_middleware(request: Request, call_next
             return JSONResponse(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 content={"detail": "Rate limit exceeded for review batch analysis. Please try again shortly."}
+            )
+
+    # Rate limiting on platform review synchronization (prevents hammering external APIs)
+    if "/api/platforms/" in path and path.endswith("/sync") and request.method == "POST":
+        if not check_rate_limit(client_ip, "platform_sync", max_attempts=10, window_seconds=60):
+            return JSONResponse(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                content={"detail": "Too many sync requests. Please wait a moment before synchronizing reviews again."}
             )
 
     # Protection against catastrophic data wipe abuse
@@ -144,7 +152,7 @@ async def security_headers_and_rate_limit_middleware(request: Request, call_next
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
         "font-src 'self' https://fonts.gstatic.com; "
         "img-src 'self' data: https:; "
-        "connect-src 'self' https://api.anthropic.com https://api.telegram.org; "
+        "connect-src 'self' https://api.anthropic.com https://api.telegram.org https://accounts.google.com https://mybusiness.googleapis.com; "
         "frame-ancestors 'none';"
     )
 
@@ -170,6 +178,7 @@ app.include_router(ai_chat_router.router)
 app.include_router(reviews.router)
 app.include_router(settings_router.router)
 app.include_router(export.router)
+app.include_router(platforms_router.router)
 
 @app.get("/health")
 async def health_check():
@@ -205,4 +214,3 @@ if os.path.exists(frontend_dir):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("backend.main:app", host=settings.host, port=settings.port, reload=True)
-

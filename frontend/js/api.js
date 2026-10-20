@@ -159,6 +159,42 @@ const API = {
     });
   },
 
+  // Review Platform Integrations
+  async getPlatformConnections() {
+    return this.request('/api/platforms/connections');
+  },
+
+  async getGoogleAuthUrl() {
+    return this.request('/api/platforms/google/auth-url');
+  },
+
+  async setPlatformLocation(connectionId, locationId, locationName) {
+    return this.request(`/api/platforms/${connectionId}/location`, {
+      method: 'PUT',
+      body: JSON.stringify({ location_id: locationId, location_name: locationName })
+    });
+  },
+
+  async syncPlatformReviews(connectionId, payload) {
+    return this.request(`/api/platforms/${connectionId}/sync`, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  async connectPlatformApiKey(payload) {
+    return this.request('/api/platforms/connect/api-key', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  async disconnectPlatform(connectionId) {
+    return this.request(`/api/platforms/${connectionId}`, {
+      method: 'DELETE'
+    });
+  },
+
   // Export URLs
   getExportCsvUrl() {
     return '/api/export/csv';
@@ -168,5 +204,3 @@ const API = {
     return '/api/export/json';
   }
 };
-
-
