@@ -244,6 +244,33 @@ def get_reviews(
     
     return [_row_to_review_analysis(r) for r in rows]
 
+def get_reviews_by_timeframe(
+    start_iso: str,
+    end_iso: str,
+    platform: Optional[str] = None
+) -> List[ReviewAnalysis]:
+    """Retrieves all reviews within a specific ISO datetime window, optionally filtered by platform."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    
+    query = """
+        SELECT * FROM reviews 
+        WHERE COALESCE(published_at, created_at) >= ? 
+          AND COALESCE(published_at, created_at) <= ?
+    """
+    params = [start_iso, end_iso]
+    
+    if platform and platform.lower() not in ["all", "none"]:
+        query += " AND platform = ?"
+        params.append(platform.lower().strip())
+        
+    query += " ORDER BY COALESCE(published_at, created_at) DESC"
+    
+    cursor.execute(query, params)
+    rows = cursor.fetchall()
+    conn.close()
+    return [_row_to_review_analysis(r) for r in rows]
+
 def get_review_by_id(review_id: str) -> Optional[ReviewAnalysis]:
     conn = get_connection()
     cursor = conn.cursor()

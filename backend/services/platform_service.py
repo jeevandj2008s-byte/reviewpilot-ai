@@ -1,3 +1,5 @@
+import json
+import time
 import asyncio
 import logging
 import secrets
@@ -573,6 +575,189 @@ async def fetch_tripadvisor_reviews_for_period(
 
     return collected
 
+
+
+# ==========================================
+# Apple App Store Connect API
+# ==========================================
+
+def generate_apple_jwt(issuer_id: str, key_id: str, private_key: str) -> str:
+    """Generates official ES256 signed JWT for App Store Connect API."""
+    import jwt
+    clean_pk = private_key.strip()
+    if "-----BEGIN PRIVATE KEY-----" not in clean_pk:
+        clean_pk = f"-----BEGIN PRIVATE KEY-----\n{clean_pk}\n-----END PRIVATE KEY-----"
+
+    payload = {
+        "iss": issuer_id,
+        "exp": int(time.time()) + 1200,  # 20 minutes maximum
+        "aud": "appstoreconnect-v1"
+    }
+    headers = {
+        "alg": "ES256",
+        "kid": key_id,
+        "typ": "JWT"
+    }
+    return jwt.encode(payload, clean_pk, algorithm="ES256", headers=headers)
+
+async def fetch_apple_app_store_reviews(
+    app_id: str,
+    issuer_id: str,
+    key_id: str,
+    private_key: str,
+    start_dt: datetime,
+    end_dt: datetime
+) -> List[Dict[str, Any]]:
+    """
+    Fetches customer reviews from Apple App Store Connect API:
+    Endpoint: https://api.appstoreconnect.apple.com/v1/apps/{appId}/customerReviews
+    """
+    collected: List[Dict[str, Any]] = []
+    
+    try:
+        jwt_token = generate_apple_jwt(issuer_id, key_id, private_key)
+    except Exception as e:
+        logger.error(f"Failed to generate Apple ES256 JWT: {e}")
+        raise ValueError(f"Invalid Apple App Store Connect credentials: {e}")
+
+    url = f"https://api.appstoreconnect.apple.com/v1/apps/{app_id}/customerReviews?sort=-createdDate&limit=50"
+    headers = {
+        "Authorization": f"Bearer {jwt_token}",
+        "Accept": "application/json"
+    }
+
+    async with httpx.AsyncClient(timeout=20.0) as client:
+        resp = await client.get(url, headers=headers)
+        if resp.status_code in (401, 403):
+            raise PermissionError("Apple App Store Connect authorization failed. Please verify Issuer ID, Key ID, and .p8 Private Key.")
+        if resp.status_code == 404:
+            raise ValueError(f"Apple App ID '{app_id}' was not found on App Store Connect.")
+        if resp.status_code != 200:
+            logger.error(f"Apple App Store Connect API returned {resp.status_code}: {resp.text}")
+            raise RuntimeError(f"Apple App Store Connect API error: {resp.status_code}")
+
+        data = resp.json()
+        for item in data.get("data", []):
+            attrs = item.get("attributes", {})
+            created_str = attrs.get("createdDate")
+            pub_dt = parse_iso_datetime(created_str)
+            
+            if start_dt <= pub_dt <= end_dt:
+                title = attrs.get("title", "")
+                body = attrs.get("body", "")
+                full_text = f"{title}. {body}".strip() if title else body.strip()
+                if full_text:
+                    collected.append({
+                        "platform_review_id": str(item.get("id")),
+                        "review_text": full_text,
+                        "author_name": attrs.get("reviewerNickname", "App Store Customer"),
+                        "star_rating": float(attrs.get("rating", 5.0)),
+                        "published_at": pub_dt.isoformat()
+                    })
+
+    return collected
+
+# ==========================================
+# Google Play Developer API
+# ==========================================
+
+async def get_google_play_access_token(service_account_json_str: str) -> str:
+    """
+    Exchanges Google Play service account JSON for an OAuth2 access token
+    with 'https://www.googleapis.com/auth/androidpublisher' scope.
+    """
+    import jwt
+    try:
+        sa_data = json.loads(service_account_json_str)
+    except Exception as e:
+        raise ValueError(f"Invalid Google Play service account JSON: {e}")
+
+    client_email = sa_data.get("client_email")
+    private_key = sa_data.get("private_key")
+    token_uri = sa_data.get("token_uri") or "https://oauth2.googleapis.com/token"
+
+    if not client_email or not private_key:
+        raise ValueError("Google Play service account JSON missing 'client_email' or 'private_key'.")
+
+    now_ts = int(time.time())
+    payload = {
+        "iss": client_email,
+        "scope": "https://www.googleapis.com/auth/androidpublisher",
+        "aud": token_uri,
+        "exp": now_ts + 3600,
+        "iat": now_ts
+    }
+
+    signed_jwt = jwt.encode(payload, private_key, algorithm="RS256")
+
+    async with httpx.AsyncClient(timeout=15.0) as client:
+        token_payload = {
+            "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+            "assertion": signed_jwt
+        }
+        resp = await client.post(token_uri, data=token_payload)
+        if resp.status_code != 200:
+            logger.error(f"Google Play OAuth exchange failed ({resp.status_code}): {resp.text}")
+            raise PermissionError(f"Google Play service account authorization failed: {resp.text}")
+
+        return resp.json().get("access_token")
+
+async def fetch_google_play_reviews(
+    package_name: str,
+    service_account_json_str: str,
+    start_dt: datetime,
+    end_dt: datetime
+) -> List[Dict[str, Any]]:
+    """
+    Fetches customer reviews from Google Play Developer API (Android Publisher):
+    Endpoint: https://androidpublisher.googleapis.com/androidpublisher/v3/applications/{packageName}/reviews
+    """
+    access_token = await get_google_play_access_token(service_account_json_str)
+    url = f"https://androidpublisher.googleapis.com/androidpublisher/v3/applications/{package_name}/reviews?maxResults=50"
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Accept": "application/json"
+    }
+
+    collected: List[Dict[str, Any]] = []
+    async with httpx.AsyncClient(timeout=20.0) as client:
+        resp = await client.get(url, headers=headers)
+        if resp.status_code in (401, 403):
+            raise PermissionError("Google Play Developer API access denied. Ensure Android Publisher API is enabled.")
+        if resp.status_code == 404:
+            raise ValueError(f"Package '{package_name}' not found in Google Play Console.")
+        if resp.status_code != 200:
+            logger.error(f"Google Play reviews fetch error ({resp.status_code}): {resp.text}")
+            raise RuntimeError(f"Google Play API error: {resp.status_code}")
+
+        data = resp.json()
+        for rev in data.get("reviews", []):
+            rev_id = rev.get("reviewId")
+            author = rev.get("authorName", "Google Play User")
+            comments = rev.get("comments", [])
+            for c in comments:
+                user_comment = c.get("userComment", {})
+                text = user_comment.get("text", "").strip()
+                star = float(user_comment.get("starRating", 5.0))
+                last_mod = user_comment.get("lastModified", {})
+                sec = last_mod.get("seconds")
+                
+                if sec:
+                    pub_dt = datetime.fromtimestamp(int(sec), tz=timezone.utc)
+                else:
+                    pub_dt = datetime.now(timezone.utc)
+
+                if start_dt <= pub_dt <= end_dt and text:
+                    collected.append({
+                        "platform_review_id": str(rev_id),
+                        "review_text": text,
+                        "author_name": author,
+                        "star_rating": star,
+                        "published_at": pub_dt.isoformat()
+                    })
+
+    return collected
+
 # ==========================================
 # Unified Synchronization & AI Analysis Pipeline
 # ==========================================
@@ -610,6 +795,32 @@ async def sync_platform_reviews(
     elif platform == "tripadvisor":
         loc_id = conn.get("location_id") or conn.get("account_id")
         raw_reviews = await fetch_tripadvisor_reviews_for_period(loc_id, None, start_dt, end_dt)
+    elif platform in ("apple_app_store", "apple"):
+        enc_token = conn.get("encrypted_access_token")
+        if not enc_token:
+            raise ValueError("Apple App Store credentials missing.")
+        raw_creds = json.loads(decrypt_token(enc_token))
+        app_id = conn.get("location_id") or conn.get("account_id")
+        raw_reviews = await fetch_apple_app_store_reviews(
+            app_id=app_id,
+            issuer_id=raw_creds["issuer_id"],
+            key_id=raw_creds["key_id"],
+            private_key=raw_creds["private_key"],
+            start_dt=start_dt,
+            end_dt=end_dt
+        )
+    elif platform in ("google_play", "play_store"):
+        enc_token = conn.get("encrypted_access_token")
+        if not enc_token:
+            raise ValueError("Google Play Developer credentials missing.")
+        raw_creds = json.loads(decrypt_token(enc_token))
+        package_name = conn.get("location_id") or conn.get("account_id")
+        raw_reviews = await fetch_google_play_reviews(
+            package_name=package_name,
+            service_account_json_str=raw_creds["service_account_json"],
+            start_dt=start_dt,
+            end_dt=end_dt
+        )
     else:
         raise ValueError(f"Unsupported review platform: {platform}")
 

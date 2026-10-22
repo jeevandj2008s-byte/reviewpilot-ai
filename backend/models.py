@@ -202,3 +202,64 @@ class ConnectApiKeyRequest(BaseModel):
 class GoogleAuthUrlResponse(BaseModel):
     auth_url: str
     state: str
+
+
+# Timeframe Analysis & Natural Language Models
+class TimeframeAnalysisRequest(BaseModel):
+    timeframe: str = Field(default="past two days", description="Natural language timeframe e.g. 'past two days', 'last one week', 'past one month' or custom date range")
+    start_date: Optional[str] = Field(default=None, description="Optional ISO start date YYYY-MM-DD")
+    end_date: Optional[str] = Field(default=None, description="Optional ISO end date YYYY-MM-DD")
+    platform: Optional[str] = Field(default=None, description="'google', 'apple_app_store', 'google_play', or null for all")
+    business_name: Optional[str] = None
+    business_type: Optional[str] = None
+
+class ActionableCorrection(BaseModel):
+    area: str
+    issue: str
+    action_plan: str
+    priority: str = "High"
+
+class TimeframeAnalysisResponse(BaseModel):
+    timeframe_query: str
+    start_date: str
+    end_date: str
+    total_reviews: int
+    positive_count: int
+    neutral_count: int
+    negative_count: int
+    urgent_count: int
+    positive_percentage: float
+    neutral_percentage: float
+    negative_percentage: float
+    negative_feedback_points: List[str] = []
+    actionable_corrections: List[str] = []
+    detailed_corrections: List[ActionableCorrection] = []
+    recent_reviews: List[ReviewAnalysis] = []
+    executive_summary: str
+
+# App Store & Play Store Connection Models
+class ConnectAppleAppStoreRequest(BaseModel):
+    issuer_id: str = Field(..., description="App Store Connect Issuer ID")
+    key_id: str = Field(..., description="App Store Connect Key ID")
+    private_key: str = Field(..., description="ES256 Private Key content (.p8 string)")
+    app_id: str = Field(..., description="Apple App Store App ID (numeric)")
+    app_name: Optional[str] = None
+
+class ConnectGooglePlayRequest(BaseModel):
+    package_name: str = Field(..., description="Android application package name e.g. com.example.app")
+    service_account_json: str = Field(..., description="Google Play Developer Service Account JSON string")
+    app_name: Optional[str] = None
+
+# Voice Bot STT/TTS Models
+class VoiceBotRequest(BaseModel):
+    audio_base64: Optional[str] = Field(default=None, description="Base64 encoded audio string (WebM/WAV/MP3)")
+    text_message: Optional[str] = Field(default=None, description="Optional text query if text-in")
+    context: Optional[str] = None
+    voice: Optional[str] = None
+
+class VoiceBotResponse(BaseModel):
+    user_transcript: str
+    reply_text: str
+    audio_base64: Optional[str] = None
+    mime_type: str = "audio/mp3"
+    suggestions: List[str] = []

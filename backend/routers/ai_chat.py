@@ -1,19 +1,26 @@
+import json
+import base64
 import logging
 from typing import Optional, List
 from pydantic import BaseModel, Field
-from fastapi import APIRouter
+from fastapi import APIRouter, File, UploadFile, WebSocket, WebSocketDisconnect, HTTPException, status
 from backend.database import get_stats, get_setting
+from backend.models import VoiceBotRequest, VoiceBotResponse
+from backend.services.voice_service import process_voice_query, synthesize_speech, transcribe_audio
 
 logger = logging.getLogger("reviewpilot.ai_chat")
-router = APIRouter(prefix="/api/ai", tags=["AI Assistant"])
+router = APIRouter(prefix="/api/ai", tags=["AI Assistant & Voice Bot"])
 
 class AIChatRequest(BaseModel):
     message: str = Field(..., min_length=1, max_length=1000)
     context: Optional[str] = None
+    synthesize_voice: bool = Field(default=True, description="Whether to include neural speech audio in response")
 
 class AIChatResponse(BaseModel):
     reply: str
     suggestions: List[str] = []
+    audio_base64: Optional[str] = None
+    mime_type: Optional[str] = "audio/mp3"
 
 @router.post("/chat", response_model=AIChatResponse)
 async def chat_with_assistant(payload: AIChatRequest):
@@ -21,7 +28,7 @@ async def chat_with_assistant(payload: AIChatRequest):
     Intelligent built-in AI assistant for small business owners.
     Provides advice on review management, tips on handling negative reviews,
     operational improvements, and guidance on using ReviewPilot features.
-    100% Free - zero external billing or API keys required.
+    Synthesizes neural speech audio for seamless voice-out responses.
     """
     msg = payload.message.lower().strip()
     biz_name = get_setting("business_name") or payload.context or "your business"
@@ -157,5 +164,134 @@ async def chat_with_assistant(payload: AIChatRequest):
             "How does the AI work?"
         ]
 
-    return AIChatResponse(reply=reply, suggestions=suggestions)
+    # Optional speech synthesis for voice out
+    audio_b64 = None
+    mime_type = "audio/mp3"
+    if payload.synthesize_voice:
+        try:
+            audio_bytes, mime = await synthesize_speech(reply)
+            audio_b64 = base64.b64encode(audio_bytes).decode("utf-8")
+            mime_type = mime
+        except Exception as e:
+            logger.warning(f"Speech synthesis notice in /chat: {e}")
 
+    return AIChatResponse(
+        reply=reply,
+        suggestions=suggestions,
+        audio_base64=audio_b64,
+        mime_type=mime_type
+    )
+
+# ==========================================
+# Full Voice-In / Voice-Out Endpoint
+# ==========================================
+
+@router.post("/voice", response_model=VoiceBotResponse)
+async def process_voice_interaction(
+    payload: Optional[VoiceBotRequest] = None,
+    audio_file: Optional[UploadFile] = File(None)
+):
+    """
+    Robust Speech-to-Text (STT) and Text-to-Speech (TTS) Voice Bot Pipeline:
+    1. STT: Transcribes incoming audio streams (WebM / WAV / MP3) using Whisper API or fallback.
+    2. Conversational Engine: Formulates context-aware reply based on business reviews.
+    3. TTS: Synthesizes high-fidelity speech using ElevenLabs or Neural Edge-TTS.
+    4. Returns user transcript, assistant response, and zero-latency base64 audio payload.
+    """
+    audio_bytes: Optional[bytes] = None
+
+    if audio_file:
+        audio_bytes = await audio_file.read()
+    elif payload and payload.audio_base64:
+        try:
+            audio_bytes = base64.b64decode(payload.audio_base64)
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid base64 audio payload: {e}")
+
+    text_msg = payload.text_message if payload else None
+    biz_ctx = payload.context if payload else None
+    voice_pref = payload.voice if payload else None
+
+    result = await process_voice_query(
+        audio_bytes=audio_bytes,
+        text_message=text_msg,
+        business_context=biz_ctx,
+        voice_name=voice_pref
+    )
+
+    return VoiceBotResponse(
+        user_transcript=result["user_transcript"],
+        reply_text=result["reply_text"],
+        audio_base64=result["audio_base64"],
+        mime_type=result["mime_type"],
+        suggestions=result.get("suggestions", [])
+    )
+
+# ==========================================
+# Real-Time Streaming Audio WebSocket
+# ==========================================
+
+@router.websocket("/voice/ws")
+@router.websocket("/ws/voice")
+async def voice_websocket_stream(websocket: WebSocket):
+    """
+    Real-time bidirectional WebSocket stream for voice bot:
+    - Accepts continuous audio frames or JSON messages.
+    - Streams back STT transcriptions and TTS voice-out replies in real-time.
+    """
+    await websocket.accept()
+    logger.info("Voice WebSocket client connected successfully.")
+
+    try:
+        while True:
+            message = await websocket.receive()
+            
+            # Binary audio stream from browser MediaRecorder
+            if "bytes" in message and message["bytes"]:
+                raw_bytes = message["bytes"]
+                res = await process_voice_query(audio_bytes=raw_bytes)
+                await websocket.send_json({
+                    "type": "voice_response",
+                    "user_transcript": res["user_transcript"],
+                    "reply_text": res["reply_text"],
+                    "audio_base64": res["audio_base64"],
+                    "mime_type": res["mime_type"],
+                    "suggestions": res.get("suggestions", [])
+                })
+
+            # JSON message containing base64 audio or text query
+            elif "text" in message and message["text"]:
+                try:
+                    payload = json.loads(message["text"])
+                    b64_audio = payload.get("audio_base64")
+                    raw_bytes = base64.b64decode(b64_audio) if b64_audio else None
+                    text_msg = payload.get("text") or payload.get("message")
+                    biz_ctx = payload.get("context")
+
+                    res = await process_voice_query(
+                        audio_bytes=raw_bytes,
+                        text_message=text_msg,
+                        business_context=biz_ctx
+                    )
+                    await websocket.send_json({
+                        "type": "voice_response",
+                        "user_transcript": res["user_transcript"],
+                        "reply_text": res["reply_text"],
+                        "audio_base64": res["audio_base64"],
+                        "mime_type": res["mime_type"],
+                        "suggestions": res.get("suggestions", [])
+                    })
+                except json.JSONDecodeError:
+                    res = await process_voice_query(text_message=message["text"])
+                    await websocket.send_json({
+                        "type": "voice_response",
+                        "user_transcript": res["user_transcript"],
+                        "reply_text": res["reply_text"],
+                        "audio_base64": res["audio_base64"],
+                        "mime_type": res["mime_type"],
+                        "suggestions": res.get("suggestions", [])
+                    })
+    except WebSocketDisconnect:
+        logger.info("Voice WebSocket client disconnected.")
+    except Exception as exc:
+        logger.warning(f"Voice WebSocket stream notice: {exc}")

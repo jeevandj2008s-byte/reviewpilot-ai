@@ -36,6 +36,22 @@ class Settings(BaseSettings):
     tripadvisor_api_key: Optional[str] = Field(default=None, alias="TRIPADVISOR_API_KEY")
     token_encryption_key: Optional[str] = Field(default=None, alias="TOKEN_ENCRYPTION_KEY")
 
+    # Apple App Store Connect API Credentials
+    apple_issuer_id: Optional[str] = Field(default=None, alias="APPLE_ISSUER_ID")
+    apple_key_id: Optional[str] = Field(default=None, alias="APPLE_KEY_ID")
+    apple_private_key: Optional[str] = Field(default=None, alias="APPLE_PRIVATE_KEY")
+    apple_app_id: Optional[str] = Field(default=None, alias="APPLE_APP_ID")
+
+    # Google Play Developer API Credentials
+    google_play_service_account_json: Optional[str] = Field(default=None, alias="GOOGLE_PLAY_SERVICE_ACCOUNT_JSON")
+    google_play_package_name: Optional[str] = Field(default=None, alias="GOOGLE_PLAY_PACKAGE_NAME")
+
+    # Voice Bot STT/TTS Configuration
+    openai_api_key: Optional[str] = Field(default=None, alias="OPENAI_API_KEY")
+    elevenlabs_api_key: Optional[str] = Field(default=None, alias="ELEVENLABS_API_KEY")
+    elevenlabs_voice_id: str = Field(default="21m00Tcm4TlvDq8ikWAM", alias="ELEVENLABS_VOICE_ID")
+    voice_bot_voice_name: str = Field(default="en-US-AriaNeural", alias="VOICE_BOT_VOICE_NAME")
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

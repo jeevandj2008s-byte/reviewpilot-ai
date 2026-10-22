@@ -160,6 +160,41 @@ const API = {
     });
   },
 
+  async aiVoice(payload) {
+    return this.request('/api/ai/voice', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  async analyzeTimeframe(payload) {
+    return this.request('/api/reviews/timeframe-analysis', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  async connectAppleAppStore(payload) {
+    return this.request('/api/platforms/connect/apple', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  async connectGooglePlay(payload) {
+    return this.request('/api/platforms/connect/google-play', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  async analyzePlatformTimeframe(connectionId, payload) {
+    return this.request(`/api/platforms/${connectionId}/analyze-timeframe`, {
+      method: 'POST',
+      body: JSON.stringify(payload || {})
+    });
+  },
+
   // Review Platform Integrations
   async getPlatformConnections() {
     return this.request('/api/platforms/connections');

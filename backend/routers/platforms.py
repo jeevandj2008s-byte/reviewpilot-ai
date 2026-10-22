@@ -1,3 +1,4 @@
+import json
 import logging
 import uuid
 from typing import List, Optional, Dict, Any
@@ -21,7 +22,11 @@ from backend.models import (
     SyncReviewsRequest,
     SyncReviewsResponse,
     ConnectApiKeyRequest,
-    GoogleAuthUrlResponse
+    GoogleAuthUrlResponse,
+    ConnectAppleAppStoreRequest,
+    ConnectGooglePlayRequest,
+    TimeframeAnalysisRequest,
+    TimeframeAnalysisResponse
 )
 from backend.services.platform_service import (
     generate_google_auth_url,
@@ -31,6 +36,7 @@ from backend.services.platform_service import (
     get_effective_google_credentials
 )
 from backend.services.crypto_service import encrypt_token
+from backend.services.timeframe_service import analyze_timeframe_reviews
 
 logger = logging.getLogger("reviewpilot.platforms_router")
 router = APIRouter(prefix="/api/platforms", tags=["Platform Integrations"])
@@ -315,4 +321,176 @@ async def disconnect_platform(connection_id: str):
     if not deleted:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Platform connection not found.")
     return {"status": "success", "message": "Platform disconnected successfully."}
+@router.post("/connect/apple", response_model=PlatformConnection)
+async def connect_apple_app_store(payload: ConnectAppleAppStoreRequest):
+    """
+    Connects Apple App Store Connect via official API credentials.
+    Generates ES256 JWT using issuer_id, key_id, and .p8 private key to fetch customer reviews.
+    Securely stores encrypted credentials server-side.
+    """
+    if not payload.issuer_id or not payload.key_id or not payload.private_key or not payload.app_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Missing required Apple App Store Connect credentials (issuer_id, key_id, private_key, app_id)."
+        )
 
+    conn_id = str(uuid.uuid4())
+    creds_json = json.dumps({
+        "issuer_id": payload.issuer_id.strip(),
+        "key_id": payload.key_id.strip(),
+        "private_key": payload.private_key.strip(),
+        "app_id": payload.app_id.strip()
+    })
+    enc_creds = encrypt_token(creds_json)
+    app_label = payload.app_name or f"Apple App ({payload.app_id})"
+
+    saved = save_platform_connection(
+        conn_id=conn_id,
+        platform="apple_app_store",
+        user_id=None,
+        account_id=payload.app_id.strip(),
+        account_name=app_label,
+        location_id=payload.app_id.strip(),
+        location_name=app_label,
+        encrypted_access_token=enc_creds,
+        encrypted_refresh_token=None,
+        token_expires_at=None,
+        scopes="appstoreconnect.customerReviews.read",
+        status="connected"
+    )
+
+    save_platform_locations(conn_id, [{
+        "id": f"loc_{conn_id[:8]}",
+        "platform_location_id": payload.app_id.strip(),
+        "location_name": app_label,
+        "address": "Official Apple App Store Connect Profile",
+        "is_selected": True
+    }])
+
+    return PlatformConnection(
+        id=saved["id"],
+        platform="apple_app_store",
+        account_id=saved.get("account_id"),
+        account_name=saved.get("account_name"),
+        location_id=saved.get("location_id"),
+        location_name=saved.get("location_name"),
+        status="connected",
+        last_synced_at=None,
+        last_sync_count=0,
+        error_message=None,
+        created_at=saved["created_at"],
+        updated_at=saved["updated_at"],
+        available_locations=[
+            PlatformLocation(
+                id=f"loc_{conn_id[:8]}",
+                platform_location_id=payload.app_id.strip(),
+                location_name=app_label,
+                address="Official Apple App Store Connect Profile",
+                is_selected=True
+            )
+        ]
+    )
+
+@router.post("/connect/google-play", response_model=PlatformConnection)
+async def connect_google_play(payload: ConnectGooglePlayRequest):
+    """
+    Connects Google Play Developer Console via official Service Account credentials.
+    Authenticates via RS256 JWT Bearer OAuth2 flow for the androidpublisher API.
+    Securely stores encrypted credentials server-side.
+    """
+    if not payload.package_name or not payload.service_account_json:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Missing required Google Play credentials (package_name, service_account_json)."
+        )
+
+    try:
+        json.loads(payload.service_account_json)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid service_account_json: {e}"
+        )
+
+    conn_id = str(uuid.uuid4())
+    creds_json = json.dumps({
+        "package_name": payload.package_name.strip(),
+        "service_account_json": payload.service_account_json.strip()
+    })
+    enc_creds = encrypt_token(creds_json)
+    app_label = payload.app_name or f"Google Play ({payload.package_name})"
+
+    saved = save_platform_connection(
+        conn_id=conn_id,
+        platform="google_play",
+        user_id=None,
+        account_id=payload.package_name.strip(),
+        account_name=app_label,
+        location_id=payload.package_name.strip(),
+        location_name=app_label,
+        encrypted_access_token=enc_creds,
+        encrypted_refresh_token=None,
+        token_expires_at=None,
+        scopes="androidpublisher.reviews.read",
+        status="connected"
+    )
+
+    save_platform_locations(conn_id, [{
+        "id": f"loc_{conn_id[:8]}",
+        "platform_location_id": payload.package_name.strip(),
+        "location_name": app_label,
+        "address": "Official Google Play Console Profile",
+        "is_selected": True
+    }])
+
+    return PlatformConnection(
+        id=saved["id"],
+        platform="google_play",
+        account_id=saved.get("account_id"),
+        account_name=saved.get("account_name"),
+        location_id=saved.get("location_id"),
+        location_name=saved.get("location_name"),
+        status="connected",
+        last_synced_at=None,
+        last_sync_count=0,
+        error_message=None,
+        created_at=saved["created_at"],
+        updated_at=saved["updated_at"],
+        available_locations=[
+            PlatformLocation(
+                id=f"loc_{conn_id[:8]}",
+                platform_location_id=payload.package_name.strip(),
+                location_name=app_label,
+                address="Official Google Play Console Profile",
+                is_selected=True
+            )
+        ]
+    )
+
+@router.post("/{connection_id}/analyze-timeframe", response_model=TimeframeAnalysisResponse)
+async def analyze_platform_timeframe(connection_id: str, payload: Optional[TimeframeAnalysisRequest] = None):
+    """
+    Synchronizes reviews for the selected timeframe from this connected platform,
+    then automatically calculates sentiment metrics, extracts negative feedback points,
+    and returns actionable operational corrections.
+    """
+    conn = get_platform_connection_by_id(connection_id)
+    if not conn:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Platform connection not found.")
+
+    timeframe_req = payload or TimeframeAnalysisRequest(timeframe="past two days")
+    timeframe_req.platform = conn["platform"]
+
+    # 1. First trigger platform sync for this timeframe window
+    try:
+        await sync_platform_reviews(
+            connection_id=connection_id,
+            period="custom" if (timeframe_req.start_date and timeframe_req.end_date) else "7d",
+            start_date=timeframe_req.start_date,
+            end_date=timeframe_req.end_date
+        )
+    except Exception as e:
+        logger.warning(f"Platform sync prior to analysis had notice: {e}")
+
+    # 2. Run timeframe analysis on reviews stored in that timeframe
+    return await analyze_timeframe_reviews(timeframe_req)

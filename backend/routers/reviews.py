@@ -21,6 +21,8 @@ from backend.database import (
 from backend.services.workflow import orchestrate_batch_workflow
 from backend.services.ai_service import analyze_single_review
 from backend.config import settings
+from backend.services.timeframe_service import analyze_timeframe_reviews
+from backend.models import TimeframeAnalysisRequest, TimeframeAnalysisResponse
 
 router = APIRouter(prefix="/api", tags=["Reviews"])
 
@@ -143,4 +145,38 @@ async def clear_reviews():
 async def get_dashboard_stats():
     """Fetches real-time dashboard analytics, sentiment ratios, and top complaints."""
     return get_stats()
+@router.post("/reviews/timeframe-analysis", response_model=TimeframeAnalysisResponse)
+async def analyze_timeframe(payload: TimeframeAnalysisRequest):
+    """
+    Dynamic Time-Based Filtering and Analysis:
+    - Accepts natural language timeframes ('past two days', 'last one week', 'past one month')
+      or explicit start_date and end_date.
+    - Fetches only the reviews from that specific period.
+    - Computes total reviews, positive/neutral/negative sentiment ratios.
+    - Returns summarized list of specific negative complaints and actionable operational corrections.
+    """
+    try:
+        return await analyze_timeframe_reviews(payload)
+    except Exception as exc:
+        import logging
+        logging.getLogger("reviewpilot.reviews").error(f"Timeframe analysis failed: {exc}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Timeframe analysis failed: {str(exc)}"
+        )
 
+@router.get("/reviews/timeframe-analysis", response_model=TimeframeAnalysisResponse)
+async def get_timeframe_analysis(
+    timeframe: str = Query(default="past two days", description="Natural language timeframe e.g. 'past two days', 'last one week', 'past one month'"),
+    platform: Optional[str] = Query(default=None, description="Optional platform filter"),
+    start_date: Optional[str] = Query(default=None, description="Optional YYYY-MM-DD start date"),
+    end_date: Optional[str] = Query(default=None, description="Optional YYYY-MM-DD end date")
+):
+    """GET variant for timeframe analysis with query string parameters."""
+    req = TimeframeAnalysisRequest(
+        timeframe=timeframe,
+        platform=platform,
+        start_date=start_date,
+        end_date=end_date
+    )
+    return await analyze_timeframe_reviews(req)

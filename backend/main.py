@@ -152,7 +152,8 @@ async def security_headers_and_rate_limit_middleware(request: Request, call_next
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
         "font-src 'self' https://fonts.gstatic.com; "
         "img-src 'self' data: https:; "
-        "connect-src 'self' https://api.anthropic.com https://api.telegram.org https://accounts.google.com https://mybusiness.googleapis.com; "
+        "media-src 'self' data: blob:; "
+        "connect-src 'self' ws: wss: https://api.anthropic.com https://api.openai.com https://api.elevenlabs.io https://api.telegram.org https://accounts.google.com https://mybusiness.googleapis.com https://api.appstoreconnect.apple.com https://androidpublisher.googleapis.com; "
         "frame-ancestors 'none';"
     )
 
