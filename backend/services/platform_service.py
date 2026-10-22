@@ -405,10 +405,36 @@ async def fetch_google_reviews_for_period(
     """
     Retrieves reviews from Google Business Profile API within the specified time period.
     Handles pagination (nextPageToken) and maps official review publication timestamps.
+    Supports labeled Demo Mode when external Google credentials are not yet configured.
     """
     conn = get_platform_connection_by_id(conn_id)
     if not conn:
         raise ValueError("Platform connection not found.")
+
+    # Labeled Demo Mode simulation
+    if conn.get("account_id") == "google_demo_account" or conn.get("encrypted_access_token") == "DEMO_TOKEN":
+        logger.info(f"Generating authentic Google Business demo reviews for period: {start_dt.isoformat()} to {end_dt.isoformat()}")
+        sample_pool = [
+            ("Emily Watson", 5.0, "The almond milk latte and avocado tartine were absolutely spectacular! Warm and welcoming atmosphere."),
+            ("Marcus Vance", 1.0, "Waited over 30 minutes for a standard drip coffee and the cashier was dismissive when I asked about it."),
+            ("Sophia Chen", 5.0, "Best study spot in the neighborhood. High-speed Wi-Fi and plenty of quiet seating."),
+            ("David Miller", 2.0, "Ordered lunch on Tuesday and got severe stomach cramps and nausea afterwards. Please inspect food safety!"),
+            ("Jessica Taylor", 4.0, "Really nice pastries and friendly barista, though parking nearby can be tricky during morning rush hour."),
+            ("Liam O'Connor", 5.0, "Super fast checkout, flawless presentation, and delicious cold brew on tap! 10/10 recommendation.")
+        ]
+        collected = []
+        delta_span = max(1, (end_dt - start_dt).total_seconds())
+        for idx, (author, star, comment) in enumerate(sample_pool):
+            offset_seconds = (idx + 1) * (delta_span / (len(sample_pool) + 1))
+            rev_time = start_dt + timedelta(seconds=offset_seconds)
+            collected.append({
+                "platform_review_id": f"google_demo_{idx+1}_{int(rev_time.timestamp())}",
+                "review_text": comment,
+                "author_name": author,
+                "star_rating": star,
+                "published_at": rev_time.isoformat()
+            })
+        return collected
 
     access_token = await get_valid_google_access_token(conn)
     location_id = conn.get("location_id") or "primary_location"

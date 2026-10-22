@@ -149,7 +149,28 @@ const SettingsController = {
         showToast('Google authorization URL could not be generated.', 'error');
       }
     } catch (err) {
-      showToast(err.message || 'Google OAuth connection failed to start.', 'error');
+      console.warn('Google OAuth initiation note:', err);
+      // If GOOGLE_CLIENT_ID is not configured in .env, offer friendly Demo Mode
+      if (err.message && err.message.includes('GOOGLE_CLIENT_ID')) {
+        const useDemo = confirm(
+          'Google Cloud OAuth credentials (GOOGLE_CLIENT_ID) are not configured in .env yet.\n\n' +
+          'Would you like to activate Demo Mode to test Google Business Profile reviews right now with sample data?'
+        );
+        if (useDemo) {
+          try {
+            showToast('Connecting Google Business Profile (Demo Mode)...', 'info');
+            await API.connectGoogleDemo();
+            showToast('✓ Google Business Profile connected in Demo Mode!', 'success');
+            await this.loadPlatformConnections();
+          } catch (demoErr) {
+            showToast('Demo connection failed: ' + demoErr.message, 'error');
+          }
+        } else {
+          showToast('To connect a live Google account, add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to your .env file.', 'info', 5000);
+        }
+      } else {
+        showToast('Could not start Google authorization: ' + err.message, 'error');
+      }
     } finally {
       if (btn) btn.disabled = false;
     }

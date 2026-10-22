@@ -204,6 +204,12 @@ const API = {
     return this.request('/api/platforms/google/auth-url');
   },
 
+  async connectGoogleDemo() {
+    return this.request('/api/platforms/google/demo-connect', {
+      method: 'POST'
+    });
+  },
+
   async setPlatformLocation(connectionId, locationId, locationName) {
     return this.request(`/api/platforms/${connectionId}/location`, {
       method: 'PUT',

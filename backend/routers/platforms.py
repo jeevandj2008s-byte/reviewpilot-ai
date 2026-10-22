@@ -1,6 +1,7 @@
 import json
 import logging
 import uuid
+from datetime import datetime, timezone, timedelta
 from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, HTTPException, Query, status, Depends, Request
 from fastapi.responses import RedirectResponse, HTMLResponse
@@ -68,6 +69,74 @@ async def get_google_auth_url(request: Request, redirect_uri: Optional[str] = No
     except Exception as exc:
         logger.error(f"Failed to generate Google auth URL: {exc}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
+
+@router.post("/google/demo-connect", response_model=PlatformConnection)
+async def connect_google_demo_account():
+    """
+    Connects a clearly labeled Google Business Profile Demo Mode.
+    Allows instant testing of the review collection and analysis pipeline
+    when live Google Cloud OAuth credentials have not been configured yet.
+    """
+    conn_id = str(uuid.uuid4())
+    account_name = "Urban Bistro & Cafe (Google Business Demo)"
+    
+    saved = save_platform_connection(
+        conn_id=conn_id,
+        platform="google",
+        user_id=None,
+        account_id="google_demo_account",
+        account_name=account_name,
+        location_id="loc_demo_market_st",
+        location_name="Downtown Cafe Storefront — 456 Market St",
+        encrypted_access_token="DEMO_TOKEN",
+        encrypted_refresh_token=None,
+        token_expires_at=(datetime.now(timezone.utc) + timedelta(days=365)).isoformat(),
+        scopes="https://www.googleapis.com/auth/business.manage",
+        status="connected"
+    )
+
+    demo_locations = [
+        {
+            "id": "loc_demo_1",
+            "platform_location_id": "loc_demo_market_st",
+            "location_name": "Downtown Cafe Storefront",
+            "address": "456 Market St, San Francisco, CA",
+            "is_selected": True
+        },
+        {
+            "id": "loc_demo_2",
+            "platform_location_id": "loc_demo_valencia_st",
+            "location_name": "Mission District Express",
+            "address": "789 Valencia St, San Francisco, CA",
+            "is_selected": False
+        }
+    ]
+    save_platform_locations(conn_id, demo_locations)
+
+    return PlatformConnection(
+        id=saved["id"],
+        platform="google",
+        account_id=saved.get("account_id"),
+        account_name=saved.get("account_name"),
+        location_id=saved.get("location_id"),
+        location_name=saved.get("location_name"),
+        status="connected",
+        last_synced_at=None,
+        last_sync_count=0,
+        error_message=None,
+        created_at=saved["created_at"],
+        updated_at=saved["updated_at"],
+        available_locations=[
+            PlatformLocation(
+                id=l["id"],
+                platform_location_id=l["platform_location_id"],
+                location_name=l["location_name"],
+                address=l.get("address"),
+                is_selected=bool(l.get("is_selected"))
+            )
+            for l in demo_locations
+        ]
+    )
 
 @router.get("/google/callback")
 async def google_oauth_callback(
