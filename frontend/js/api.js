@@ -25,10 +25,11 @@ const API = {
 
     try {
       const response = await fetch(url, config);
-      const data = await response.json().catch(() => ({}));
+      const isJson = (response.headers.get('content-type') || '').includes('application/json');
+      const data = isJson ? await response.json().catch(() => ({})) : null;
 
-      if (!response.ok) {
-        const errorMsg = data.detail || data.message || `Request failed with status ${response.status}`;
+      if (!response.ok || data === null) {
+        const errorMsg = (data && (data.detail || data.message)) || `API call failed (${response.status})`;
         throw new Error(errorMsg);
       }
 

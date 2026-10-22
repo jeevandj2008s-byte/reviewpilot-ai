@@ -1,0 +1,55 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background Radial Gradient matching the navy vignette -->
+    <radialGradient id="navyVignette" cx="50%" cy="50%" r="55%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="#143373" />
+      <stop offset="45%" stop-color="#0a1d4a" />
+      <stop offset="85%" stop-color="#030b20" />
+      <stop offset="100%" stop-color="#010613" />
+    </radialGradient>
+
+    <!-- R Letter Gradient: soft periwinkle to sky blue -->
+    <linearGradient id="rLetterGradient" x1="150" y1="110" x2="380" y2="405" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#d6e8ff" />
+      <stop offset="50%" stop-color="#a6cdff" />
+      <stop offset="100%" stop-color="#80b4f8" />
+    </linearGradient>
+
+    <!-- Subtle inner shadow / glow filter -->
+    <filter id="subtleGlow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#020817" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Dark Navy Squircle Background -->
+  <rect width="512" height="512" rx="112" fill="url(#navyVignette)" />
+
+  <!-- ReviewPilot "R" with Integrated Pilot Compass Arrow (evenodd cut-out) -->
+  <path fill-rule="evenodd" clip-rule="evenodd" d="
+    M 154 116
+    C 151 116 148 119 148 122
+    L 148 398
+    C 148 402 151 405 154 405
+    L 224 405
+    C 227 405 229 403 230 401
+    L 278 296
+    L 226 296
+    L 226 182
+    L 294 182
+    C 334 182 366 210 366 248
+    C 366 270 354 289 334 300
+    L 396 399
+    C 398 403 401 405 406 405
+    L 418 405
+    L 348 292
+    C 374 278 392 250 392 216
+    C 392 161 348 116 292 116
+    Z
+    M 204 212
+    L 322 146
+    L 278 268
+    L 258 226
+    Z
+  " fill="url(#rLetterGradient)" filter="url(#subtleGlow)" />
+</svg>
+

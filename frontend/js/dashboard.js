@@ -29,7 +29,7 @@ const DashboardController = {
     const zeroState = document.getElementById('dashboard-zero-state');
     const contentState = document.getElementById('dashboard-content-state');
 
-    if (!stats || stats.total_reviews === 0) {
+    if (!stats || !stats.total_reviews || stats.total_reviews === 0) {
       if (zeroState) zeroState.style.display = 'block';
       if (contentState) contentState.style.display = 'none';
       return;
