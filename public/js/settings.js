@@ -207,6 +207,26 @@ const SettingsController = {
 
       showToast(res.message, 'success');
 
+      // If in Review Analyzer, render newly synced reviews directly into analysis cards
+      if (res.results && res.results.length > 0 && window.AnalyzerController) {
+        AnalyzerController.currentBatchResults = res.results;
+        AnalyzerController.renderBatchSummary({
+          total_analyzed: res.new_analyzed || res.results.length,
+          positive_count: res.results.filter(r => r.sentiment === 'Positive').length,
+          neutral_count: res.results.filter(r => r.sentiment === 'Neutral').length,
+          negative_count: res.results.filter(r => r.sentiment === 'Negative').length,
+          urgent_count: res.urgent_count || 0,
+          telegram_sent_count: res.telegram_sent_count || 0,
+          ai_provider: 'ReviewPilot API'
+        });
+        AnalyzerController.renderFilteredCards();
+        const resultsSec = document.getElementById('results-section');
+        if (resultsSec) {
+          resultsSec.style.display = 'block';
+          resultsSec.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+
       // Refresh dashboard analytics so KPI cards, distribution chart, and recent feed reflect newly synced reviews
       if (window.DashboardController && typeof DashboardController.loadStats === 'function') {
         DashboardController.loadStats();
@@ -458,10 +478,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('connected') === 'google') {
     showToast('✓ Google Business Profile connected successfully!', 'success');
-    window.history.replaceState({}, document.title, window.location.pathname + '#settings');
+    window.history.replaceState({}, document.title, window.location.pathname + '#analyzer'); if (typeof navigateTo === 'function') navigateTo('analyzer');
   } else if (urlParams.get('error')) {
     showToast('Platform connection failed: ' + urlParams.get('error'), 'error');
-    window.history.replaceState({}, document.title, window.location.pathname + '#settings');
+    window.history.replaceState({}, document.title, window.location.pathname + '#analyzer'); if (typeof navigateTo === 'function') navigateTo('analyzer');
   }
 
   // ==========================================

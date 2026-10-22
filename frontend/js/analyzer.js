@@ -21,6 +21,9 @@ const AnalyzerController = {
   init() {
     this.bindEvents();
     this.updateCounters();
+    if (window.SettingsController && typeof SettingsController.loadPlatformConnections === 'function') {
+      SettingsController.loadPlatformConnections();
+    }
   },
 
   bindEvents() {

@@ -82,7 +82,7 @@ async def google_oauth_callback(
     """
     if error:
         logger.warning(f"Google authorization error callback: {error} - {error_description}")
-        return RedirectResponse(url=f"/#settings?error={error}")
+        return RedirectResponse(url=f"/#analyzer?error={error}")
 
     if not code or not state:
         raise HTTPException(
@@ -98,7 +98,7 @@ async def google_oauth_callback(
         <html>
         <head>
           <title>Google Account Connected - ReviewPilot</title>
-          <meta http-equiv="refresh" content="2; url=/#settings?connected=google" />
+          <meta http-equiv="refresh" content="2; url=/#analyzer?connected=google" />
           <style>
             body { font-family: system-ui, sans-serif; background: #0b1528; color: #f8fafc; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
             .box { background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(56, 189, 248, 0.3); padding: 2rem; border-radius: 12px; text-align: center; max-width: 420px; }
@@ -108,18 +108,18 @@ async def google_oauth_callback(
         <body>
           <div class="box">
             <h2>✓ Google Account Connected!</h2>
-            <p>Your business profile has been connected securely. Redirecting to ReviewPilot settings...</p>
-            <p style="font-size: 0.85rem; color: #94a3b8;">If you are not redirected automatically, <a href="/#settings?connected=google" style="color: #38bdf8;">click here</a>.</p>
+            <p>Your business profile has been connected securely. Redirecting to Review Analyzer...</p>
+            <p style="font-size: 0.85rem; color: #94a3b8;">If you are not redirected automatically, <a href="/#analyzer?connected=google" style="color: #38bdf8;">click here</a>.</p>
           </div>
         </body>
         </html>
         """)
     except PermissionError as pe:
         logger.error(f"Google OAuth CSRF validation failed: {pe}")
-        return RedirectResponse(url="/#settings?error=csrf_validation_failed")
+        return RedirectResponse(url="/#analyzer?error=csrf_validation_failed")
     except Exception as exc:
         logger.error(f"Google OAuth callback exchange failed: {exc}", exc_info=True)
-        return RedirectResponse(url="/#settings?error=connection_failed")
+        return RedirectResponse(url="/#analyzer?error=connection_failed")
 
 @router.get("/connections", response_model=List[PlatformConnection])
 async def list_connections():

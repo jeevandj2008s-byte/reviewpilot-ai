@@ -122,6 +122,10 @@ function navigateTo(viewName) {
   // Trigger view-specific loads
   if (viewName === 'dashboard') {
     DashboardController.loadStats();
+  } else if (viewName === 'analyzer') {
+    if (window.SettingsController && typeof SettingsController.loadPlatformConnections === 'function') {
+      SettingsController.loadPlatformConnections();
+    }
   } else if (viewName === 'settings') {
     SettingsController.loadSettings();
   }
