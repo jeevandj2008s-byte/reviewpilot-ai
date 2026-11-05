@@ -1,9 +1,8 @@
 with open('backend/services/platform_service.py', 'r', encoding='utf-8') as f:
     content = f.read()
 
-target = """    # 4. Persist newly analyzed reviews into SQLite
-    if analyses:
-        save_reviews_batch(analyses)
+target = """    # 4. Save newly analyzed reviews to SQLite database
+    save_reviews_batch(analyses)
 
     # 5. Update connection health status and last sync timestamp
     update_platform_connection_sync(
@@ -29,13 +28,13 @@ target = """    # 4. Persist newly analyzed reviews into SQLite
         message=f"Successfully retrieved {total_fetched} reviews ({len(analyses)} newly analyzed, {already_existing_count} existing duplicates skipped)."
     )"""
 
-replacement = """    # 4. Persist newly analyzed reviews into SQLite
+replacement = """    # 4. Save newly analyzed reviews to SQLite database
     if analyses:
         save_reviews_batch(analyses)
 
     # 5. If some were already existing and not re-analyzed, retrieve them so results has the full set!
     if not force_reanalyze and already_existing_count > 0:
-        existing_raw_ids = [r["platform_review_id"] for r in raw_reviews if r["platform_review_id"] in existing_ids]
+        existing_raw_ids = [r["platform_review_id"] for r in raw_reviews if r.get("platform_review_id") in existing_ids]
         prev_stored = get_reviews_by_platform_review_ids(platform, existing_raw_ids)
         combined_results = analyses + prev_stored
     else:
@@ -72,6 +71,6 @@ if target in content:
     content = content.replace(target, replacement, 1)
     with open('backend/services/platform_service.py', 'w', encoding='utf-8') as f:
         f.write(content)
-    print("Successfully updated return in platform_service.py")
+    print("Successfully updated return block in platform_service.py")
 else:
     print("Target not found")
