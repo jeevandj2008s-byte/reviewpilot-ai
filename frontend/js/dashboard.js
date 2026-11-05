@@ -103,7 +103,7 @@ const DashboardController = {
             labels: {
               boxWidth: 12,
               padding: 16,
-              font: { family: 'Inter', size: 12 }
+              color: '#111827', font: { family: 'Inter', size: 12 }
             }
           },
           tooltip: {
