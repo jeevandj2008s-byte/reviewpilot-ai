@@ -149,7 +149,28 @@ const SettingsController = {
         showToast('Google authorization URL could not be generated.', 'error');
       }
     } catch (err) {
-      showToast(err.message || 'Google OAuth connection failed to start.', 'error');
+      console.warn('Google OAuth initiation note:', err);
+      // If GOOGLE_CLIENT_ID is not configured in .env, offer friendly Demo Mode
+      if (err.message && err.message.includes('GOOGLE_CLIENT_ID')) {
+        const useDemo = confirm(
+          'Google Cloud OAuth credentials (GOOGLE_CLIENT_ID) are not configured in .env yet.\n\n' +
+          'Would you like to activate Demo Mode to test Google Business Profile reviews right now with sample data?'
+        );
+        if (useDemo) {
+          try {
+            showToast('Connecting Google Business Profile (Demo Mode)...', 'info');
+            await API.connectGoogleDemo();
+            showToast('✓ Google Business Profile connected in Demo Mode!', 'success');
+            await this.loadPlatformConnections();
+          } catch (demoErr) {
+            showToast('Demo connection failed: ' + demoErr.message, 'error');
+          }
+        } else {
+          showToast('To connect a live Google account, add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to your .env file.', 'info', 5000);
+        }
+      } else {
+        showToast('Could not start Google authorization: ' + err.message, 'error');
+      }
     } finally {
       if (btn) btn.disabled = false;
     }
@@ -202,10 +223,30 @@ const SettingsController = {
 
       if (resultMsg) {
         resultMsg.textContent = res.message;
-        resultMsg.style.color = '#38bdf8';
+        resultMsg.style.color = 'var(--text-main)';
       }
 
       showToast(res.message, 'success');
+
+      // If in Review Analyzer, render newly synced reviews directly into analysis cards
+      if (res.results && res.results.length > 0 && window.AnalyzerController) {
+        AnalyzerController.currentBatchResults = res.results;
+        AnalyzerController.renderBatchSummary({
+          total_analyzed: res.new_analyzed || res.results.length,
+          positive_count: res.results.filter(r => r.sentiment === 'Positive').length,
+          neutral_count: res.results.filter(r => r.sentiment === 'Neutral').length,
+          negative_count: res.results.filter(r => r.sentiment === 'Negative').length,
+          urgent_count: res.urgent_count || 0,
+          telegram_sent_count: res.telegram_sent_count || 0,
+          ai_provider: 'ReviewPilot API'
+        });
+        AnalyzerController.renderFilteredCards();
+        const resultsSec = document.getElementById('results-section');
+        if (resultsSec) {
+          resultsSec.style.display = 'block';
+          resultsSec.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
 
       // Refresh dashboard analytics so KPI cards, distribution chart, and recent feed reflect newly synced reviews
       if (window.DashboardController && typeof DashboardController.loadStats === 'function') {
@@ -458,10 +499,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('connected') === 'google') {
     showToast('✓ Google Business Profile connected successfully!', 'success');
-    window.history.replaceState({}, document.title, window.location.pathname + '#settings');
+    window.history.replaceState({}, document.title, window.location.pathname + '#analyzer'); if (typeof navigateTo === 'function') navigateTo('analyzer');
   } else if (urlParams.get('error')) {
     showToast('Platform connection failed: ' + urlParams.get('error'), 'error');
-    window.history.replaceState({}, document.title, window.location.pathname + '#settings');
+    window.history.replaceState({}, document.title, window.location.pathname + '#analyzer'); if (typeof navigateTo === 'function') navigateTo('analyzer');
   }
 
   // ==========================================
@@ -532,7 +573,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (aiMicLabel) aiMicLabel.textContent = 'Speak';
     if (aiMicBtn) {
       aiMicBtn.style.backgroundColor = '';
-      aiMicBtn.style.borderColor = 'rgba(56, 189, 248, 0.4)';
+      aiMicBtn.style.borderColor = 'var(--border)';
       aiMicBtn.style.color = '';
     }
     try {
@@ -551,10 +592,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!aiMessages) return;
     const div = document.createElement('div');
     if (isUser) {
-      div.style.cssText = 'background: linear-gradient(135deg, #38bdf8, #6366f1); color: #fff; padding: 0.65rem 0.95rem; border-radius: 10px; font-size: 0.85rem; align-self: flex-end; max-width: 85%;';
+      div.style.cssText = 'background: var(--primary); color: #ffffff; padding: 0.65rem 1rem; border-radius: 12px; font-size: 0.85rem; align-self: flex-end; max-width: 85%; box-shadow: var(--shadow-sm);';
       div.textContent = text;
     } else {
-      div.style.cssText = 'background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); padding: 0.75rem 1rem; border-radius: 10px; font-size: 0.85rem; color: #f8fafc; align-self: flex-start; max-width: 90%; line-height: 1.5;';
+      div.style.cssText = 'background: var(--bg-canvas-subtle); border: 1px solid var(--border); padding: 0.75rem 1rem; border-radius: 12px; font-size: 0.85rem; color: var(--text-main); align-self: flex-start; max-width: 90%; line-height: 1.5;';
       const lines = text.split('\n');
       lines.forEach((l) => {
         if (l.trim().length > 0) {
@@ -589,7 +630,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const typing = document.createElement('div');
     typing.id = 'ai-typing-indicator';
-    typing.style.cssText = 'background: rgba(56, 189, 248, 0.08); padding: 0.5rem 0.85rem; border-radius: 8px; font-size: 0.8rem; color: var(--text-muted); align-self: flex-start; font-style: italic;';
+    typing.style.cssText = 'background: var(--bg-canvas-subtle); border: 1px solid var(--border); padding: 0.5rem 0.85rem; border-radius: 8px; font-size: 0.8rem; color: var(--text-muted); align-self: flex-start; font-style: italic;';
     typing.textContent = 'Thinking...';
     if (aiMessages) {
       aiMessages.appendChild(typing);
