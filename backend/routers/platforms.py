@@ -302,7 +302,8 @@ async def sync_reviews(connection_id: str, payload: SyncReviewsRequest):
             start_date=payload.start_date,
             end_date=payload.end_date,
             tone=payload.tone,
-            notify_telegram=payload.notify_telegram
+            notify_telegram=payload.notify_telegram,
+            force_reanalyze=getattr(payload, 'force_reanalyze', False)
         )
         return response
     except PermissionError as pe:
