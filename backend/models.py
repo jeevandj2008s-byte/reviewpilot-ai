@@ -39,6 +39,7 @@ class AnalyzeBatchRequest(BaseModel):
     business_name: Optional[str] = None
     business_type: Optional[str] = None
     notify_telegram: bool = True
+    force_reanalyze: bool = False
 
 class AnalyzeBatchResponse(BaseModel):
     batch_id: str

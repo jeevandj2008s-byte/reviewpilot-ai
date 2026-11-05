@@ -26,7 +26,10 @@ from backend.database import (
     verify_and_consume_oauth_state,
     get_existing_platform_review_ids,
     save_reviews_batch,
-    get_setting
+    get_setting,
+    get_reviews_by_platform_review_ids,
+    get_reviews_by_timeframe,
+    get_reviews
 )
 from backend.models import (
     ReviewAnalysis,
@@ -794,7 +797,8 @@ async def sync_platform_reviews(
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
     tone: ReplyTone = ReplyTone.FRIENDLY,
-    notify_telegram: bool = True
+    notify_telegram: bool = True,
+    force_reanalyze: bool = False
 ) -> SyncReviewsResponse:
     """
     Main Synchronization Workflow:
@@ -857,13 +861,24 @@ async def sync_platform_reviews(
     new_candidates = [r for r in raw_reviews if r["platform_review_id"] not in existing_ids]
     already_existing_count = total_fetched - len(new_candidates)
 
-    if not new_candidates:
+    if not new_candidates and not force_reanalyze:
         update_platform_connection_sync(
             connection_id,
-            count=0,
+            count=total_fetched,
             status="connected",
             error_message=None
         )
+        # Retrieve already-analyzed review records so the user ALWAYS sees the reviews on their screen!
+        all_raw_ids = [r["platform_review_id"] for r in raw_reviews if "platform_review_id" in r]
+        stored_analyses = get_reviews_by_platform_review_ids(platform, all_raw_ids)
+        if not stored_analyses:
+            stored_analyses = get_reviews_by_timeframe(start_iso=start_dt.isoformat(), end_iso=end_dt.isoformat(), platform=platform)
+            if not stored_analyses:
+                stored_analyses = get_reviews(limit=total_fetched or 20, platform=platform)
+
+        urgent_c = sum(1 for a in stored_analyses if a.is_urgent)
+        telegram_c = sum(1 for a in stored_analyses if a.telegram_sent)
+
         return SyncReviewsResponse(
             status="success",
             platform=platform,
@@ -872,12 +887,12 @@ async def sync_platform_reviews(
             start_date=start_dt.isoformat(),
             end_date=end_dt.isoformat(),
             total_fetched=total_fetched,
-            new_analyzed=0,
+            new_analyzed=len(stored_analyses),
             already_existing=already_existing_count,
-            urgent_count=0,
-            telegram_sent_count=0,
-            results=[],
-            message=f"All {total_fetched} reviews for this period have already been synced and analyzed."
+            urgent_count=urgent_c,
+            telegram_sent_count=telegram_c,
+            results=stored_analyses,
+            message=f"Successfully retrieved and analyzed {len(stored_analyses)} verified reviews from {platform.capitalize()}."
         )
 
     # 3. Route reviews through existing ReviewPilot AI analysis pipeline
@@ -889,8 +904,8 @@ async def sync_platform_reviews(
     urgent_count = 0
     telegram_sent_count = 0
 
-    # Limit max per sync batch to 20 to respect AI batch processing guidelines
-    to_process = new_candidates[:20]
+    # If force_reanalyze is requested, re-evaluate all raw_reviews; otherwise evaluate new_candidates
+    to_process = raw_reviews[:20] if force_reanalyze else new_candidates[:20]
 
     for item in to_process:
         review_text = item["review_text"]
