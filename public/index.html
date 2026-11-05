@@ -48,8 +48,8 @@
 
         <div style="display: flex; align-items: center; gap: 0.75rem;">
           <button class="btn btn-secondary" id="nav-signin-btn" style="padding: 0.45rem 1rem;">Sign In</button>
-          <div id="nav-user-pill" style="display: none; align-items: center; gap: 0.5rem; background: var(--bg-subtle); border: 1px solid var(--border); padding: 0.35rem 0.85rem; border-radius: var(--radius-full);">
-            <span class="user-tier-badge" id="nav-user-plan" style="font-size: 0.75rem; font-weight: 700; color: var(--text-main);">Free</span>
+          <div id="nav-user-pill" style="display: none; align-items: center; gap: 0.5rem; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); padding: 0.35rem 0.85rem; border-radius: var(--radius-full);">
+            <span class="user-tier-badge" id="nav-user-plan" style="font-size: 0.75rem; font-weight: 700; color: #38bdf8;">Free</span>
             <span id="nav-user-name" style="font-size: 0.85rem; font-weight: 500; color: var(--text-main);">Account</span>
             <button type="button" id="nav-signout-btn" style="background: none; border: none; color: #f87171; cursor: pointer; font-size: 0.75rem; font-weight: 600; padding: 0 0.25rem; margin-left: 0.25rem;" title="Sign Out">Logout</button>
           </div>
@@ -58,85 +58,59 @@
       </div>
     </header>
 
-    <!-- Hero Section — Vela Dynamic Rotating Terms & Morphing Pastel Auras -->
-    <section id="hero-vela" class="hero-vela-container">
-      <!-- Morphing Pastel Auras -->
-      <div class="hero-aura-stage" aria-hidden="true">
-        <div id="hero-aura-primary" class="hero-aura-blob hero-aura-blob-primary"></div>
-        <div id="hero-aura-secondary" class="hero-aura-blob hero-aura-blob-secondary"></div>
-        <div class="hero-aura-blob hero-aura-blob-tertiary"></div>
+    <!-- Hero Section — Aceternity UI Lamp Effect (dark blue theme) -->
+    <section id="hero-lamp" class="lamp-container">
+
+      <!-- Lamp Stage: all purely visual light elements -->
+      <div class="lamp-stage" aria-hidden="true">
+        <!-- Top edge mask so the beams emerge cleanly from a hard line -->
+        <div class="lamp-top-mask"></div>
+
+        <!-- Left conic beam -->
+        <div class="lamp-beam lamp-beam-left"></div>
+
+        <!-- Right conic beam -->
+        <div class="lamp-beam lamp-beam-right"></div>
+
+        <!-- Wide atmospheric floor glow -->
+        <div class="lamp-blur-floor"></div>
+
+        <!-- Deep ambient sphere -->
+        <div class="lamp-ambient-glow"></div>
+
+        <!-- Bright core sphere -->
+        <div class="lamp-core-glow"></div>
+
+        <!-- The shiny horizontal bar at the lamp origin -->
+        <div class="lamp-line"></div>
       </div>
 
-      <div class="hero-vela-content">
+      <!-- Hero content rendered above the lamp stage -->
+      <div class="lamp-content">
         <div class="hero-pill">
-          <span class="hero-pill-dot"></span>
-          <span>AI Review Intelligence for High-Growth Businesses</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          AI Review Management for Small Businesses
         </div>
 
-        <div class="hero-headline-wrap">
-          <h1 class="hero-title-fixed">
-            <span class="hero-rotator-pill" id="hero-rotator-pill">
-              <span class="hero-3d-icon-badge" id="hero-3d-badge"></span>
-              <span class="hero-rotator-text" id="hero-rotating-term">Analyze reviews</span>
-            </span>
-            <span>in your terms.</span>
-          </h1>
-        </div>
+        <h1 class="hero-heading">Every review deserves<br>the right response.</h1>
 
         <p class="hero-subtext">
-          Turn customer reviews into brand loyalty. Analyze sentiment, generate polite replies, and receive immediate alerts when urgent escalations occur.
+          Turn customer reviews into better relationships. Analyze sentiment, generate thoughtful replies, and get alerted when a customer needs immediate attention.
         </p>
 
         <div class="hero-cta-group">
           <button class="btn btn-primary btn-lg" data-navigate="analyzer">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-            Launch Review Analyzer
+            Analyze reviews
           </button>
-          <button class="btn btn-secondary btn-lg" data-navigate="dashboard">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-            Live Dashboard
-          </button>
+          <a href="#how-it-works" class="btn btn-secondary btn-lg">
+            See how it works
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
         </div>
-
-        <a href="#how-it-works" class="hero-scroll-hint">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
-          Scroll to learn more
-        </a>
       </div>
+
     </section>
-
-    <!-- Editorial Stat Ribbon (from Vela reference) -->
-    <div class="hero-stat-ribbon">
-      <div class="stat-ribbon-quote">
-        <p>Every review matters.</p>
-        <span>AI feedback intelligence for local brands</span>
-      </div>
-      <div class="stat-ribbon-items">
-        <div class="stat-ribbon-item">
-          <div class="stat-ribbon-num">99.4%</div>
-          <div class="stat-ribbon-label">Sentiment Accuracy</div>
-        </div>
-        <div class="stat-ribbon-item">
-          <div class="stat-ribbon-num">&lt; 1.5s</div>
-          <div class="stat-ribbon-label">Reply Speed</div>
-        </div>
-        <div class="stat-ribbon-item">
-          <div class="stat-ribbon-num">24/7</div>
-          <div class="stat-ribbon-label">Urgent Alerts</div>
-        </div>
-        <div class="stat-ribbon-item">
-          <div class="stat-ribbon-num">100% Free</div>
-          <div class="stat-ribbon-label">Built-in AI Engine</div>
-        </div>
-      </div>
-      <div class="stat-ribbon-art" title="Continuous Growth">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M12 22v-9M12 13a5 5 0 0 0 5-5c0-4-5-6-5-6s-5 2-5 6a5 5 0 0 0 5 5z"/>
-          <path d="M7 17a4 4 0 0 1-4-4c0-3 4-5 4-5s1 2 1 4a3.8 3.8 0 0 1-1 5z"/>
-          <path d="M17 17a4 4 0 0 0 4-4c0-3-4-5-4-5s-1 2-1 4a3.8 3.8 0 0 0 1 5z"/>
-        </svg>
-      </div>
-    </div>
 
     <!-- Product Dashboard Preview Mockup -->
     <div class="product-preview-wrapper">
@@ -145,7 +119,7 @@
           <span class="preview-dot dot-red"></span>
           <span class="preview-dot dot-amber"></span>
           <span class="preview-dot dot-green"></span>
-          <span style="margin-left: 0.5rem; font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">ReviewPilot — Live Analysis Demo</span>
+          <span style="margin-left: 0.5rem; font-size: 0.75rem; color: #94a3b8; font-weight: 500;">ReviewPilot — Live Analysis Demo</span>
         </div>
         <div class="preview-content">
           <div class="preview-stats-grid">
@@ -179,11 +153,11 @@
             <div class="preview-urgent-banner">
               ⚠️ Trigger: Health hazard reported (customer mentioned severe food poisoning symptoms)
             </div>
-            <p style="font-size: 0.925rem; color: var(--text-secondary); font-style: italic;">
+            <p style="font-size: 0.9rem; color: #cbd5e1; font-style: italic;">
               "Ordered the seafood pasta for dinner on Friday and woke up with violent food poisoning. I was in bed all weekend and missed work. Completely unacceptable!"
             </p>
-            <div style="background-color: var(--bg-canvas-subtle); border-left: 3px solid var(--primary); padding: 0.85rem 1.15rem; border-radius: 0 8px 8px 0; font-size: 0.875rem; color: var(--text-main);">
-              <strong style="color: var(--text-main);">Empathetic Response Draft:</strong> "We are deeply distressed to read this and take customer health with absolute seriousness. Please contact our leadership directly at management@bistrolounge.com so we can investigate this immediately."
+            <div style="background-color: rgba(14, 30, 68, 0.7); border-left: 3px solid #38bdf8; padding: 0.75rem 1rem; border-radius: 4px; font-size: 0.85rem; color: #f8fafc;">
+              <strong style="color: #38bdf8;">Empathetic Response Draft:</strong> "We are deeply distressed to read this and take customer health with absolute seriousness. Please contact our leadership directly at management@bistrolounge.com so we can investigate this immediately."
             </div>
           </div>
         </div>
@@ -445,7 +419,7 @@
 
           <div style="text-align: center; margin-top: 1rem; font-size: 0.825rem; color: var(--text-muted);">
             <span id="auth-toggle-prompt">Already have an account?</span>
-            <button type="button" id="auth-toggle-mode-btn" style="background: none; border: none; color: var(--text-main); font-weight: 600; cursor: pointer; padding: 0 0.25rem; text-decoration: underline;">
+            <button type="button" id="auth-toggle-mode-btn" style="background: none; border: none; color: #38bdf8; font-weight: 600; cursor: pointer; padding: 0 0.25rem;">
               Sign in instead
             </button>
           </div>
@@ -490,7 +464,7 @@
             <div class="form-group" style="margin-bottom: 1.25rem;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                 <label class="form-label" for="auth-otp-input" style="margin: 0;">6-Digit OTP</label>
-                <button type="button" id="auth-send-otp-btn" style="background: none; border: none; color: var(--text-main); font-size: 0.75rem; cursor: pointer; font-weight: 600;">Send OTP</button>
+                <button type="button" id="auth-send-otp-btn" style="background: none; border: none; color: #38bdf8; font-size: 0.75rem; cursor: pointer; font-weight: 600;">Send OTP</button>
               </div>
               <input type="text" id="auth-otp-input" class="form-input" placeholder="123456" maxlength="6" required>
             </div>
@@ -677,8 +651,8 @@
           </div>
 
           <div class="header-actions" style="display: flex; align-items: center; gap: 0.75rem;">
-            <div id="app-user-badge" style="display: none; align-items: center; gap: 0.65rem; background: var(--bg-subtle); border: 1px solid var(--border); padding: 0.35rem 0.85rem; border-radius: var(--radius-full);">
-              <span id="app-user-plan" style="font-size: 0.72rem; font-weight: 700; color: var(--text-main); background: #ffffff; border: 1px solid var(--border); padding: 0.15rem 0.5rem; border-radius: 999px;">Free</span>
+            <div id="app-user-badge" style="display: none; align-items: center; gap: 0.65rem; background: rgba(15, 34, 76, 0.75); border: 1px solid rgba(56, 189, 248, 0.35); padding: 0.35rem 0.85rem; border-radius: var(--radius-full);">
+              <span id="app-user-plan" style="font-size: 0.72rem; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.2); padding: 0.15rem 0.5rem; border-radius: 999px;">Free</span>
               <span id="app-user-name" style="font-size: 0.825rem; font-weight: 500; color: var(--text-main);">User</span>
               <button type="button" id="app-signout-btn" style="background: none; border: none; color: #f87171; cursor: pointer; font-size: 0.75rem; padding: 0 0.25rem;" title="Sign Out">Sign Out</button>
             </div>
@@ -868,7 +842,7 @@
 
                   <div style="display: flex; flex-direction: column; gap: 1rem;">
                     <!-- Google Business Profile Card -->
-                    <div id="google-platform-card" style="background: var(--bg-canvas-subtle); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem;">
+                    <div id="google-platform-card" style="background: rgba(56, 189, 248, 0.06); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: var(--radius); padding: 1.25rem;">
                       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                           <svg width="22" height="22" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
@@ -893,10 +867,10 @@
 
                       <!-- Connected State View -->
                       <div id="google-connected-view" style="display: none;">
-                        <div style="background: #ffffff; border: 1px solid var(--border); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.85rem;">
+                        <div style="background: rgba(15, 34, 76, 0.4); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.85rem;">
                           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
                             <span class="text-xs text-muted" id="google-account-label">Account: Connected</span>
-                            <span class="text-xs text-muted" id="google-last-sync-label">Last synced: Never</span>
+                            <span class="text-xs" id="google-last-sync-label" style="color: #38bdf8;">Last synced: Never</span>
                           </div>
 
                           <!-- Location Selection -->
@@ -948,7 +922,7 @@
                     </div>
 
                     <!-- Additional Platforms Accordion -->
-                    <details style="background: var(--bg-canvas-subtle); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0.75rem 1rem;">
+                    <details style="background: rgba(30, 41, 59, 0.35); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.75rem 1rem;">
                       <summary style="cursor: pointer; font-size: 0.825rem; color: var(--text-muted); font-weight: 500;">
                         ➕ Add Yelp or TripAdvisor Integration (Optional)
                       </summary>
@@ -1179,7 +1153,7 @@
 
                   <div style="display: flex; flex-direction: column; gap: 1rem;">
                     <!-- Email Alerts Box -->
-                    <div style="background: var(--bg-canvas-subtle); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem;">
+                    <div style="background: rgba(56, 189, 248, 0.06); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: var(--radius); padding: 1.25rem;">
                       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                           <span style="font-size: 1.25rem;">📧</span>
@@ -1200,7 +1174,7 @@
                     </div>
 
                     <!-- Telegram Alerts Box (Simplified) -->
-                    <div style="background: var(--bg-canvas-subtle); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem;">
+                    <div style="background: rgba(56, 189, 248, 0.06); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: var(--radius); padding: 1.25rem;">
                       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                           <span style="font-size: 1.25rem;">✈️</span>
@@ -1255,7 +1229,7 @@
                   <!-- Optional Collapsible for advanced users only -->
                   <details style="margin-top: 1rem;">
                     <summary style="cursor: pointer; font-size: 0.825rem; color: var(--text-muted); font-weight: 500;">⚙️ Advanced Options: Connect Your Own Anthropic API Key (Optional)</summary>
-                    <div style="margin-top: 0.75rem; padding: 1rem; background: var(--bg-canvas-subtle); border-radius: var(--radius-md); border: 1px solid var(--border);">
+                    <div style="margin-top: 0.75rem; padding: 1rem; background: rgba(30, 41, 59, 0.45); border-radius: var(--radius); border: 1px solid var(--border);">
                       <p class="text-xs text-muted" style="margin-bottom: 0.75rem;">If you have your own Anthropic Claude account, you can route queries through Claude 3.5 Sonnet. Not required for normal operation.</p>
                       <div class="form-group" style="margin-bottom: 0.75rem;">
                         <label style="font-size: 0.8rem;">Anthropic API Key</label>
@@ -1288,12 +1262,12 @@
                   </div>
 
                   <!-- Assistant Chat Box -->
-                  <div style="background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-top: 1rem; box-shadow: var(--shadow-sm);">
+                  <div style="background: rgba(12, 26, 58, 0.7); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: var(--radius); overflow: hidden; margin-top: 1rem;">
                     <!-- Message Log -->
                     <div id="settings-ai-messages" style="padding: 1rem; max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.65rem;">
-                      <div style="background: var(--bg-canvas-subtle); border: 1px solid var(--border); padding: 0.75rem 1rem; border-radius: 12px; font-size: 0.875rem; color: var(--text-main); align-self: flex-start; max-width: 90%;">
+                      <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); padding: 0.75rem 1rem; border-radius: 10px; font-size: 0.875rem; color: #f8fafc; align-self: flex-start; max-width: 90%;">
                         👋 Hi! Tell me or ask me about any issue:
-                        <ul style="margin: 0.4rem 0 0.2rem 1.2rem; font-size: 0.825rem; color: var(--text-secondary);">
+                        <ul style="margin: 0.4rem 0 0.2rem 1.2rem; font-size: 0.825rem; color: #cbd5e1;">
                           <li>"How should I respond to a customer complaining about food/wait times?"</li>
                           <li>"How can I turn a 1-star review into a positive customer?"</li>
                           <li>"How do Telegram and email alerts work?"</li>
@@ -1302,7 +1276,7 @@
                     </div>
 
                     <!-- Suggested Prompts -->
-                    <div id="settings-ai-suggestions" style="padding: 0.5rem 1rem; display: flex; flex-wrap: wrap; gap: 0.4rem; border-top: 1px solid var(--border); background: var(--bg-canvas-subtle);">
+                    <div id="settings-ai-suggestions" style="padding: 0.5rem 1rem; display: flex; flex-wrap: wrap; gap: 0.4rem; border-top: 1px solid rgba(56, 189, 248, 0.12); background: rgba(8, 17, 36, 0.5);">
                       <button type="button" class="preset-pill ai-inline-preset" data-query="How do I handle a negative 1-star review?">😟 Handle 1-star review</button>
                       <button type="button" class="preset-pill ai-inline-preset" data-query="How can I get more 5-star customer ratings?">⭐ Boost my ratings</button>
                       <button type="button" class="preset-pill ai-inline-preset" data-query="What triggers an urgent alert in ReviewPilot?">🚨 Urgent alert triggers</button>
@@ -1310,10 +1284,10 @@
                     </div>
 
                     <!-- Input Bar with Mic Button -->
-                    <div style="padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; border-top: 1px solid var(--border); background: #ffffff;">
+                    <div style="padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; border-top: 1px solid rgba(56, 189, 248, 0.18); background: rgba(8, 17, 36, 0.9);">
                       <input type="text" id="settings-ai-input" class="form-input" placeholder="Type or click the mic to speak your question..." style="flex: 1; font-size: 0.85rem;" autocomplete="off">
                       
-                      <button type="button" id="settings-ai-mic-btn" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45rem 0.85rem;" title="Speak using microphone">
+                      <button type="button" id="settings-ai-mic-btn" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45rem 0.85rem; border-color: rgba(56, 189, 248, 0.4);" title="Speak using microphone">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
                         <span id="settings-ai-mic-label">Speak</span>
                       </button>
@@ -1335,7 +1309,7 @@
               </form>
 
               <!-- Data Privacy & Erasure Card -->
-              <div class="card" style="border: 1px solid var(--neg-border); background: var(--neg-bg); display: flex; flex-direction: column; gap: 1rem;">
+              <div class="card" style="border: 1px solid rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.05); display: flex; flex-direction: column; gap: 1rem;">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                   <h3 style="font-size: 1.15rem; font-weight: 600; color: var(--neg-text);">Data Privacy & Account Erasure</h3>
                   <span class="badge badge-negative">GDPR / Privacy Compliant</span>
