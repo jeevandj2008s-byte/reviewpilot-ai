@@ -573,7 +573,7 @@ def save_platform_locations(conn_id: str, locations: List[Dict[str, Any]]):
     cursor.execute("DELETE FROM platform_locations WHERE connection_id = ?", (conn_id,))
     for loc in locations:
         cursor.execute("""
-        INSERT INTO platform_locations (
+        INSERT OR REPLACE INTO platform_locations (
             id, connection_id, platform_location_id, location_name, address, is_selected
         ) VALUES (?, ?, ?, ?, ?, ?)
         """, (

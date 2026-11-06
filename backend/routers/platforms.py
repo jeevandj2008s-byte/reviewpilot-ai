@@ -10,6 +10,7 @@ from backend.config import settings
 from backend.database import (
     get_platform_connections,
     get_platform_connection_by_id,
+    get_platform_connection_by_platform,
     delete_platform_connection,
     update_platform_connection_location,
     save_platform_connection,
@@ -77,7 +78,8 @@ async def connect_google_demo_account():
     Allows instant testing of the review collection and analysis pipeline
     when live Google Cloud OAuth credentials have not been configured yet.
     """
-    conn_id = str(uuid.uuid4())
+    existing = get_platform_connection_by_platform("google")
+    conn_id = existing["id"] if existing else str(uuid.uuid4())
     account_name = "Urban Bistro & Cafe (Google Business Demo)"
     
     saved = save_platform_connection(
@@ -97,14 +99,14 @@ async def connect_google_demo_account():
 
     demo_locations = [
         {
-            "id": "loc_demo_1",
+            "id": f"loc_demo_1_{conn_id}",
             "platform_location_id": "loc_demo_market_st",
             "location_name": "Downtown Cafe Storefront",
             "address": "456 Market St, San Francisco, CA",
             "is_selected": True
         },
         {
-            "id": "loc_demo_2",
+            "id": f"loc_demo_2_{conn_id}",
             "platform_location_id": "loc_demo_valencia_st",
             "location_name": "Mission District Express",
             "address": "789 Valencia St, San Francisco, CA",
