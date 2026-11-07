@@ -11,6 +11,9 @@ DB_PATH = settings.database_path
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA synchronous = NORMAL")
+    conn.execute("PRAGMA foreign_keys = ON")
     return conn
 
 def _row_to_review_analysis(r: sqlite3.Row) -> ReviewAnalysis:
@@ -166,6 +169,13 @@ def init_db():
         created_at TEXT NOT NULL
     )
     """)
+
+    # 8. High-Performance Query Indexes
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_reviews_platform ON reviews(platform, created_at DESC)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_reviews_platform_review_id ON reviews(platform, platform_review_id)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_reviews_sentiment ON reviews(sentiment)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_reviews_is_urgent ON reviews(is_urgent)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_platform_conn_platform ON platform_connections(platform)")
 
     conn.commit()
     conn.close()
