@@ -14,8 +14,14 @@ const API = {
     const token = localStorage.getItem('reviewpilot_token');
     const authHeader = token ? { 'Authorization': `Bearer ${token}` } : {};
 
+    // Configurable request timeout with AbortController
+    const timeoutMs = options.timeoutMs || 30000;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
     const config = {
       ...options,
+      signal: options.signal || controller.signal,
       headers: {
         ...defaultHeaders,
         ...authHeader,
@@ -25,6 +31,8 @@ const API = {
 
     try {
       const response = await fetch(url, config);
+      clearTimeout(timeoutId);
+
       const isJson = (response.headers.get('content-type') || '').includes('application/json');
       const data = isJson ? await response.json().catch(() => ({})) : null;
 
@@ -35,6 +43,12 @@ const API = {
 
       return data;
     } catch (err) {
+      clearTimeout(timeoutId);
+      if (err.name === 'AbortError') {
+        const timeoutError = new Error(`Request timed out after ${Math.round(timeoutMs / 1000)}s. Please try again.`);
+        console.error(`API Timeout on [${options.method || 'GET'} ${endpoint}]`, timeoutError);
+        throw timeoutError;
+      }
       console.error(`API Error on [${options.method || 'GET'} ${endpoint}]:`, err);
       throw err;
     }
