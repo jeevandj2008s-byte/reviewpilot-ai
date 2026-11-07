@@ -5,6 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ReviewPilot — AI Customer Review Analysis & Instant Reply Management</title>
   <meta name="description" content="Turn customer reviews into better relationships. Analyze sentiment, generate thoughtful replies, and get alerted when a customer needs immediate attention.">
+  <meta name="theme-color" content="#050c1e">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="/static/images/logo-192.png">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ReviewPilot — AI Customer Review Analysis & Instant Reply Management">
+  <meta property="og:description" content="Turn customer reviews into better relationships. Analyze sentiment, detect critical urgency, and draft polite replies.">
+  <meta property="og:image" content="/static/images/logo-512.png">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ReviewPilot — AI Customer Review Analysis & Instant Reply Management">
+  <meta name="twitter:description" content="Turn customer reviews into better relationships. Analyze sentiment, detect critical urgency, and draft polite replies.">
+  <meta name="twitter:image" content="/static/images/logo-512.png">
   
   <!-- Google Fonts: Calistoga (Display), Inter (UI & Body), JetBrains Mono (Labels/Badges) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,7 +38,7 @@
 <body>
 
   <!-- Toast Notification Container -->
-  <div id="toast-container"></div>
+  <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
 
   <!-- ========================================== -->
   <!-- 1. MARKETING LANDING PAGE VIEW            -->
