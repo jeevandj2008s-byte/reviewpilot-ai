@@ -89,8 +89,8 @@ const DashboardController = {
         datasets: [{
           data: [pos, neu, neg],
           backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
-          borderColor: '#ffffff',
-          borderWidth: 3,
+          borderColor: 'rgba(13, 27, 59, 0.95)',
+          borderWidth: 2,
           hoverOffset: 4
         }]
       },
@@ -221,7 +221,9 @@ const DashboardController = {
 
   updateElem(id, text) {
     const el = document.getElementById(id);
-    if (el) el.textContent = text;
+    if (el) {
+      el.textContent = (typeof text === 'number') ? text.toLocaleString() : text;
+    }
   },
 
   formatTimestamp(isoString) {
