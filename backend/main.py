@@ -32,6 +32,7 @@ from fastapi import Request, HTTPException, status
 from fastapi.responses import JSONResponse
 
 logger = logging.getLogger("reviewpilot.server")
+SERVER_START_TIME = time.time()
 
 # In-memory sliding-window rate limiter for sensitive endpoints
 # Protects write / verification endpoints (e.g. settings updates, test pings, batch analyze)
@@ -138,7 +139,10 @@ async def security_headers_and_rate_limit_middleware(request: Request, call_next
                 content={"detail": "Export rate limit exceeded. Please wait a minute before requesting another export."}
             )
 
+    start_time = time.perf_counter()
     response = await call_next(request)
+    process_time = time.perf_counter() - start_time
+    response.headers["X-Process-Time"] = f"{process_time:.4f}s"
 
     # Inject Production Security Headers
     response.headers["X-Content-Type-Options"] = "nosniff"
@@ -183,11 +187,13 @@ app.include_router(platforms_router.router)
 
 @app.get("/health")
 async def health_check():
+    uptime_seconds = int(time.time() - SERVER_START_TIME)
     return {
         "status": "healthy",
         "service": "ReviewPilot",
         "version": "1.0.0",
-        "environment": settings.environment
+        "environment": settings.environment,
+        "uptime_seconds": uptime_seconds
     }
 
 # Mount static frontend directory
