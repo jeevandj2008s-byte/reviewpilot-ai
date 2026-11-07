@@ -30,6 +30,13 @@ const AnalyzerController = {
     const textarea = document.getElementById('reviews-textarea');
     if (textarea) {
       textarea.addEventListener('input', () => this.updateCounters());
+      // Quick analyze keyboard shortcut: Ctrl+Enter or Cmd+Enter
+      textarea.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+          e.preventDefault();
+          this.handleAnalyzeBatch();
+        }
+      });
     }
 
     // Tone pills
