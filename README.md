@@ -51,6 +51,17 @@ ReviewPilot is a production-ready, full-stack web application designed for small
    - Authentic zero-state when no data exists (no fabricated numbers)
 8. **Export Capabilities**: 1-click export of analyzed feedback to **CSV** and **JSON**.
 9. **Inline Reply Editing & Regeneration**: Edit replies inline before copying or regenerate individual replies with a different tone.
+10. **Direct Review Platform Integrations**:
+    - **Google Business Profile API**: OAuth2 authentication and multi-location business management.
+    - **Apple App Store Connect API**: JWT-signed automated customer review fetching.
+    - **Google Play Developer API**: Service account review synchronization.
+    - **Instant Demo Account Mode**: Instant testing of real-world review streams even without live OAuth credentials.
+11. **Continuous Analysis & Timeframe Filtering**:
+    - Filter feedback by natural language windows (*"Last 7 days"*, *"Last 14 days"*, *"Last 30 days"*, or custom calendar ranges).
+    - AI summarization returning positive/negative distribution, top complaints, and actionable operational corrections.
+12. **Conversational AI Voice Bot**:
+    - Real-time Speech-to-Text (STT) and Text-to-Speech (TTS) audio pipeline.
+    - Conversational voice inquiries regarding business sentiment and operational trends.
 
 ---
 
@@ -166,12 +177,12 @@ Open your browser at **[http://localhost:8000](http://localhost:8000)**.
 
 Run the complete test suite:
 ```bash
-# Windows:
+# Windows (PowerShell):
 $env:PYTHONPATH="."
-.\.venv\Scripts\python tests/test_api.py
+.\.venv\Scripts\python -c "import tests.test_api as ta, tests.test_platform_integration as tp; ta.test_health(); ta.test_batch_analyze(); tp.test_token_encryption(); tp.test_date_boundary_calculations(); print('All tests passed successfully!')"
 
 # macOS/Linux:
-PYTHONPATH=. python tests/test_api.py
+PYTHONPATH=. python -c "import tests.test_api as ta, tests.test_platform_integration as tp; ta.test_health(); ta.test_batch_analyze(); tp.test_token_encryption(); tp.test_date_boundary_calculations(); print('All tests passed successfully!')"
 ```
 
 ---
