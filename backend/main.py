@@ -141,15 +141,16 @@ async def security_headers_and_rate_limit_middleware(request: Request, call_next
 
     start_time = time.perf_counter()
     response = await call_next(request)
-    process_time = time.perf_counter() - start_time
+    process_time = max(0.0001, time.perf_counter() - start_time)
     response.headers["X-Process-Time"] = f"{process_time:.4f}s"
 
-    # Inject Production Security Headers
+    # Inject Production Security & Cache Headers
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["Permissions-Policy"] = "geolocation=(), camera=()"
+    response.headers["Access-Control-Max-Age"] = "86400"
     response.headers["Content-Security-Policy"] = (
         "default-src 'self'; "
         "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
