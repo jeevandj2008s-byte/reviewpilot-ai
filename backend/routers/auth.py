@@ -62,22 +62,24 @@ def get_current_user(credentials: Optional[HTTPAuthorizationCredentials] = Depen
 async def register_account(payload: UserRegisterRequest, request: Request):
     """Registers a new user account with password or social identity."""
     client_ip = request.client.host if request.client else "unknown"
+    clean_email = payload.email.strip().lower() if payload.email else None
+    clean_phone = payload.phone.strip() if payload.phone else None
 
-    if not payload.email and not payload.phone:
+    if not clean_email and not clean_phone:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Either an email address or phone number is required to register."
         )
 
-    # Check for existing email
-    if payload.email and get_user_by_email(payload.email):
+    # Check for existing email (case-insensitive)
+    if clean_email and get_user_by_email(clean_email):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="An account with this email address already exists. Please sign in."
         )
 
     # Check for existing phone
-    if payload.phone and get_user_by_phone(payload.phone):
+    if clean_phone and get_user_by_phone(clean_phone):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="An account with this phone number already exists. Please sign in."
@@ -88,17 +90,17 @@ async def register_account(payload: UserRegisterRequest, request: Request):
 
     created = create_user(
         user_id=new_user_id,
-        email=payload.email,
-        phone=payload.phone,
-        full_name=payload.full_name or "Business Owner",
+        email=clean_email,
+        phone=clean_phone,
+        full_name=(payload.full_name or "Business Owner").strip(),
         password_hash=pwd_hash,
         auth_provider=payload.auth_provider,
         subscription_plan="Free",
         subscription_status="active"
     )
 
-    token = create_access_token(data={"sub": new_user_id, "email": payload.email, "plan": "Free"})
-    record_login_attempt(payload.email or payload.phone, client_ip, request.headers.get("user-agent", ""), "REGISTER_SUCCESS")
+    token = create_access_token(data={"sub": new_user_id, "email": clean_email, "plan": "Free"})
+    record_login_attempt(clean_email or clean_phone, client_ip, request.headers.get("user-agent", ""), "REGISTER_SUCCESS")
 
     return AuthResponse(
         status="success",
@@ -123,8 +125,8 @@ async def login_account(payload: UserLoginRequest, request: Request):
     client_ip = request.client.host if request.client else "unknown"
     ident = payload.identifier.strip()
 
-    # Search user by email or phone
-    user = get_user_by_email(ident) or get_user_by_phone(ident)
+    # Search user by case-insensitive email or normalized phone
+    user = get_user_by_email(ident.lower()) or get_user_by_phone(ident)
 
     if not user:
         record_login_attempt(ident, client_ip, request.headers.get("user-agent", ""), "FAILED_USER_NOT_FOUND")
