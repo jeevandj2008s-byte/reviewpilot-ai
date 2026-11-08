@@ -192,10 +192,10 @@ const AnalyzerController = {
     if (!textarea) return;
 
     const rawLines = textarea.value.split('\n');
-    const reviews = rawLines.map(l => l.trim()).filter(l => l.length > 0);
+    const reviews = rawLines.map(l => l.trim()).filter(l => l.length >= 3);
 
     if (reviews.length === 0) {
-      this.showValidationAlert('Please enter or paste at least one customer review to analyze.');
+      this.showValidationAlert('Please enter or paste at least one valid customer review (minimum 3 characters).');
       return;
     }
 
