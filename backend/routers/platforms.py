@@ -1,6 +1,7 @@
 import json
 import logging
 import uuid
+import httpx
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, HTTPException, Query, status, Depends, Request
@@ -314,6 +315,12 @@ async def sync_reviews(connection_id: str, payload: SyncReviewsRequest):
     except ValueError as ve:
         logger.warning(f"Validation error during sync: {ve}")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(ve))
+    except (TimeoutError, httpx.TimeoutException) as te:
+        logger.error(f"Platform API timeout during review sync: {te}")
+        raise HTTPException(
+            status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+            detail="Review synchronization timed out while contacting external platform API. Please try again."
+        )
     except Exception as exc:
         logger.error(f"Sync workflow failed: {exc}", exc_info=True)
         raise HTTPException(
