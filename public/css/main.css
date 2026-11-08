@@ -521,20 +521,24 @@ html.anim .hero-actions {
 }
 
 .portrait-card {
+  position: absolute;
   left: calc(62 * var(--ux));
-  top: calc(170 * var(--u));
-  width: calc(340 * var(--u));
-  min-height: calc(350 * var(--u));
+  top: calc(160 * var(--u));
+  width: calc(330 * var(--u));
+  height: calc(422 * var(--u));
   background: rgba(13, 27, 30, 0.85);
   border: 1px solid var(--primary-border);
   border-radius: var(--radius-md);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  padding: calc(20 * var(--u));
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+  display: block;
+}
+
+.portrait-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .portrait-card-header {
@@ -1162,8 +1166,12 @@ html.anim .hero-actions {
   }
 
   .portrait-card {
-    width: calc(300 * var(--n));
-    margin: calc(40 * var(--n)) 0 0 0;
+    position: relative;
+    left: auto;
+    top: auto;
+    width: calc(280 * var(--n));
+    height: calc(358 * var(--n));
+    margin: calc(40 * var(--n)) auto 0 auto;
   }
 
   .neon-sig {
