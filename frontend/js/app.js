@@ -518,6 +518,22 @@ const AuthModalController = {
       });
     }
 
+    // Global Escape Key Listener for modal dismissal
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        this.close();
+        if (typeof PaymentModalController !== 'undefined' && PaymentModalController.close) {
+          PaymentModalController.close();
+        }
+      }
+    });
+
+    // Session Expired Event Listener
+    window.addEventListener('reviewpilot:session_expired', () => {
+      this.updateUIForUser(null);
+      showToast('Your session has expired. Please sign in again.', 'info');
+    });
+
     // Tab buttons
     document.querySelectorAll('.auth-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => this.switchTab(btn.dataset.tab));
