@@ -100,15 +100,21 @@ async def send_test_message(
     if not eff_token or not eff_chat_id:
         return False, "Please provide both Bot Token and Chat ID to send a test message."
 
+    clean_token = eff_token.strip()
+    clean_chat_id = eff_chat_id.strip()
+
+    if ":" not in clean_token or not clean_token.split(":", 1)[0].isdigit():
+        return False, "Invalid Telegram bot token format. Tokens should follow the format: 123456789:ABCdefGHIjk..."
+
     test_text = custom_message or (
         "🤖 <b>ReviewPilot Telegram Integration Test</b>\n\n"
         "✅ Your Telegram Bot integration is configured properly!\n"
         "You will receive instant alerts here whenever an urgent, health, or high-risk review is detected."
     )
 
-    url = f"https://api.telegram.org/bot{eff_token}/sendMessage"
+    url = f"https://api.telegram.org/bot{clean_token}/sendMessage"
     payload = {
-        "chat_id": eff_chat_id,
+        "chat_id": clean_chat_id,
         "text": test_text,
         "parse_mode": "HTML"
     }
