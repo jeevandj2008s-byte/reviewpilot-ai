@@ -56,11 +56,17 @@ def parse_natural_timeframe(
     # 1. Handle explicit ISO start_date and end_date if provided
     if start_date:
         try:
-            start_dt = datetime.fromisoformat(start_date.strip()).replace(tzinfo=timezone.utc)
+            cleaned_start = start_date.strip().replace("Z", "+00:00")
+            parsed_start = datetime.fromisoformat(cleaned_start)
+            start_dt = parsed_start.astimezone(timezone.utc) if parsed_start.tzinfo else parsed_start.replace(tzinfo=timezone.utc)
+
             if end_date:
-                end_dt = datetime.fromisoformat(end_date.strip()).replace(
-                    hour=23, minute=59, second=59, tzinfo=timezone.utc
-                )
+                cleaned_end = end_date.strip().replace("Z", "+00:00")
+                parsed_end = datetime.fromisoformat(cleaned_end)
+                if parsed_end.tzinfo:
+                    end_dt = parsed_end.astimezone(timezone.utc).replace(hour=23, minute=59, second=59)
+                else:
+                    end_dt = parsed_end.replace(hour=23, minute=59, second=59, tzinfo=timezone.utc)
             else:
                 end_dt = now_utc
             return start_dt, end_dt, f"from {start_date} to {end_date or 'now'}"
