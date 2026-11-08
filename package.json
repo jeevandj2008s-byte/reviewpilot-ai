@@ -1,0 +1,24 @@
+{
+  "name": "reviewpilot-ai",
+  "version": "2.0.0",
+  "description": "ReviewPilot AI - Customer Intelligence & Real-Time Review Action Platform",
+  "main": "run-dev.js",
+  "scripts": {
+    "dev": "node run-dev.js",
+    "start": "node run-dev.js",
+    "serve": "node run-dev.js",
+    "backend": "node run-dev.js"
+  },
+  "keywords": [
+    "reviewpilot",
+    "ai",
+    "customer-intelligence",
+    "sentiment-analysis",
+    "fastapi",
+    "threejs",
+    "webgl",
+    "python"
+  ],
+  "author": "ReviewPilot AI",
+  "license": "MIT"
+}
