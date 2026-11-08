@@ -46,6 +46,14 @@ async def analyze_reviews_batch(payload: AnalyzeBatchRequest):
             detail=f"Exceeded maximum batch limit of 20 reviews. Received {len(cleaned_reviews)} reviews."
         )
 
+    # Validate individual review length to prevent memory exhaustion
+    for idx, r in enumerate(cleaned_reviews):
+        if len(r) > 4000:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Review #{idx + 1} exceeds the maximum allowed length of 4,000 characters."
+            )
+
     try:
         response = await orchestrate_batch_workflow(
             reviews=cleaned_reviews,
