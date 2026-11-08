@@ -78,7 +78,14 @@ Analyze this review according to your system instructions and return ONLY the JS
     elif "```" in response_text:
         response_text = response_text.split("```")[1].split("```")[0].strip()
 
-    parsed = json.loads(response_text)
+    try:
+        parsed = json.loads(response_text)
+    except json.JSONDecodeError:
+        json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+        if json_match:
+            parsed = json.loads(json_match.group(0))
+        else:
+            raise
     return parsed
 
 def analyze_review_fallback(
