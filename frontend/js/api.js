@@ -42,6 +42,12 @@ const API = {
       const data = isJson ? await response.json().catch(() => ({})) : null;
 
       if (!response.ok || data === null) {
+        if (response.status === 401 && token) {
+          localStorage.removeItem('reviewpilot_token');
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('reviewpilot:session_expired'));
+          }
+        }
         const errorMsg = (data && (data.detail || data.message)) || `API call failed (${response.status})`;
         throw new Error(errorMsg);
       }
@@ -109,6 +115,13 @@ const API = {
       method: 'POST',
       body: JSON.stringify(payload)
     });
+  },
+
+  async supabaseSignOut() {
+    try {
+      await this.request('/api/auth/supabase/signout', { method: 'POST' });
+    } catch (_) {}
+    localStorage.removeItem('reviewpilot_token');
   },
 
   // Stats
