@@ -429,18 +429,32 @@ def get_stats() -> DashboardStats:
 
 def get_setting(key: str, default: Optional[str] = None) -> Optional[str]:
     conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT value FROM settings WHERE key = ?", (key,))
-    row = cursor.fetchone()
-    conn.close()
-    return row["value"] if row else default
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT value FROM settings WHERE key = ?", (key,))
+        row = cursor.fetchone()
+        return row["value"] if row else default
+    finally:
+        conn.close()
+
+def get_json_setting(key: str, default: Any = None) -> Any:
+    """Safely retrieves and parses a JSON setting with graceful fallback on corruption."""
+    val = get_setting(key)
+    if val is None:
+        return default
+    try:
+        return json.loads(val)
+    except (json.JSONDecodeError, TypeError):
+        return default
 
 def set_setting(key: str, value: str):
     conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", (key, value))
-    conn.commit()
-    conn.close()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", (key, value))
+        conn.commit()
+    finally:
+        conn.close()
 
 def clear_all_settings() -> int:
     """Removes all stored runtime settings, personal business profiles, and credentials."""
