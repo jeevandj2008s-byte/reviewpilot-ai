@@ -76,12 +76,14 @@ function showToast(message, type = 'success', duration = 4000) {
 
 // Router & View Switcher
 function navigateTo(viewName) {
-  AppState.currentView = viewName;
+  const validViews = ['landing', 'dashboard', 'analyzer', 'settings'];
+  const safeView = validViews.includes(viewName) ? viewName : 'landing';
+  AppState.currentView = safeView;
 
   const landingView = document.getElementById('landing-view');
   const appView = document.getElementById('app-view');
 
-  if (viewName === 'landing') {
+  if (safeView === 'landing') {
     if (landingView) landingView.style.display = 'block';
     if (appView) appView.style.display = 'none';
     window.location.hash = 'landing';
@@ -97,7 +99,7 @@ function navigateTo(viewName) {
   const panels = document.querySelectorAll('.view-panel');
   panels.forEach(p => p.classList.remove('active'));
 
-  const targetPanel = document.getElementById(`${viewName}-panel`);
+  const targetPanel = document.getElementById(`${safeView}-panel`);
   if (targetPanel) {
     targetPanel.classList.add('active');
   }
@@ -105,28 +107,28 @@ function navigateTo(viewName) {
   // Update sidebar active buttons
   const navBtns = document.querySelectorAll('.sidebar-nav .nav-item');
   navBtns.forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.view === viewName);
+    btn.classList.toggle('active', btn.dataset.view === safeView);
   });
 
   // Update Header title
   const headerTitle = document.getElementById('header-view-title');
   if (headerTitle) {
-    if (viewName === 'dashboard') headerTitle.textContent = 'Dashboard & Insights';
-    else if (viewName === 'analyzer') headerTitle.textContent = 'Review Analyzer';
-    else if (viewName === 'settings') headerTitle.textContent = 'Settings & Integrations';
+    if (safeView === 'dashboard') headerTitle.textContent = 'Dashboard & Insights';
+    else if (safeView === 'analyzer') headerTitle.textContent = 'Review Analyzer';
+    else if (safeView === 'settings') headerTitle.textContent = 'Settings & Integrations';
   }
 
-  window.location.hash = viewName;
+  window.location.hash = safeView;
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
   // Trigger view-specific loads
-  if (viewName === 'dashboard') {
+  if (safeView === 'dashboard') {
     DashboardController.loadStats();
-  } else if (viewName === 'analyzer') {
+  } else if (safeView === 'analyzer') {
     if (window.SettingsController && typeof SettingsController.loadPlatformConnections === 'function') {
       SettingsController.loadPlatformConnections();
     }
-  } else if (viewName === 'settings') {
+  } else if (safeView === 'settings') {
     SettingsController.loadSettings();
   }
 
