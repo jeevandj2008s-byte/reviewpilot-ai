@@ -48,6 +48,11 @@ function showToast(message, type = 'success', duration = 4000) {
   const container = document.getElementById('toast-container');
   if (!container) return;
 
+  // Prevent DOM flooding by limiting max visible toasts to 4
+  while (container.children.length >= 4) {
+    container.removeChild(container.firstChild);
+  }
+
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
 
