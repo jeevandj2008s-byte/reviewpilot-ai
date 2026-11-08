@@ -278,6 +278,17 @@ async def analyze_single_review(
     Tries Claude API if configured, otherwise falls back gracefully.
     Returns (analysis_dict, provider_name).
     """
+    safe_text = (review_text or "").strip()
+    if not safe_text:
+        return {
+            "sentiment": SentimentType.NEUTRAL.value,
+            "sentiment_score": 0.50,
+            "category": "General Experience",
+            "is_urgent": False,
+            "urgent_reason": None,
+            "reply": f"Thank you for connecting with {business_name}. We appreciate your support and feedback!"
+        }, "ReviewPilot AI Engine"
+
     api_key = get_effective_api_key()
     model = get_effective_model()
 
