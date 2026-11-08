@@ -156,6 +156,13 @@ function closeMobileSidebar() {
   }
 }
 
+function updateGlobalBusinessPill(name, type) {
+  const pill = document.getElementById('sidebar-business-name');
+  if (pill && name) pill.textContent = name;
+  const typePill = document.getElementById('sidebar-business-type');
+  if (typePill && type) typePill.textContent = type;
+}
+
 // Initial Sync & Event Listeners
 document.addEventListener('DOMContentLoaded', async () => {
   // Check URL Hash for deep linking
