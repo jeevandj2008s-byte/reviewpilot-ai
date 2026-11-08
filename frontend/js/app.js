@@ -352,14 +352,28 @@ document.addEventListener('DOMContentLoaded', () => {
   AuthModalController.init();
 });
 
-// Authentication Modal Controller (Email, Google, Phone OTP)
+// Authentication Modal Controller (Supabase & Multi-Provider Auth)
 const AuthModalController = {
   isRegisterMode: false,
   activeTab: 'email',
+  supabaseClient: null,
 
-  init() {
+  async init() {
     this.checkSession();
     this.bindEvents();
+    await this.initSupabase();
+  },
+
+  async initSupabase() {
+    try {
+      const cfg = await API.getSupabaseConfig();
+      if (cfg && cfg.configured && cfg.supabase_url && cfg.supabase_anon_key && window.supabase) {
+        this.supabaseClient = window.supabase.createClient(cfg.supabase_url, cfg.supabase_anon_key);
+        console.log('[ReviewPilot] Supabase client initialized.');
+      }
+    } catch (e) {
+      console.warn('[ReviewPilot] Supabase client init note:', e);
+    }
   },
 
   async checkSession() {
@@ -459,13 +473,13 @@ const AuthModalController = {
 
     if (this.isRegisterMode) {
       if (title) title.textContent = 'Create ReviewPilot Account';
-      if (submitBtn) submitBtn.textContent = 'Create Account';
+      if (submitBtn) submitBtn.textContent = 'CREATE ACCOUNT';
       if (toggleBtn) toggleBtn.textContent = 'Sign in instead';
       if (togglePrompt) togglePrompt.textContent = 'Already have an account?';
       if (nameGroup) nameGroup.style.display = 'block';
     } else {
       if (title) title.textContent = 'Sign In to ReviewPilot';
-      if (submitBtn) submitBtn.textContent = 'Sign In with Email';
+      if (submitBtn) submitBtn.textContent = 'SIGN IN WITH EMAIL';
       if (toggleBtn) toggleBtn.textContent = 'Create one now';
       if (togglePrompt) togglePrompt.textContent = "Don't have an account?";
       if (nameGroup) nameGroup.style.display = 'none';
@@ -515,7 +529,7 @@ const AuthModalController = {
       toggleModeBtn.addEventListener('click', () => this.toggleRegisterMode());
     }
 
-    // Email Form Submission
+    // Email Form Submission (Supabase + Local Synchronized Auth)
     const emailForm = document.getElementById('auth-email-form');
     if (emailForm) {
       emailForm.addEventListener('submit', async (e) => {
@@ -524,27 +538,55 @@ const AuthModalController = {
         const password = document.getElementById('auth-password-input').value;
         const nameInput = document.getElementById('auth-full-name');
         const fullName = nameInput ? nameInput.value.trim() : '';
+        const submitBtn = document.getElementById('auth-submit-btn');
 
         if (password.length < 6) {
           showToast('Password must be at least 6 characters long.', 'error');
           return;
         }
 
+        const originalText = submitBtn ? submitBtn.textContent : '';
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'AUTHENTICATING...';
+        }
+
         try {
           let res;
+          // Try Supabase Auth API
           if (this.isRegisterMode) {
-            res = await API.register({ email, password, full_name: fullName || email.split('@')[0] });
-            showToast(`Account created! Welcome, ${res.user.full_name}`, 'success');
+            res = await API.supabaseSignup({ email, password, full_name: fullName || email.split('@')[0] });
+            showToast(`✓ Account created! Welcome, ${res.user.full_name}`, 'success');
           } else {
-            res = await API.login({ identifier: email, password });
-            showToast(`Welcome back, ${res.user.full_name}! Active Plan: ${res.user.subscription_plan}`, 'success');
+            res = await API.supabaseSignin({ identifier: email, password });
+            showToast(`✓ Welcome back, ${res.user.full_name}! Active Plan: ${res.user.subscription_plan}`, 'success');
           }
 
           localStorage.setItem('reviewpilot_token', res.access_token);
           this.updateUIForUser(res.user);
           this.close();
         } catch (err) {
-          showToast(err.message, 'error');
+          console.warn('Supabase primary endpoint note, attempting local sync:', err);
+          try {
+            let fallbackRes;
+            if (this.isRegisterMode) {
+              fallbackRes = await API.register({ email, password, full_name: fullName || email.split('@')[0] });
+              showToast(`✓ Account created! Welcome, ${fallbackRes.user.full_name}`, 'success');
+            } else {
+              fallbackRes = await API.login({ identifier: email, password });
+              showToast(`✓ Welcome back, ${fallbackRes.user.full_name}! Active Plan: ${fallbackRes.user.subscription_plan}`, 'success');
+            }
+            localStorage.setItem('reviewpilot_token', fallbackRes.access_token);
+            this.updateUIForUser(fallbackRes.user);
+            this.close();
+          } catch (fallbackErr) {
+            showToast(err.message || fallbackErr.message, 'error');
+          }
+        } finally {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+          }
         }
       });
     }

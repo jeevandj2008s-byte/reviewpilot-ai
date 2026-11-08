@@ -29,6 +29,12 @@ from backend.services.auth_service import (
     decode_access_token,
     send_suspicious_login_alert
 )
+from backend.services.supabase_service import (
+    is_supabase_configured,
+    supabase_signup,
+    supabase_signin
+)
+from backend.config import settings
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 security = HTTPBearer(auto_error=False)
@@ -309,4 +315,49 @@ async def get_my_profile(current_user: Optional[UserProfile] = Depends(get_curre
     if not current_user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated. Please sign in.")
     return current_user
+
+# ==============================================================================
+# Supabase Integration Endpoints
+# ==============================================================================
+
+@router.get("/supabase/config")
+async def get_supabase_config():
+    """Returns Supabase configuration status and public client credentials if available."""
+    configured = is_supabase_configured()
+    return {
+        "status": "success",
+        "configured": configured,
+        "supabase_url": settings.supabase_url if configured else None,
+        "supabase_anon_key": settings.supabase_anon_key if configured else None
+    }
+
+@router.post("/supabase/signup")
+async def handle_supabase_signup(payload: UserRegisterRequest):
+    """Registers user via Supabase and synchronizes session with ReviewPilot."""
+    if not payload.email or not payload.password:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email and password are required.")
+    
+    result = await supabase_signup(
+        email=payload.email,
+        password=payload.password,
+        full_name=payload.full_name or payload.email.split("@")[0]
+    )
+    if result.get("status") == "error":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=result.get("message", "Signup error"))
+    return result
+
+@router.post("/supabase/signin")
+async def handle_supabase_signin(payload: UserLoginRequest):
+    """Authenticates user via Supabase and synchronizes session with ReviewPilot."""
+    if not payload.identifier or not payload.password:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email and password are required.")
+    
+    result = await supabase_signin(
+        email=payload.identifier,
+        password=payload.password
+    )
+    if result.get("status") == "error":
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=result.get("message", "Invalid credentials"))
+    return result
+
 

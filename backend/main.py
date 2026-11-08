@@ -157,7 +157,7 @@ async def security_headers_and_rate_limit_middleware(request: Request, call_next
         "font-src 'self' data: https://fonts.gstatic.com; "
         "img-src 'self' data: blob: https:; "
         "media-src 'self' data: blob:; "
-        "connect-src 'self' data: blob: ws: wss: https://cdn.jsdelivr.net https://api.anthropic.com https://api.openai.com https://api.elevenlabs.io https://api.telegram.org https://accounts.google.com https://mybusiness.googleapis.com https://api.appstoreconnect.apple.com https://androidpublisher.googleapis.com; "
+        "connect-src 'self' data: blob: ws: wss: https://*.supabase.co https://*.supabase.in https://cdn.jsdelivr.net https://api.anthropic.com https://api.openai.com https://api.elevenlabs.io https://api.telegram.org https://accounts.google.com https://mybusiness.googleapis.com https://api.appstoreconnect.apple.com https://androidpublisher.googleapis.com; "
         "worker-src 'self' blob:; "
         "frame-ancestors 'none';"
     )

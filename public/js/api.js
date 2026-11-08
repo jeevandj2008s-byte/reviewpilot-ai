@@ -92,6 +92,25 @@ const API = {
     return this.request('/api/auth/me');
   },
 
+  // Supabase Auth Methods
+  async getSupabaseConfig() {
+    return this.request('/api/auth/supabase/config');
+  },
+
+  async supabaseSignup(payload) {
+    return this.request('/api/auth/supabase/signup', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  async supabaseSignin(payload) {
+    return this.request('/api/auth/supabase/signin', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
   // Stats
   async getStats() {
     return this.request('/api/stats');
