@@ -14,6 +14,11 @@ const API = {
     const token = localStorage.getItem('reviewpilot_token');
     const authHeader = token ? { 'Authorization': `Bearer ${token}` } : {};
 
+    // Immediate pre-flight offline check
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      throw new Error('You appear to be offline. Please check your internet connection.');
+    }
+
     // Configurable request timeout with AbortController
     const timeoutMs = options.timeoutMs || 30000;
     const controller = new AbortController();
