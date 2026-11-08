@@ -1,3 +1,4 @@
+import html
 import logging
 from typing import Optional, Tuple
 import httpx
@@ -43,15 +44,17 @@ async def send_telegram_alert(
     if not eff_token or not eff_chat_id:
         return False, "Telegram Bot Token or Chat ID is not configured."
 
-    # Format message with HTML tags
-    clean_text = review_text.strip().replace("<", "&lt;").replace(">", "&gt;")
-    clean_reply = suggested_reply.strip().replace("<", "&lt;").replace(">", "&gt;")
-    clean_reason = (urgent_reason or "Requires immediate attention").replace("<", "&lt;").replace(">", "&gt;")
+    # Format message with safe HTML entity escaping (handles &, <, >, ")
+    clean_biz = html.escape(business_name or "Your Business")
+    clean_cat = html.escape(category or "General")
+    clean_text = html.escape(review_text.strip() if review_text else "")
+    clean_reply = html.escape(suggested_reply.strip() if suggested_reply else "")
+    clean_reason = html.escape(urgent_reason or "Requires immediate attention")
 
     message = (
         f"🚨 <b>URGENT CUSTOMER REVIEW ALERT</b>\n\n"
-        f"🏢 <b>Business:</b> {business_name}\n"
-        f"🏷️ <b>Category:</b> {category}\n"
+        f"🏢 <b>Business:</b> {clean_biz}\n"
+        f"🏷️ <b>Category:</b> {clean_cat}\n"
         f"⚠️ <b>Urgency Reason:</b> {clean_reason}\n\n"
         f"💬 <b>Review:</b>\n"
         f"<i>\"{clean_text}\"</i>\n\n"
