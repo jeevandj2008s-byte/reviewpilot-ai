@@ -352,78 +352,80 @@ def clear_all_reviews() -> int:
 
 def get_stats() -> DashboardStats:
     conn = get_connection()
-    cursor = conn.cursor()
-    
-    cursor.execute("SELECT COUNT(*) as total FROM reviews")
-    total = cursor.fetchone()["total"]
-    
-    if total == 0:
-        conn.close()
-        return DashboardStats(
-            total_reviews=0,
-            positive_count=0,
-            neutral_count=0,
-            negative_count=0,
-            urgent_count=0,
-            positive_percentage=0.0,
-            neutral_percentage=0.0,
-            negative_percentage=0.0,
-            most_common_category=None,
-            most_common_complaint=None,
-            categories_breakdown={},
-            sentiment_distribution={"Positive": 0, "Neutral": 0, "Negative": 0},
-            recent_reviews=[]
-        )
-    
-    cursor.execute("SELECT sentiment, COUNT(*) as count FROM reviews GROUP BY sentiment")
-    sent_rows = cursor.fetchall()
-    sent_dict = {"Positive": 0, "Neutral": 0, "Negative": 0}
-    for row in sent_rows:
-        s = row["sentiment"]
-        if s in sent_dict:
-            sent_dict[s] = row["count"]
-            
-    pos_count = sent_dict["Positive"]
-    neu_count = sent_dict["Neutral"]
-    neg_count = sent_dict["Negative"]
-    
-    cursor.execute("SELECT COUNT(*) as urgent FROM reviews WHERE is_urgent = 1")
-    urgent_count = cursor.fetchone()["urgent"]
-    
-    # Categories breakdown
-    cursor.execute("SELECT category, COUNT(*) as count FROM reviews GROUP BY category ORDER BY count DESC")
-    cat_rows = cursor.fetchall()
-    categories_breakdown = {r["category"]: r["count"] for r in cat_rows if r["category"]}
-    
-    most_common_category = cat_rows[0]["category"] if cat_rows else None
-    
-    # Most common complaint (negative category)
-    cursor.execute("SELECT category, COUNT(*) as count FROM reviews WHERE sentiment = 'Negative' GROUP BY category ORDER BY count DESC LIMIT 1")
-    neg_cat_row = cursor.fetchone()
-    most_common_complaint = neg_cat_row["category"] if neg_cat_row else None
-    
-    # Recent reviews
-    cursor.execute("SELECT * FROM reviews ORDER BY created_at DESC LIMIT 6")
-    recent_rows = cursor.fetchall()
-    recent = [_row_to_review_analysis(r) for r in recent_rows]
+    try:
+        cursor = conn.cursor()
         
-    conn.close()
-    
-    return DashboardStats(
-        total_reviews=total,
-        positive_count=pos_count,
-        neutral_count=neu_count,
-        negative_count=neg_count,
-        urgent_count=urgent_count,
-        positive_percentage=round((pos_count / total) * 100, 1) if total else 0.0,
-        neutral_percentage=round((neu_count / total) * 100, 1) if total else 0.0,
-        negative_percentage=round((neg_count / total) * 100, 1) if total else 0.0,
-        most_common_category=most_common_category,
-        most_common_complaint=most_common_complaint,
-        categories_breakdown=categories_breakdown,
-        sentiment_distribution=sent_dict,
-        recent_reviews=recent
-    )
+        cursor.execute("SELECT COUNT(*) as total FROM reviews")
+        row = cursor.fetchone()
+        total = int(row["total"]) if row and row["total"] is not None else 0
+        
+        if total == 0:
+            return DashboardStats(
+                total_reviews=0,
+                positive_count=0,
+                neutral_count=0,
+                negative_count=0,
+                urgent_count=0,
+                positive_percentage=0.0,
+                neutral_percentage=0.0,
+                negative_percentage=0.0,
+                most_common_category=None,
+                most_common_complaint=None,
+                categories_breakdown={},
+                sentiment_distribution={"Positive": 0, "Neutral": 0, "Negative": 0},
+                recent_reviews=[]
+            )
+        
+        cursor.execute("SELECT sentiment, COUNT(*) as count FROM reviews GROUP BY sentiment")
+        sent_rows = cursor.fetchall()
+        sent_dict = {"Positive": 0, "Neutral": 0, "Negative": 0}
+        for row in sent_rows:
+            s = row["sentiment"]
+            if s in sent_dict:
+                sent_dict[s] = int(row["count"] or 0)
+                
+        pos_count = sent_dict["Positive"]
+        neu_count = sent_dict["Neutral"]
+        neg_count = sent_dict["Negative"]
+        
+        cursor.execute("SELECT COUNT(*) as urgent FROM reviews WHERE is_urgent = 1")
+        urgent_row = cursor.fetchone()
+        urgent_count = int(urgent_row["urgent"]) if urgent_row and urgent_row["urgent"] is not None else 0
+        
+        # Categories breakdown
+        cursor.execute("SELECT category, COUNT(*) as count FROM reviews GROUP BY category ORDER BY count DESC")
+        cat_rows = cursor.fetchall()
+        categories_breakdown = {r["category"]: int(r["count"]) for r in cat_rows if r["category"]}
+        
+        most_common_category = cat_rows[0]["category"] if cat_rows else None
+        
+        # Most common complaint (negative category)
+        cursor.execute("SELECT category, COUNT(*) as count FROM reviews WHERE sentiment = 'Negative' GROUP BY category ORDER BY count DESC LIMIT 1")
+        neg_cat_row = cursor.fetchone()
+        most_common_complaint = neg_cat_row["category"] if neg_cat_row else None
+        
+        # Recent reviews
+        cursor.execute("SELECT * FROM reviews ORDER BY created_at DESC LIMIT 6")
+        recent_rows = cursor.fetchall()
+        recent = [_row_to_review_analysis(r) for r in recent_rows]
+            
+        return DashboardStats(
+            total_reviews=total,
+            positive_count=pos_count,
+            neutral_count=neu_count,
+            negative_count=neg_count,
+            urgent_count=urgent_count,
+            positive_percentage=round((pos_count / total) * 100, 1) if total > 0 else 0.0,
+            neutral_percentage=round((neu_count / total) * 100, 1) if total > 0 else 0.0,
+            negative_percentage=round((neg_count / total) * 100, 1) if total > 0 else 0.0,
+            most_common_category=most_common_category,
+            most_common_complaint=most_common_complaint,
+            categories_breakdown=categories_breakdown,
+            sentiment_distribution=sent_dict,
+            recent_reviews=recent
+        )
+    finally:
+        conn.close()
 
 def get_setting(key: str, default: Optional[str] = None) -> Optional[str]:
     conn = get_connection()
