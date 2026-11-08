@@ -329,37 +329,45 @@ def get_existing_platform_review_ids(platform: str, location_id: Optional[str] =
 
 def update_review_reply(review_id: str, new_reply: str) -> bool:
     conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("UPDATE reviews SET generated_reply = ? WHERE id = ?", (new_reply, review_id))
-    affected = cursor.rowcount > 0
-    conn.commit()
-    conn.close()
-    return affected
+    try:
+        cursor = conn.cursor()
+        cursor.execute("UPDATE reviews SET generated_reply = ? WHERE id = ?", (new_reply, review_id))
+        affected = cursor.rowcount > 0
+        conn.commit()
+        return affected
+    finally:
+        conn.close()
 
 def update_review_telegram_status(review_id: str, sent: bool = True):
     conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("UPDATE reviews SET telegram_sent = ? WHERE id = ?", (1 if sent else 0, review_id))
-    conn.commit()
-    conn.close()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("UPDATE reviews SET telegram_sent = ? WHERE id = ?", (1 if sent else 0, review_id))
+        conn.commit()
+    finally:
+        conn.close()
 
 def delete_review(review_id: str) -> bool:
     conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM reviews WHERE id = ?", (review_id,))
-    affected = cursor.rowcount > 0
-    conn.commit()
-    conn.close()
-    return affected
+    try:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM reviews WHERE id = ?", (review_id,))
+        affected = cursor.rowcount > 0
+        conn.commit()
+        return affected
+    finally:
+        conn.close()
 
 def clear_all_reviews() -> int:
     conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM reviews")
-    count = cursor.rowcount
-    conn.commit()
-    conn.close()
-    return count
+    try:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM reviews")
+        count = cursor.rowcount
+        conn.commit()
+        return count
+    finally:
+        conn.close()
 
 def get_stats() -> DashboardStats:
     conn = get_connection()
