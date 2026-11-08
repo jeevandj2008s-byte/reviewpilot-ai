@@ -134,6 +134,22 @@ async def supabase_signup(email: str, password: str, full_name: str) -> Dict[str
         }
     }
 
+async def supabase_sign_out(token: str) -> bool:
+    """
+    Revokes the current user session on Supabase Auth.
+    """
+    if not is_supabase_configured() or not token:
+        return True
+    endpoint = f"{settings.supabase_url.rstrip('/')}/auth/v1/logout"
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            headers = get_supabase_headers(token)
+            res = await client.post(endpoint, headers=headers)
+            return res.status_code in (200, 204)
+    except Exception as exc:
+        logger.warning(f"Supabase sign-out notification failed: {exc}")
+        return False
+
 async def supabase_signin(email: str, password: str) -> Dict[str, Any]:
     """
     Authenticates user via Supabase Auth GoTrue API, with graceful fallback.

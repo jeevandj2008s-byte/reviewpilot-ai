@@ -32,7 +32,8 @@ from backend.services.auth_service import (
 from backend.services.supabase_service import (
     is_supabase_configured,
     supabase_signup,
-    supabase_signin
+    supabase_signin,
+    supabase_sign_out
 )
 from backend.config import settings
 
@@ -359,5 +360,14 @@ async def handle_supabase_signin(payload: UserLoginRequest):
     if result.get("status") == "error":
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=result.get("message", "Invalid credentials"))
     return result
+
+@router.post("/supabase/signout")
+async def handle_supabase_signout(request: Request):
+    """Revokes active Supabase session if token is provided."""
+    auth_header = request.headers.get("Authorization", "")
+    token = auth_header.replace("Bearer ", "").strip() if auth_header.startswith("Bearer ") else ""
+    success = await supabase_sign_out(token)
+    return {"status": "success", "revoked": success}
+
 
 
