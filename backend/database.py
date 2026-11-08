@@ -223,36 +223,40 @@ def get_reviews(
     search: Optional[str] = None,
     platform: Optional[str] = None
 ) -> List[ReviewAnalysis]:
+    safe_limit = max(1, min(int(limit), 500))
+    safe_offset = max(0, int(offset))
     conn = get_connection()
-    cursor = conn.cursor()
-    
-    query = "SELECT * FROM reviews WHERE 1=1"
-    params = []
-    
-    if sentiment and sentiment.lower() != "all":
-        query += " AND sentiment = ?"
-        params.append(sentiment.capitalize())
+    try:
+        cursor = conn.cursor()
         
-    if urgent_only is True:
-        query += " AND is_urgent = 1"
+        query = "SELECT * FROM reviews WHERE 1=1"
+        params = []
+        
+        if sentiment and sentiment.lower() != "all":
+            query += " AND sentiment = ?"
+            params.append(sentiment.capitalize())
+            
+        if urgent_only is True:
+            query += " AND is_urgent = 1"
 
-    if platform and platform.lower() != "all":
-        query += " AND platform = ?"
-        params.append(platform.lower())
+        if platform and platform.lower() != "all":
+            query += " AND platform = ?"
+            params.append(platform.lower().strip())
+            
+        if search and search.strip():
+            query += " AND (review_text LIKE ? OR generated_reply LIKE ? OR category LIKE ? OR author_name LIKE ?)"
+            like_search = f"%{search.strip()}%"
+            params.extend([like_search, like_search, like_search, like_search])
+            
+        query += " ORDER BY created_at DESC LIMIT ? OFFSET ?"
+        params.extend([safe_limit, safe_offset])
         
-    if search:
-        query += " AND (review_text LIKE ? OR generated_reply LIKE ? OR category LIKE ? OR author_name LIKE ?)"
-        like_search = f"%{search}%"
-        params.extend([like_search, like_search, like_search, like_search])
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
         
-    query += " ORDER BY created_at DESC LIMIT ? OFFSET ?"
-    params.extend([limit, offset])
-    
-    cursor.execute(query, params)
-    rows = cursor.fetchall()
-    conn.close()
-    
-    return [_row_to_review_analysis(r) for r in rows]
+        return [_row_to_review_analysis(r) for r in rows]
+    finally:
+        conn.close()
 
 def get_reviews_by_timeframe(
     start_iso: str,
