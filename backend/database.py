@@ -181,39 +181,46 @@ def init_db():
     conn.close()
 
 def save_reviews_batch(analyses: List[ReviewAnalysis]):
+    if not analyses:
+        return
     conn = get_connection()
-    cursor = conn.cursor()
-    for item in analyses:
-        cursor.execute("""
-        INSERT OR REPLACE INTO reviews (
-            id, batch_id, review_text, sentiment, sentiment_score,
-            category, is_urgent, urgent_reason, tone,
-            generated_reply, telegram_sent, created_at,
-            platform, platform_review_id, platform_location_id,
-            author_name, star_rating, published_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            item.id,
-            item.batch_id,
-            item.review_text,
-            item.sentiment.value if hasattr(item.sentiment, 'value') else str(item.sentiment),
-            item.sentiment_score,
-            item.category,
-            1 if item.is_urgent else 0,
-            item.urgent_reason,
-            item.tone.value if hasattr(item.tone, 'value') else str(item.tone),
-            item.generated_reply,
-            1 if item.telegram_sent else 0,
-            item.created_at,
-            item.platform or "manual",
-            item.platform_review_id,
-            item.platform_location_id,
-            item.author_name,
-            item.star_rating,
-            item.published_at
-        ))
-    conn.commit()
-    conn.close()
+    try:
+        cursor = conn.cursor()
+        for item in analyses:
+            cursor.execute("""
+            INSERT OR REPLACE INTO reviews (
+                id, batch_id, review_text, sentiment, sentiment_score,
+                category, is_urgent, urgent_reason, tone,
+                generated_reply, telegram_sent, created_at,
+                platform, platform_review_id, platform_location_id,
+                author_name, star_rating, published_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                item.id,
+                item.batch_id,
+                item.review_text,
+                item.sentiment.value if hasattr(item.sentiment, 'value') else str(item.sentiment),
+                item.sentiment_score,
+                item.category,
+                1 if item.is_urgent else 0,
+                item.urgent_reason,
+                item.tone.value if hasattr(item.tone, 'value') else str(item.tone),
+                item.generated_reply,
+                1 if item.telegram_sent else 0,
+                item.created_at,
+                item.platform or "manual",
+                item.platform_review_id,
+                item.platform_location_id,
+                item.author_name,
+                item.star_rating,
+                item.published_at
+            ))
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
 
 def get_reviews(
     limit: int = 100,
