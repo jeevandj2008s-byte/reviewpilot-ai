@@ -7,7 +7,9 @@
     "dev": "node run-dev.js",
     "start": "node run-dev.js",
     "serve": "node run-dev.js",
-    "backend": "node run-dev.js"
+    "backend": "node run-dev.js",
+    "healthcheck": "node run-dev.js --check",
+    "test": "node run-dev.js --test"
   },
   "keywords": [
     "reviewpilot",
