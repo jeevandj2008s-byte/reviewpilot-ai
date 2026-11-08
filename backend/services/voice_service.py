@@ -31,9 +31,22 @@ async def transcribe_audio(audio_bytes: bytes, filename: str = "audio.webm") -> 
     openai_key = get_setting("openai_api_key") or settings.openai_api_key
     if openai_key and not openai_key.startswith("your_"):
         try:
+            # Infer content-type based on audio filename extension for cross-browser compatibility (e.g. Safari AAC/m4a)
+            lower_fn = filename.lower()
+            if lower_fn.endswith(".wav"):
+                mime = "audio/wav"
+            elif lower_fn.endswith(".mp4") or lower_fn.endswith(".m4a"):
+                mime = "audio/mp4"
+            elif lower_fn.endswith(".mp3"):
+                mime = "audio/mpeg"
+            elif lower_fn.endswith(".ogg"):
+                mime = "audio/ogg"
+            else:
+                mime = "audio/webm"
+
             async with httpx.AsyncClient(timeout=20.0) as client:
                 files = {
-                    "file": (filename, audio_bytes, "audio/webm")
+                    "file": (filename, audio_bytes, mime)
                 }
                 data = {
                     "model": "whisper-1",
