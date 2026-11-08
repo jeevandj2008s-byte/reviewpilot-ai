@@ -438,7 +438,19 @@ const AnalyzerController = {
       copyBtn.addEventListener('click', async () => {
         try {
           const currentText = textElem ? textElem.textContent : item.generated_reply;
-          await navigator.clipboard.writeText(currentText);
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(currentText);
+          } else {
+            const tempArea = document.createElement('textarea');
+            tempArea.value = currentText;
+            tempArea.style.position = 'fixed';
+            tempArea.style.opacity = '0';
+            document.body.appendChild(tempArea);
+            tempArea.focus();
+            tempArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempArea);
+          }
 
           if (copyPill) {
             copyPill.style.display = 'inline';
