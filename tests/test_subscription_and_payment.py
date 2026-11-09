@@ -21,7 +21,7 @@ class TestSubscriptionAndPayment(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(data.get("status"), "success")
-        self.assertEqual(data.get("payee_vpa"), "9036329433@ybl")
+        self.assertEqual(data.get("payee_vpa"), "9741481204@axl")
         self.assertEqual(data.get("payee_name"), "ReviewPilot AI")
 
         plans = data.get("plans", [])

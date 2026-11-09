@@ -32,7 +32,7 @@ from backend.services.auth_service import decode_access_token
 router = APIRouter(prefix="/api/subscription", tags=["Subscription & Payments"])
 security = HTTPBearer(auto_error=False)
 
-PAYEE_VPA = "9036329433@ybl"
+PAYEE_VPA = "9741481204@axl"
 PAYEE_NAME = "ReviewPilot AI"
 
 SUBSCRIPTION_PLANS: List[Dict[str, Any]] = [
