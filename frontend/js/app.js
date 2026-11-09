@@ -420,16 +420,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Copy UPI button
-  const copyBtn = document.getElementById('copy-upi-btn');
-  if (copyBtn) {
-    bindTouchpadAndClick(copyBtn, () => PaymentModalController.copyUpi());
-  }
-
   // Confirm payment button
   const confirmBtn = document.getElementById('payment-confirm-btn');
   if (confirmBtn) {
     bindTouchpadAndClick(confirmBtn, () => PaymentModalController.confirmPayment());
+  }
+
+  // UTR Enter key submit
+  const utrInput = document.getElementById('payment-utr-input');
+  if (utrInput) {
+    utrInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        PaymentModalController.confirmPayment();
+      }
+    });
   }
 
   // Escape key to close modal
