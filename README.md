@@ -214,6 +214,22 @@ This repository includes a native `render.yaml` configuration for 1-click Render
 
 ---
 
+## 💳 Subscription Plans & Scan-to-Pay Activation
+
+ReviewPilot AI provides transparent monthly subscription tiers activated via direct UPI QR scan:
+
+- **Professional Plan (₹299 / month)**: Full automated review analysis, sentiment categorization, empathetic reply generation, and instant Telegram emergency dispatch.
+- **Enterprise Plan (₹899 / month)**: Multi-branch location support, platform webhooks, and priority intelligence queues.
+
+### Activation Workflow:
+1. Choose **Activate Professional Plan** or **Activate Enterprise Plan** on the landing page or billing settings.
+2. Scan the official **PhonePe QR Code** using any UPI app (PhonePe, Google Pay, Paytm, or BHIM).
+3. Complete the transaction for the chosen tier (₹299 or ₹899).
+4. Enter the **12-digit UPI Transaction ID (UTR)** in the modal.
+5. Click **Confirm & Activate Plan** — the system validates the reference and activates your subscription immediately.
+
+---
+
 ## 📄 License
 
 MIT License. Designed and engineered for small business owners and SaaS operators.
