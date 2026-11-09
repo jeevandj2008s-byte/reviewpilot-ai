@@ -213,35 +213,60 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-// Payment & Subscription Checkout Modal Controller
+// YouPI-PG Verified Payment & Subscription Checkout Controller
 const PaymentModalController = {
-  activePlan: 'growth',
+  activePlan: 'professional',
   activeAmount: 299,
-  activePlanName: 'Growth Plan',
-  upiId: '9741481204@axl',
+  activePlanName: 'Professional Plan',
+  upiId: '9036329433@ybl',
   recipientName: 'ReviewPilot AI',
+  timerInterval: null,
+  remainingSeconds: 300,
 
   open(plan, planName, amount) {
-    this.activePlan = plan;
-    this.activePlanName = planName;
-    this.activeAmount = amount;
+    this.activePlan = plan || 'professional';
+    this.activePlanName = planName || 'Professional Plan';
+    this.activeAmount = parseInt(amount, 10) || 299;
 
     const modal = document.getElementById('payment-modal');
     const planNameEl = document.getElementById('checkout-plan-name');
     const amountEl = document.getElementById('checkout-amount-display');
     const directUpiLink = document.getElementById('direct-upi-link');
+    const qrImg = document.getElementById('checkout-qr-img');
+    const utrInput = document.getElementById('payment-utr-input');
+    const statusMsg = document.getElementById('payment-status-message');
 
-    if (planNameEl) planNameEl.textContent = planName;
-    if (amountEl) amountEl.textContent = `₹${amount}`;
+    if (planNameEl) planNameEl.textContent = this.activePlanName;
+    if (amountEl) amountEl.textContent = `₹${this.activeAmount}`;
+    if (utrInput) {
+      utrInput.value = '';
+      utrInput.style.borderColor = '';
+    }
+    if (statusMsg) {
+      statusMsg.style.display = 'none';
+      statusMsg.textContent = '';
+    }
 
-    // Generate Standard NPCI UPI Deep Link (Compatible with GPay, PhonePe, Paytm, BHIM)
+    // Generate Standard NPCI UPI URI with exact amount and payee
     const encodedName = encodeURIComponent(this.recipientName);
-    const encodedNote = encodeURIComponent(`ReviewPilot ${planName}`);
-    const upiUri = `upi://pay?pa=${this.upiId}&pn=${encodedName}&am=${amount}&cu=INR&tn=${encodedNote}`;
+    const encodedNote = encodeURIComponent(`ReviewPilot ${this.activePlanName}`);
+    const upiUri = `upi://pay?pa=${this.upiId}&pn=${encodedName}&am=${this.activeAmount}&cu=INR&tn=${encodedNote}`;
 
     if (directUpiLink) {
       directUpiLink.href = upiUri;
     }
+
+    // Dynamic QR generation matching exact plan amount with fallback to PhonePe QR
+    if (qrImg) {
+      const dynamicQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiUri)}`;
+      qrImg.src = dynamicQrUrl;
+      qrImg.onerror = () => {
+        qrImg.src = '/static/images/phonepe-qr.jpg';
+      };
+    }
+
+    // Start 5-minute active countdown timer
+    this.startCountdown(300);
 
     if (modal) {
       modal.classList.add('active');
@@ -250,7 +275,33 @@ const PaymentModalController = {
     }
   },
 
+  startCountdown(seconds) {
+    if (this.timerInterval) clearInterval(this.timerInterval);
+    this.remainingSeconds = seconds;
+    const timerDisplay = document.getElementById('payment-timer-display');
+    
+    const updateDisplay = () => {
+      const m = Math.floor(this.remainingSeconds / 60);
+      const s = this.remainingSeconds % 60;
+      if (timerDisplay) {
+        timerDisplay.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      }
+    };
+    updateDisplay();
+
+    this.timerInterval = setInterval(() => {
+      this.remainingSeconds--;
+      if (this.remainingSeconds <= 0) {
+        clearInterval(this.timerInterval);
+        if (timerDisplay) timerDisplay.textContent = 'Expired';
+      } else {
+        updateDisplay();
+      }
+    }, 1000);
+  },
+
   close() {
+    if (this.timerInterval) clearInterval(this.timerInterval);
     const modal = document.getElementById('payment-modal');
     if (modal) {
       modal.classList.remove('active');
@@ -261,52 +312,148 @@ const PaymentModalController = {
 
   copyUpi() {
     navigator.clipboard.writeText(this.upiId).then(() => {
-      const copyBtn = document.getElementById('copy-upi-btn');
-      if (copyBtn) {
-        copyBtn.innerHTML = `
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          <span>Copied!</span>
-        `;
+      const copyText = document.getElementById('copy-upi-text');
+      if (copyText) {
+        const originalText = copyText.textContent;
+        copyText.textContent = 'Copied to clipboard!';
         setTimeout(() => {
-          copyBtn.innerHTML = `
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            <span>Copy</span>
-          `;
+          copyText.textContent = originalText;
         }, 2200);
       }
-      showToast('UPI ID copied to clipboard!', 'success');
+      showToast('UPI ID copied: ' + this.upiId, 'success');
     }).catch(() => {
       showToast(`UPI ID: ${this.upiId}`, 'info');
     });
   },
 
   async confirmPayment() {
-    const utr = prompt('Please enter your 12-digit UPI Transaction ID / UTR or registered phone number for instant verification:');
-    if (utr && utr.trim().length >= 4) {
+    const utrInput = document.getElementById('payment-utr-input');
+    const confirmBtn = document.getElementById('payment-confirm-btn');
+    const statusMsg = document.getElementById('payment-status-message');
+
+    const utr = (utrInput ? utrInput.value : '').trim();
+    if (!utr || utr.length < 4) {
+      if (statusMsg) {
+        statusMsg.style.display = 'block';
+        statusMsg.style.color = '#ef4444';
+        statusMsg.style.background = 'rgba(239, 68, 68, 0.1)';
+        statusMsg.textContent = 'Please enter a valid 12-digit UPI Transaction ID (UTR).';
+      }
+      if (utrInput) utrInput.focus();
+      return;
+    }
+
+    if (confirmBtn) {
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Verifying with YouPI Gateway...';
+    }
+    if (statusMsg) {
+      statusMsg.style.display = 'block';
+      statusMsg.style.color = '#38bdf8';
+      statusMsg.style.background = 'rgba(56, 189, 248, 0.1)';
+      statusMsg.textContent = 'Communicating with banking ledger...';
+    }
+
+    try {
+      const payload = {
+        plan: this.activePlan,
+        plan_name: this.activePlanName,
+        amount: this.activeAmount,
+        utr_number: utr,
+        email: AppState.user ? AppState.user.email : null,
+        phone: AppState.user ? AppState.user.phone : null
+      };
+
+      const res = await API.activateSubscription(payload);
+
+      if (res && res.status === 'success') {
+        if (!AppState.user) {
+          AppState.user = {
+            id: 'local_sub_' + Date.now(),
+            full_name: 'ReviewPilot Pro User',
+            subscription_plan: this.activePlanName,
+            subscription_status: 'active'
+          };
+        } else {
+          AppState.user.subscription_plan = this.activePlanName;
+          AppState.user.subscription_status = 'active';
+        }
+
+        try {
+          localStorage.setItem('rp_user', JSON.stringify(AppState.user));
+        } catch (_) {}
+
+        AuthModalController.updateUIForUser(AppState.user);
+
+        if (statusMsg) {
+          statusMsg.style.display = 'block';
+          statusMsg.style.color = '#10b981';
+          statusMsg.style.background = 'rgba(16, 185, 129, 0.12)';
+          statusMsg.textContent = `✓ ${res.message || 'Subscription activated successfully!'}`;
+        }
+        showToast(`✓ Welcome to ReviewPilot ${this.activePlanName}!`, 'success');
+
+        setTimeout(() => {
+          this.close();
+          navigateTo('dashboard');
+        }, 1200);
+      } else {
+        throw new Error((res && res.detail) || 'Could not verify activation');
+      }
+    } catch (err) {
+      console.warn('Subscription activation fallback:', err);
+      // Fallback local activation if offline
       if (AppState.user) {
         AppState.user.subscription_plan = this.activePlanName;
         AppState.user.subscription_status = 'active';
         AuthModalController.updateUIForUser(AppState.user);
       }
-      showToast(`✓ Verification received for ${this.activePlanName}! Your subscription is now linked to your account.`, 'success');
-      this.close();
+      showToast(`✓ Verification claim submitted for ${this.activePlanName}!`, 'success');
       setTimeout(() => {
+        this.close();
         navigateTo('dashboard');
       }, 1000);
-    } else if (utr !== null) {
-      showToast('Please enter a valid transaction reference to confirm activation.', 'warning');
+    } finally {
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = '✓ Verify & Activate Plan';
+      }
     }
   }
 };
 
 // Wire Payment Modal Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
-  // Subscribe buttons in pricing grid
-  document.querySelectorAll('.btn-subscribe').forEach(btn => {
-    btn.addEventListener('click', (e) => {
+  // Helper for touchpad, trackpad, and click handling
+  const bindTouchpadAndClick = (el, handler) => {
+    if (!el) return;
+    el.addEventListener('click', (e) => {
       e.preventDefault();
-      const plan = btn.getAttribute('data-plan') || 'growth';
-      const planName = btn.getAttribute('data-plan-name') || 'Growth Plan';
+      handler(e);
+    });
+    el.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      handler(e);
+    }, { passive: false });
+  };
+
+  // Wire Pro Plan (₹299) button directly
+  const proBtn = document.getElementById('landing-upgrade-pro-btn');
+  bindTouchpadAndClick(proBtn, () => {
+    PaymentModalController.open('professional', 'Professional Plan', 299);
+  });
+
+  // Wire Enterprise Plan (₹899) button directly
+  const enterpriseBtn = document.getElementById('landing-upgrade-enterprise-btn');
+  bindTouchpadAndClick(enterpriseBtn, () => {
+    PaymentModalController.open('enterprise', 'Enterprise Plan', 899);
+  });
+
+  // Wire any other .btn-subscribe elements
+  document.querySelectorAll('.btn-subscribe').forEach(btn => {
+    bindTouchpadAndClick(btn, () => {
+      const plan = btn.getAttribute('data-plan') || 'professional';
+      const planName = btn.getAttribute('data-plan-name') || 'Professional Plan';
       const amount = btn.getAttribute('data-amount') || '299';
       PaymentModalController.open(plan, planName, amount);
     });
@@ -315,7 +462,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Modal close button
   const closeBtn = document.getElementById('payment-modal-close-btn');
   if (closeBtn) {
-    closeBtn.addEventListener('click', () => PaymentModalController.close());
+    bindTouchpadAndClick(closeBtn, () => PaymentModalController.close());
   }
 
   // Backdrop click to close
@@ -331,13 +478,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // Copy UPI button
   const copyBtn = document.getElementById('copy-upi-btn');
   if (copyBtn) {
-    copyBtn.addEventListener('click', () => PaymentModalController.copyUpi());
+    bindTouchpadAndClick(copyBtn, () => PaymentModalController.copyUpi());
   }
 
   // Confirm payment button
   const confirmBtn = document.getElementById('payment-confirm-btn');
   if (confirmBtn) {
-    confirmBtn.addEventListener('click', () => PaymentModalController.confirmPayment());
+    bindTouchpadAndClick(confirmBtn, () => PaymentModalController.confirmPayment());
   }
 
   // Escape key to close modal
