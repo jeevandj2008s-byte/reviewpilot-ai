@@ -331,8 +331,8 @@ const PaymentModalController = {
     const statusMsg = document.getElementById('payment-status-message');
 
     const rawUtr = (utrInput ? utrInput.value : '').trim();
-    const utr = rawUtr.replace(/[^A-Za-z0-9]/g, '');
-    if (!utr || utr.length < 4) {
+    const utr = rawUtr.replace(/[\s\-]/g, '');
+    if (!utr || utr.length < 4 || !/^[A-Za-z0-9]+$/.test(utr)) {
       if (statusMsg) {
         statusMsg.style.display = 'block';
         statusMsg.style.color = '#ef4444';

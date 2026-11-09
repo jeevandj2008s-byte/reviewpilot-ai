@@ -116,5 +116,32 @@ class TestSubscriptionAndPayment(unittest.TestCase):
         self.assertEqual(data.get("status"), "success")
         self.assertIsInstance(data.get("payments"), list)
 
+    def test_07_utr_sanitization_with_whitespace_and_hyphens(self):
+        """Verify POST /api/subscription/verify-utr sanitizes pasted spaces and dashes."""
+        res_spaced = self.client.post("/api/subscription/verify-utr", json={"utr": " 4123-5678-9012 "})
+        self.assertEqual(res_spaced.status_code, 200)
+        self.assertTrue(res_spaced.json().get("valid"))
+
+    def test_08_activate_with_formatted_utr_normalizes_clean_id(self):
+        """Verify POST /api/subscription/activate normalizes and stores clean alphanumeric UTR."""
+        email = "formatted_utr_test@reviewpilot.ai"
+        response = self.client.post("/api/subscription/activate", json={
+            "plan": "professional",
+            "plan_name": "Professional Plan",
+            "amount": 299,
+            "utr_number": " 9988-7766-5544 ",
+            "email": email
+        })
+        self.assertEqual(response.status_code, 200)
+        payments = get_user_payments(email=email)
+        self.assertTrue(len(payments) > 0)
+        self.assertEqual(payments[0]["utr_number"], "998877665544")
+
+    def test_09_official_upi_payee_vpa_consistency(self):
+        """Verify strict consistency of official UPI payee ID 9741481204@axl."""
+        response = self.client.get("/api/subscription/plans")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json().get("payee_vpa"), "9741481204@axl")
+
 if __name__ == "__main__":
     unittest.main()
