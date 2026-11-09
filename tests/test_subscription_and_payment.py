@@ -143,5 +143,17 @@ class TestSubscriptionAndPayment(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json().get("payee_vpa"), "9741481204@axl")
 
+    def test_10_qr_asset_files_integrity(self):
+        """Verify existence and valid dimensions of new payment QR code assets."""
+        import os
+        from PIL import Image
+
+        qr_png = os.path.join("frontend", "images", "payment-qr.png")
+        self.assertTrue(os.path.exists(qr_png), "payment-qr.png must exist in frontend/images")
+        
+        with Image.open(qr_png) as img:
+            self.assertGreater(img.width, 200)
+            self.assertGreater(img.height, 200)
+
 if __name__ == "__main__":
     unittest.main()
