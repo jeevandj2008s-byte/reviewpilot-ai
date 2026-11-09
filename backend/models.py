@@ -264,3 +264,45 @@ class VoiceBotResponse(BaseModel):
     audio_base64: Optional[str] = None
     mime_type: str = "audio/mp3"
     suggestions: List[str] = []
+
+# Subscription & YouPI Payment Gateway Models
+class SubscriptionPlanItem(BaseModel):
+    id: str
+    name: str
+    price: int
+    cycle: str = "month"
+    currency: str = "INR"
+    badge: Optional[str] = None
+    popular: bool = False
+    description: str
+    features: List[str]
+
+class SubscriptionPlansResponse(BaseModel):
+    status: str = "success"
+    payee_vpa: str
+    payee_name: str
+    plans: List[SubscriptionPlanItem]
+
+class ActivateSubscriptionRequest(BaseModel):
+    plan: str = Field(..., description="Target plan identifier e.g. 'professional' or 'enterprise'")
+    plan_name: str = Field(..., description="Display name e.g. 'Professional' or 'Enterprise'")
+    amount: float = Field(..., description="Amount paid in INR (299 or 899)")
+    utr_number: str = Field(..., min_length=4, max_length=32, description="12-digit UPI transaction reference / UTR")
+    email: Optional[str] = None
+    phone: Optional[str] = None
+
+class ActivateSubscriptionResponse(BaseModel):
+    status: str = "success"
+    message: str
+    plan: str
+    subscription_status: str = "active"
+    transaction_id: str
+    activated_at: str
+
+class VerifyUtrRequest(BaseModel):
+    utr: str = Field(..., min_length=4, max_length=32, description="UTR transaction reference")
+
+class VerifyUtrResponse(BaseModel):
+    status: str = "success"
+    valid: bool
+    message: str
