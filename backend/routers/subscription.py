@@ -98,7 +98,7 @@ def resolve_authenticated_user(credentials: Optional[HTTPAuthorizationCredential
 
 @router.get("/plans", response_model=SubscriptionPlansResponse)
 async def get_subscription_plans():
-    """Returns official pricing tiers (₹299 Pro, ₹899 Enterprise) and active UPI payee details."""
+    """Returns official pricing tiers (₹299 Pro, ₹899 Enterprise) and active scan-and-pay details."""
     return SubscriptionPlansResponse(
         status="success",
         payee_vpa=PAYEE_VPA,
