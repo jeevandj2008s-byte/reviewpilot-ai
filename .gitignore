@@ -49,6 +49,9 @@ reviewpilot.db
 *.swp
 *.swo
 
+# Temporary files
+temp_youpi/
+
 # OS
 .DS_Store
 Thumbs.db
