@@ -1068,70 +1068,33 @@ html.anim .hero-actions {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 1.15rem;
+  margin-bottom: 1.25rem;
 }
 
 .payment-qr-box {
-  padding: 0.65rem;
+  padding: 0.75rem;
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: 14px;
   border: 2px solid var(--primary);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
   text-align: center;
 }
 
 .payment-qr-image {
-  width: 175px;
-  height: 175px;
+  width: 195px;
+  height: 195px;
   object-fit: contain;
   display: block;
 }
 
 .payment-qr-caption {
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   color: var(--text-muted);
   text-align: center;
-  margin-top: 0.5rem;
+  margin-top: 0.65rem;
   margin-bottom: 0;
-}
-
-.payment-upi-details {
-  background: rgba(6, 17, 20, 0.65);
-  border: 1px solid rgba(122, 238, 214, 0.18);
-  border-radius: 10px;
-  padding: 0.75rem 0.85rem;
-  margin-bottom: 1rem;
-}
-
-.payment-upi-id-badge {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.65rem;
-  padding: 0.35rem 0.6rem;
-  background: rgba(0, 0, 0, 0.25);
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.payment-upi-label {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.payment-upi-value {
-  font-family: monospace;
-  font-size: 0.88rem;
-  color: var(--primary);
-  font-weight: 700;
-}
-
-.payment-actions-row {
-  display: flex;
-  gap: 0.6rem;
+  max-width: 280px;
+  line-height: 1.4;
 }
 
 .payment-utr-section {
