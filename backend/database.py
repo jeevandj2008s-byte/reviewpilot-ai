@@ -1,6 +1,7 @@
 import sqlite3
 import json
 import os
+import uuid
 from datetime import datetime
 from typing import List, Optional, Dict, Any, Set
 from backend.config import settings
