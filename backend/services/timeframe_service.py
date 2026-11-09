@@ -73,7 +73,9 @@ def parse_natural_timeframe(
         except Exception as e:
             logger.warning(f"Error parsing explicit start_date '{start_date}': {e}")
 
-    raw_query = (query or "").lower().strip()
+    raw_query = str(query or "").strip()[:200]
+    # Remove any non-printable/control characters
+    raw_query = re.sub(r"[\x00-\x1f\x7f-\x9f]", "", raw_query).lower()
     if not raw_query:
         raw_query = "past 7 days"
 
@@ -97,21 +99,26 @@ def parse_natural_timeframe(
     # Matches patterns like: 'past 2 days', 'last 1 week', '30 days', 'last 48 hours'
     match = re.search(r"(\d+)\s*(hour|day|week|month|year)s?", normalized_query)
     if match:
-        quantity = int(match.group(1))
+        raw_quantity = int(match.group(1))
+        # Clamp quantity to avoid datetime/timedelta OverflowError
+        quantity = min(raw_quantity, 1000)
         unit = match.group(2)
 
-        if unit == "hour":
-            start_dt = now_utc - timedelta(hours=quantity)
-        elif unit == "day":
-            start_dt = now_utc - timedelta(days=quantity)
-        elif unit == "week":
-            start_dt = now_utc - timedelta(weeks=quantity)
-        elif unit == "month":
-            start_dt = now_utc - timedelta(days=quantity * 30)
-        elif unit == "year":
-            start_dt = now_utc - timedelta(days=quantity * 365)
-        else:
-            start_dt = now_utc - timedelta(days=7)
+        try:
+            if unit == "hour":
+                start_dt = now_utc - timedelta(hours=quantity)
+            elif unit == "day":
+                start_dt = now_utc - timedelta(days=quantity)
+            elif unit == "week":
+                start_dt = now_utc - timedelta(weeks=quantity)
+            elif unit == "month":
+                start_dt = now_utc - timedelta(days=quantity * 30)
+            elif unit == "year":
+                start_dt = now_utc - timedelta(days=min(quantity, 10) * 365)
+            else:
+                start_dt = now_utc - timedelta(days=7)
+        except OverflowError:
+            start_dt = now_utc - timedelta(days=365)
 
         return start_dt, now_utc, raw_query
 
