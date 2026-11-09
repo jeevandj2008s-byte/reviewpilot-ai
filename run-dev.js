@@ -133,6 +133,31 @@ async function start() {
 
   const child = spawn(cmd, args, { stdio: 'inherit', shell: false });
 
+  // Clean shutdown handlers to prevent orphaned background processes on port 8000
+  const cleanup = () => {
+    if (child && !child.killed) {
+      try {
+        if (isWin) {
+          spawn('taskkill', ['/pid', child.pid.toString(), '/f', '/t']);
+        } else {
+          child.kill('SIGTERM');
+        }
+      } catch (_) {}
+    }
+  };
+
+  process.on('SIGINT', () => {
+    cleanup();
+    process.exit(0);
+  });
+
+  process.on('SIGTERM', () => {
+    cleanup();
+    process.exit(0);
+  });
+
+  process.on('exit', cleanup);
+
   child.on('error', (err) => {
     console.error(`\x1b[31m[Error]\x1b[0m Could not start process: ${err.message}`);
     console.log(`\nPlease ensure the Python virtual environment is set up:`);

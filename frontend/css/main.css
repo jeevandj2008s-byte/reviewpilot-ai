@@ -968,15 +968,15 @@ html.anim .hero-actions {
 }
 
 /* ==========================================================================
-   Modals & Notifications
+   Clean UPI Direct Checkout Modal
    ========================================================================== */
 .payment-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(6, 17, 19, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  z-index: 500;
+  background: rgba(3, 10, 12, 0.88);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  z-index: 600;
   display: none;
   align-items: center;
   justify-content: center;
@@ -990,12 +990,12 @@ html.anim .hero-actions {
 
 .payment-modal-card {
   width: 100%;
-  max-width: 520px;
-  background: rgba(13, 27, 30, 0.95);
-  border: 1px solid var(--primary-border);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-md);
-  padding: 2rem;
+  max-width: 440px;
+  background: linear-gradient(165deg, rgba(13, 28, 32, 0.96) 0%, rgba(5, 14, 16, 0.98) 100%);
+  border: 1px solid rgba(122, 238, 214, 0.3);
+  border-radius: 18px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 0 35px rgba(122, 238, 214, 0.08);
+  padding: 1.75rem;
   position: relative;
 }
 
@@ -1005,6 +1005,9 @@ html.anim .hero-actions {
   right: 1.25rem;
   color: var(--text-muted);
   cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0.25rem;
   transition: var(--transition);
 }
 
@@ -1012,71 +1015,28 @@ html.anim .hero-actions {
   color: #ffffff;
 }
 
-/* ==========================================================================
-   YouPI-PG Authentic Payment Gateway Styling
-   ========================================================================== */
-.youpi-modal-backdrop {
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  background: rgba(3, 10, 12, 0.85);
-  z-index: 600;
-}
-
-.youpi-modal-card {
-  max-width: 440px;
-  background: linear-gradient(165deg, rgba(13, 28, 32, 0.96) 0%, rgba(5, 14, 16, 0.98) 100%);
-  border: 1px solid rgba(122, 238, 214, 0.3);
-  border-radius: 18px;
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 0 35px rgba(122, 238, 214, 0.08);
-  padding: 1.75rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.youpi-header-strip {
+.payment-header {
   text-align: center;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.15rem;
 }
 
-.youpi-badge-group {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.youpi-gateway-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
+.payment-badge {
+  display: inline-block;
   font-size: 0.68rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   padding: 0.25rem 0.65rem;
   background: rgba(122, 238, 214, 0.12);
   color: var(--primary);
   border: 1px solid rgba(122, 238, 214, 0.25);
   border-radius: 999px;
+  margin-bottom: 0.45rem;
 }
 
-.youpi-timer-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.68rem;
-  font-weight: 700;
-  padding: 0.25rem 0.55rem;
-  background: rgba(255, 171, 0, 0.12);
-  color: #ffab00;
-  border: 1px solid rgba(255, 171, 0, 0.28);
-  border-radius: 999px;
-}
-
-.youpi-plan-heading {
+.payment-plan-title {
   font-family: var(--wide);
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: 800;
   text-transform: uppercase;
   margin: 0 0 0.25rem 0;
@@ -1084,34 +1044,34 @@ html.anim .hero-actions {
   letter-spacing: -0.01em;
 }
 
-.youpi-amount-row {
+.payment-price-row {
   display: flex;
   align-items: baseline;
   justify-content: center;
   gap: 0.35rem;
 }
 
-.youpi-price-tag {
+.payment-price-val {
   font-family: var(--wide);
-  font-size: 1.9rem;
+  font-size: 1.95rem;
   font-weight: 800;
   color: var(--primary);
   letter-spacing: -0.02em;
 }
 
-.youpi-cycle-tag {
-  font-size: 0.78rem;
+.payment-price-period {
+  font-size: 0.8rem;
   color: var(--text-muted);
 }
 
-.youpi-qr-section {
+.payment-qr-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-bottom: 1.15rem;
 }
 
-.youpi-qr-frame {
+.payment-qr-box {
   padding: 0.65rem;
   background: #ffffff;
   border-radius: 12px;
@@ -1120,57 +1080,61 @@ html.anim .hero-actions {
   text-align: center;
 }
 
-.youpi-qr-image {
-  width: 170px;
-  height: 170px;
+.payment-qr-image {
+  width: 175px;
+  height: 175px;
   object-fit: contain;
   display: block;
 }
 
-.youpi-qr-scan-hint {
-  font-size: 0.66rem;
-  font-weight: 700;
-  color: #061214;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-top: 0.35rem;
-}
-
-.youpi-apps-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-top: 0.85rem;
-  flex-wrap: wrap;
-}
-
-.youpi-app-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.25rem 0.55rem;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
-  font-size: 0.68rem;
-  font-weight: 600;
+.payment-qr-caption {
+  font-size: 0.72rem;
   color: var(--text-muted);
+  text-align: center;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
 }
 
-.youpi-app-badge img {
-  width: 14px;
-  height: 14px;
-  object-fit: contain;
-}
-
-.youpi-quick-actions {
-  display: flex;
-  gap: 0.6rem;
+.payment-upi-details {
+  background: rgba(6, 17, 20, 0.65);
+  border: 1px solid rgba(122, 238, 214, 0.18);
+  border-radius: 10px;
+  padding: 0.75rem 0.85rem;
   margin-bottom: 1rem;
 }
 
-.youpi-utr-box {
+.payment-upi-id-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.65rem;
+  padding: 0.35rem 0.6rem;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.payment-upi-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.payment-upi-value {
+  font-family: monospace;
+  font-size: 0.88rem;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.payment-actions-row {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.payment-utr-section {
   background: rgba(6, 17, 20, 0.65);
   border: 1px solid rgba(122, 238, 214, 0.18);
   border-radius: 10px;
@@ -1178,33 +1142,17 @@ html.anim .hero-actions {
   margin-bottom: 1rem;
 }
 
-.youpi-steps-strip {
+.payment-micro-instructions {
   display: flex;
-  justify-content: space-between;
-  gap: 0.35rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.youpi-step-item {
-  font-size: 0.67rem;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.youpi-step-dot {
-  width: 14px;
-  height: 14px;
-  background: rgba(122, 238, 214, 0.2);
-  color: var(--primary);
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
   justify-content: center;
-  font-size: 0.62rem;
-  font-weight: 800;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  text-align: center;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  flex-wrap: wrap;
 }
 
 /* ==========================================================================

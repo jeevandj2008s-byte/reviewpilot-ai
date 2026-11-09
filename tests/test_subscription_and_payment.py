@@ -1,5 +1,5 @@
 """
-ReviewPilot AI - Subscription & YouPI Payment Integration Tests
+ReviewPilot AI - Subscription & Direct UPI Payment Integration Tests
 Verifies official plan pricing (₹299 Pro, ₹899 Enterprise),
 UPI payee credentials, UTR validation, and database activation persistence.
 """

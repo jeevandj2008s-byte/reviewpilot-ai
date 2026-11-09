@@ -213,15 +213,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-// YouPI-PG Verified Payment & Subscription Checkout Controller
+// UPI Direct Payment & Subscription Checkout Controller
 const PaymentModalController = {
   activePlan: 'professional',
   activeAmount: 299,
   activePlanName: 'Professional Plan',
   upiId: '9741481204@axl',
   recipientName: 'ReviewPilot AI',
-  timerInterval: null,
-  remainingSeconds: 300,
 
   open(plan, planName, amount) {
     this.activePlan = plan || 'professional';
@@ -235,9 +233,12 @@ const PaymentModalController = {
     const qrImg = document.getElementById('checkout-qr-img');
     const utrInput = document.getElementById('payment-utr-input');
     const statusMsg = document.getElementById('payment-status-message');
+    const vpaDisplay = document.getElementById('payment-vpa-display');
 
     if (planNameEl) planNameEl.textContent = this.activePlanName;
     if (amountEl) amountEl.textContent = `₹${this.activeAmount}`;
+    if (vpaDisplay) vpaDisplay.textContent = this.upiId;
+
     if (utrInput) {
       utrInput.value = '';
       utrInput.style.borderColor = '';
@@ -247,7 +248,7 @@ const PaymentModalController = {
       statusMsg.textContent = '';
     }
 
-    // Generate Standard NPCI UPI URI with exact amount and payee
+    // Standard UPI URI with exact amount and payee
     const encodedName = encodeURIComponent(this.recipientName);
     const encodedNote = encodeURIComponent(`ReviewPilot ${this.activePlanName}`);
     const upiUri = `upi://pay?pa=${this.upiId}&pn=${encodedName}&am=${this.activeAmount}&cu=INR&tn=${encodedNote}`;
@@ -264,9 +265,6 @@ const PaymentModalController = {
       };
     }
 
-    // Start 5-minute active countdown timer
-    this.startCountdown(300);
-
     if (modal) {
       modal.classList.add('active');
       modal.setAttribute('aria-hidden', 'false');
@@ -274,33 +272,7 @@ const PaymentModalController = {
     }
   },
 
-  startCountdown(seconds) {
-    if (this.timerInterval) clearInterval(this.timerInterval);
-    this.remainingSeconds = seconds;
-    const timerDisplay = document.getElementById('payment-timer-display');
-    
-    const updateDisplay = () => {
-      const m = Math.floor(this.remainingSeconds / 60);
-      const s = this.remainingSeconds % 60;
-      if (timerDisplay) {
-        timerDisplay.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-      }
-    };
-    updateDisplay();
-
-    this.timerInterval = setInterval(() => {
-      this.remainingSeconds--;
-      if (this.remainingSeconds <= 0) {
-        clearInterval(this.timerInterval);
-        if (timerDisplay) timerDisplay.textContent = 'Expired';
-      } else {
-        updateDisplay();
-      }
-    }, 1000);
-  },
-
   close() {
-    if (this.timerInterval) clearInterval(this.timerInterval);
     const modal = document.getElementById('payment-modal');
     if (modal) {
       modal.classList.remove('active');
@@ -345,13 +317,13 @@ const PaymentModalController = {
 
     if (confirmBtn) {
       confirmBtn.disabled = true;
-      confirmBtn.textContent = 'Verifying with YouPI Gateway...';
+      confirmBtn.textContent = 'Verifying payment...';
     }
     if (statusMsg) {
       statusMsg.style.display = 'block';
       statusMsg.style.color = '#38bdf8';
       statusMsg.style.background = 'rgba(56, 189, 248, 0.1)';
-      statusMsg.textContent = 'Communicating with banking ledger...';
+      statusMsg.textContent = 'Verifying UPI transaction with audit ledger...';
     }
 
     try {
@@ -416,7 +388,7 @@ const PaymentModalController = {
     } finally {
       if (confirmBtn) {
         confirmBtn.disabled = false;
-        confirmBtn.textContent = '✓ Verify & Activate Plan';
+        confirmBtn.textContent = '✓ Confirm & Activate Plan';
       }
     }
   }
