@@ -218,7 +218,7 @@ const PaymentModalController = {
   activePlan: 'professional',
   activeAmount: 299,
   activePlanName: 'Professional Plan',
-  upiId: '9036329433@ybl',
+  upiId: '9741481204@axl',
   recipientName: 'ReviewPilot AI',
   timerInterval: null,
   remainingSeconds: 300,
@@ -256,10 +256,9 @@ const PaymentModalController = {
       directUpiLink.href = upiUri;
     }
 
-    // Dynamic QR generation matching exact plan amount with fallback to PhonePe QR
+    // Display user's verified PhonePe QR code
     if (qrImg) {
-      const dynamicQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiUri)}`;
-      qrImg.src = dynamicQrUrl;
+      qrImg.src = '/static/images/payment-qr.png';
       qrImg.onerror = () => {
         qrImg.src = '/static/images/phonepe-qr.jpg';
       };
