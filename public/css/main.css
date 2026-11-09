@@ -1013,6 +1013,201 @@ html.anim .hero-actions {
 }
 
 /* ==========================================================================
+   YouPI-PG Authentic Payment Gateway Styling
+   ========================================================================== */
+.youpi-modal-backdrop {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(3, 10, 12, 0.85);
+  z-index: 600;
+}
+
+.youpi-modal-card {
+  max-width: 440px;
+  background: linear-gradient(165deg, rgba(13, 28, 32, 0.96) 0%, rgba(5, 14, 16, 0.98) 100%);
+  border: 1px solid rgba(122, 238, 214, 0.3);
+  border-radius: 18px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 0 35px rgba(122, 238, 214, 0.08);
+  padding: 1.75rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.youpi-header-strip {
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.youpi-badge-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.youpi-gateway-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.25rem 0.65rem;
+  background: rgba(122, 238, 214, 0.12);
+  color: var(--primary);
+  border: 1px solid rgba(122, 238, 214, 0.25);
+  border-radius: 999px;
+}
+
+.youpi-timer-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.25rem 0.55rem;
+  background: rgba(255, 171, 0, 0.12);
+  color: #ffab00;
+  border: 1px solid rgba(255, 171, 0, 0.28);
+  border-radius: 999px;
+}
+
+.youpi-plan-heading {
+  font-family: var(--wide);
+  font-size: 1.2rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin: 0 0 0.25rem 0;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.youpi-amount-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.youpi-price-tag {
+  font-family: var(--wide);
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+}
+
+.youpi-cycle-tag {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.youpi-qr-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.15rem;
+}
+
+.youpi-qr-frame {
+  padding: 0.65rem;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 2px solid var(--primary);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  text-align: center;
+}
+
+.youpi-qr-image {
+  width: 170px;
+  height: 170px;
+  object-fit: contain;
+  display: block;
+}
+
+.youpi-qr-scan-hint {
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: #061214;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.35rem;
+}
+
+.youpi-apps-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.youpi-app-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.55rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.youpi-app-badge img {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+}
+
+.youpi-quick-actions {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.youpi-utr-box {
+  background: rgba(6, 17, 20, 0.65);
+  border: 1px solid rgba(122, 238, 214, 0.18);
+  border-radius: 10px;
+  padding: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.youpi-steps-strip {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.35rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.youpi-step-item {
+  font-size: 0.67rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.youpi-step-dot {
+  width: 14px;
+  height: 14px;
+  background: rgba(122, 238, 214, 0.2);
+  color: var(--primary);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.62rem;
+  font-weight: 800;
+}
+
+/* ==========================================================================
    Premium Glassmorphism Authentication Modal
    ========================================================================== */
 .auth-glass-backdrop {
