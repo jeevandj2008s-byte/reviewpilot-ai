@@ -1126,39 +1126,88 @@
     </div>
   </div>
 
-  <!-- Subscription Checkout / PhonePe UPI Modal -->
-  <div id="payment-modal" class="payment-modal-backdrop" aria-hidden="true">
-    <div class="payment-modal-card">
+  <!-- YouPI-PG Verified UPI Payment & Subscription Checkout Modal -->
+  <div id="payment-modal" class="payment-modal-backdrop youpi-modal-backdrop" aria-hidden="true">
+    <div class="payment-modal-card youpi-modal-card">
       <button type="button" class="payment-modal-close" id="payment-modal-close-btn" aria-label="Close modal">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
 
-      <div style="text-align: center; margin-bottom: 1.5rem;">
-        <span class="badge badge-category" style="margin-bottom: 0.5rem;">Instant UPI Activation</span>
-        <h3 id="checkout-plan-name" style="font-family: var(--wide); font-size: 1.35rem; font-weight: 800; text-transform: uppercase; margin: 0 0 0.35rem 0;">ReviewPilot Pro</h3>
-        <div id="checkout-amount-display" style="font-family: var(--wide); font-size: 2rem; font-weight: 800; color: var(--primary);">₹1,499</div>
-      </div>
-
-      <!-- QR Code Container -->
-      <div style="display: flex; justify-content: center; margin-bottom: 1.25rem;">
-        <div style="padding: 0.75rem; background: #ffffff; border-radius: 8px; border: 2px solid var(--primary);">
-          <img src="/static/images/phonepe-qr.jpg" alt="PhonePe QR Code" style="width: 180px; height: 180px; object-fit: contain; display: block;">
+      <!-- YouPI Gateway Header Bar -->
+      <div class="youpi-header-strip">
+        <div class="youpi-badge-group">
+          <span class="youpi-gateway-pill">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            NPCI Verified Gateway
+          </span>
+          <span class="youpi-timer-pill" id="payment-countdown-timer">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span id="payment-timer-display">05:00</span>
+          </span>
+        </div>
+        <h3 id="checkout-plan-name" class="youpi-plan-heading">Professional Plan</h3>
+        <div class="youpi-amount-row">
+          <span id="checkout-amount-display" class="youpi-price-tag">₹299</span>
+          <span class="youpi-cycle-tag">/ month</span>
         </div>
       </div>
 
-      <div style="text-align: center; margin-bottom: 1.25rem;">
-        <button type="button" class="btn btn-secondary btn-sm" id="copy-upi-btn">
-          Copy UPI ID: 9036329433@ybl
-        </button>
+      <!-- Core YouPI QR Box & Brand Apps Row -->
+      <div class="youpi-qr-section">
+        <div class="youpi-qr-frame">
+          <img id="checkout-qr-img" src="/static/images/phonepe-qr.jpg" alt="UPI QR Code" class="youpi-qr-image" />
+          <div class="youpi-qr-scan-hint">Scan with any UPI App</div>
+        </div>
+
+        <!-- YouPI Brand Apps Row -->
+        <div class="youpi-apps-row">
+          <div class="youpi-app-badge" title="Google Pay"><img src="/static/images/icons/gpay.png" alt="Google Pay" /><span>GPay</span></div>
+          <div class="youpi-app-badge" title="PhonePe"><img src="/static/images/icons/phonepe.png" alt="PhonePe" /><span>PhonePe</span></div>
+          <div class="youpi-app-badge" title="Paytm"><img src="/static/images/icons/paytm.png" alt="Paytm" /><span>Paytm</span></div>
+          <div class="youpi-app-badge" title="CRED"><img src="/static/images/icons/cred.png" alt="CRED" /><span>CRED</span></div>
+          <div class="youpi-app-badge" title="BHIM"><img src="/static/images/icons/bhim.png" alt="BHIM" /><span>BHIM</span></div>
+        </div>
       </div>
 
-      <div style="display: flex; flex-direction: column; gap: 0.65rem;">
-        <a href="#" id="direct-upi-link" class="btn btn-primary" style="width: 100%;">
-          Pay with UPI App Directly
-        </a>
-        <button type="button" class="btn btn-secondary" id="payment-confirm-btn" style="width: 100%;">
-          ✓ I Have Completed Payment (Verify &amp; Activate)
+      <!-- Quick Action Controls -->
+      <div class="youpi-quick-actions">
+        <button type="button" class="btn btn-secondary btn-sm" id="copy-upi-btn" style="flex: 1;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span id="copy-upi-text">Copy UPI: 9036329433@ybl</span>
         </button>
+        <a href="#" id="direct-upi-link" class="btn btn-primary btn-sm" style="flex: 1; text-align: center; text-decoration: none;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Open UPI App
+        </a>
+      </div>
+
+      <!-- Embedded 12-digit UTR Claim Input & Instant Activation -->
+      <div class="youpi-utr-box">
+        <label for="payment-utr-input" class="form-label" style="font-size: 0.76rem; margin-bottom: 0.35rem;">
+          Enter 12-Digit UPI Transaction ID / UTR:
+        </label>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <input 
+            type="text" 
+            id="payment-utr-input" 
+            class="form-input" 
+            placeholder="e.g. 412356789012" 
+            maxlength="28" 
+            autocomplete="off"
+            style="flex: 1; font-family: monospace; letter-spacing: 0.05em; font-size: 0.88rem;"
+          />
+        </div>
+        <button type="button" class="btn btn-primary" id="payment-confirm-btn" style="width: 100%; margin-top: 0.65rem;">
+          ✓ Verify &amp; Activate Plan
+        </button>
+        <div id="payment-status-message" style="display: none; font-size: 0.75rem; text-align: center; margin-top: 0.5rem; padding: 0.35rem; border-radius: 4px;"></div>
+      </div>
+
+      <!-- Step-by-Step Micro Guide -->
+      <div class="youpi-steps-strip">
+        <div class="youpi-step-item"><span class="youpi-step-dot">1</span> Scan QR or tap Open UPI</div>
+        <div class="youpi-step-item"><span class="youpi-step-dot">2</span> Pay ₹299 (or plan amount)</div>
+        <div class="youpi-step-item"><span class="youpi-step-dot">3</span> Paste UTR to activate</div>
       </div>
     </div>
   </div>
