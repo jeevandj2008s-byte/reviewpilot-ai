@@ -7,6 +7,12 @@ from backend.database import get_setting
 
 logger = logging.getLogger("reviewpilot.telegram")
 
+def _redact_token(text: str, token: Optional[str]) -> str:
+    """Safely scrubs Telegram bot token from URL representations and error logs."""
+    if not text or not token:
+        return text
+    return text.replace(token, "[REDACTED_BOT_TOKEN]")
+
 def get_effective_telegram_config(
     override_token: Optional[str] = None,
     override_chat_id: Optional[str] = None
@@ -44,11 +50,18 @@ async def send_telegram_alert(
     if not eff_token or not eff_chat_id:
         return False, "Telegram Bot Token or Chat ID is not configured."
 
-    # Format message with safe HTML entity escaping (handles &, <, >, ")
+    # Format message with safe HTML entity escaping and length bounds (Telegram 4096 char limit)
     clean_biz = html.escape(business_name or "Your Business")
     clean_cat = html.escape(category or "General")
-    clean_text = html.escape(review_text.strip() if review_text else "")
-    clean_reply = html.escape(suggested_reply.strip() if suggested_reply else "")
+    raw_review = (review_text.strip() if review_text else "")
+    if len(raw_review) > 1500:
+        raw_review = raw_review[:1497] + "..."
+    clean_text = html.escape(raw_review)
+
+    raw_reply = (suggested_reply.strip() if suggested_reply else "")
+    if len(raw_reply) > 1500:
+        raw_reply = raw_reply[:1497] + "..."
+    clean_reply = html.escape(raw_reply)
     clean_reason = html.escape(urgent_reason or "Requires immediate attention")
 
     message = (
@@ -83,11 +96,13 @@ async def send_telegram_alert(
                 logger.error(f"Telegram API error: {desc}")
                 return False, f"Telegram API error: {desc}"
     except httpx.RequestError as exc:
-        logger.error(f"Network error sending Telegram alert: {exc}")
-        return False, f"Network error contacting Telegram: {str(exc)}"
+        sanitized_err = _redact_token(str(exc), eff_token)
+        logger.error(f"Network error sending Telegram alert: {sanitized_err}")
+        return False, f"Network error contacting Telegram: {sanitized_err}"
     except Exception as exc:
-        logger.error(f"Unexpected error in send_telegram_alert: {exc}")
-        return False, f"Failed to send alert: {str(exc)}"
+        sanitized_err = _redact_token(str(exc), eff_token)
+        logger.error(f"Unexpected error in send_telegram_alert: {sanitized_err}")
+        return False, f"Failed to send alert: {sanitized_err}"
 
 async def send_test_message(
     bot_token: Optional[str] = None,
@@ -129,5 +144,6 @@ async def send_test_message(
                 desc = data.get("description", f"HTTP {response.status_code}")
                 return False, f"Telegram test failed: {desc}"
     except Exception as exc:
-        return False, f"Connection failed: {str(exc)}"
+        sanitized_err = _redact_token(str(exc), clean_token)
+        return False, f"Connection failed: {sanitized_err}"
 
