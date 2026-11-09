@@ -180,12 +180,14 @@ async def global_exception_handler(request: Request, exc: Exception):
 # Include API Routers
 from backend.routers import auth as auth_router
 from backend.routers import ai_chat as ai_chat_router
+from backend.routers import subscription as subscription_router
 app.include_router(auth_router.router)
 app.include_router(ai_chat_router.router)
 app.include_router(reviews.router)
 app.include_router(settings_router.router)
 app.include_router(export.router)
 app.include_router(platforms_router.router)
+app.include_router(subscription_router.router)
 
 @app.get("/health")
 async def health_check():
