@@ -109,7 +109,8 @@ async def get_subscription_plans():
 @router.post("/verify-utr", response_model=VerifyUtrResponse)
 async def verify_utr_claim(req: VerifyUtrRequest):
     """Validates 12-digit Indian banking UPI Transaction ID / UTR structure."""
-    clean_utr = req.utr.strip()
+    # Sanitize spaces, hyphens, and non-alphanumeric characters often copied from banking apps
+    clean_utr = re.sub(r"[^A-Za-z0-9]", "", req.utr.strip())
     # Banking UTR is typically 12 alphanumeric characters
     is_valid_format = bool(re.match(r"^[A-Za-z0-9]{4,30}$", clean_utr))
     if not is_valid_format:
@@ -133,7 +134,8 @@ async def activate_subscription(
     Verifies UPI payment claim and activates Professional (₹299) or Enterprise (₹899) tier.
     Persists transaction to SQLite payments audit ledger and updates account subscription.
     """
-    clean_utr = payload.utr_number.strip()
+    # Sanitize spaces, hyphens, and non-alphanumeric characters
+    clean_utr = re.sub(r"[^A-Za-z0-9]", "", payload.utr_number.strip())
     if len(clean_utr) < 4:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

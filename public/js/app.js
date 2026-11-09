@@ -330,7 +330,8 @@ const PaymentModalController = {
     const confirmBtn = document.getElementById('payment-confirm-btn');
     const statusMsg = document.getElementById('payment-status-message');
 
-    const utr = (utrInput ? utrInput.value : '').trim();
+    const rawUtr = (utrInput ? utrInput.value : '').trim();
+    const utr = rawUtr.replace(/[^A-Za-z0-9]/g, '');
     if (!utr || utr.length < 4) {
       if (statusMsg) {
         statusMsg.style.display = 'block';
