@@ -2,7 +2,7 @@ import sqlite3
 import json
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional, Dict, Any, Set
 from backend.config import settings
 from backend.models import ReviewAnalysis, SentimentType, ReplyTone, DashboardStats
@@ -523,7 +523,7 @@ def save_platform_connection(
 ) -> Dict[str, Any]:
     conn = get_connection()
     cursor = conn.cursor()
-    now_iso = datetime.utcnow().isoformat() + "Z"
+    now_iso = datetime.now(timezone.utc).isoformat() + "Z"
     
     cursor.execute("""
     INSERT INTO platform_connections (
@@ -586,7 +586,7 @@ def get_platform_connection_by_platform(platform: str, user_id: Optional[str] = 
 def update_platform_connection_tokens(conn_id: str, encrypted_access_token: str, expires_at: Optional[str]):
     conn = get_connection()
     cursor = conn.cursor()
-    now_iso = datetime.utcnow().isoformat() + "Z"
+    now_iso = datetime.now(timezone.utc).isoformat() + "Z"
     cursor.execute("""
     UPDATE platform_connections 
     SET encrypted_access_token = ?, token_expires_at = ?, updated_at = ?
@@ -598,7 +598,7 @@ def update_platform_connection_tokens(conn_id: str, encrypted_access_token: str,
 def update_platform_connection_location(conn_id: str, location_id: str, location_name: Optional[str]):
     conn = get_connection()
     cursor = conn.cursor()
-    now_iso = datetime.utcnow().isoformat() + "Z"
+    now_iso = datetime.now(timezone.utc).isoformat() + "Z"
     cursor.execute("""
     UPDATE platform_connections 
     SET location_id = ?, location_name = ?, updated_at = ?
@@ -613,7 +613,7 @@ def update_platform_connection_location(conn_id: str, location_id: str, location
 def update_platform_connection_sync(conn_id: str, count: int, status: str = "connected", error_message: Optional[str] = None):
     conn = get_connection()
     cursor = conn.cursor()
-    now_iso = datetime.utcnow().isoformat() + "Z"
+    now_iso = datetime.now(timezone.utc).isoformat() + "Z"
     cursor.execute("""
     UPDATE platform_connections 
     SET last_synced_at = ?, last_sync_count = ?, status = ?, error_message = ?, updated_at = ?
@@ -643,7 +643,7 @@ def save_platform_locations(conn_id: str, locations: List[Dict[str, Any]]):
             id, connection_id, platform_location_id, location_name, address, is_selected
         ) VALUES (?, ?, ?, ?, ?, ?)
         """, (
-            loc.get("id") or str(datetime.utcnow().timestamp()) + "_" + loc["platform_location_id"],
+            loc.get("id") or str(datetime.now(timezone.utc).timestamp()) + "_" + loc["platform_location_id"],
             conn_id,
             loc["platform_location_id"],
             loc.get("location_name", "Primary Location"),
@@ -665,7 +665,7 @@ def get_platform_locations(conn_id: str) -> List[Dict[str, Any]]:
 def save_oauth_state(state: str, platform: str, user_id: Optional[str] = None):
     conn = get_connection()
     cursor = conn.cursor()
-    now_iso = datetime.utcnow().isoformat() + "Z"
+    now_iso = datetime.now(timezone.utc).isoformat() + "Z"
     cursor.execute("""
     INSERT INTO oauth_states (state, platform, user_id, created_at)
     VALUES (?, ?, ?, ?)
@@ -730,7 +730,7 @@ def create_user(
 ) -> Dict[str, Any]:
     conn = get_connection()
     cursor = conn.cursor()
-    now_iso = datetime.utcnow().isoformat()
+    now_iso = datetime.now(timezone.utc).isoformat()
     cursor.execute("""
     INSERT INTO users (
         id, email, phone, full_name, password_hash,
@@ -764,8 +764,8 @@ def update_user_subscription(user_id: str, plan: str, status: str = 'active'):
 def record_login_attempt(identifier: str, ip_address: str, user_agent: str, status: str):
     conn = get_connection()
     cursor = conn.cursor()
-    attempt_id = str(datetime.utcnow().timestamp())
-    now_iso = datetime.utcnow().isoformat()
+    attempt_id = str(datetime.now(timezone.utc).timestamp())
+    now_iso = datetime.now(timezone.utc).isoformat()
     cursor.execute("""
     INSERT INTO login_activity (id, identifier, ip_address, user_agent, status, attempted_at)
     VALUES (?, ?, ?, ?, ?, ?)
@@ -794,7 +794,7 @@ def reset_failed_login(user_id: str):
 def set_last_notified_suspicious(user_id: str):
     conn = get_connection()
     cursor = conn.cursor()
-    now_iso = datetime.utcnow().isoformat()
+    now_iso = datetime.now(timezone.utc).isoformat()
     cursor.execute("UPDATE users SET last_notified_suspicious = ? WHERE id = ?", (now_iso, user_id))
     conn.commit()
     conn.close()
@@ -814,7 +814,7 @@ def record_payment(
     conn = get_connection()
     cursor = conn.cursor()
     payment_id = str(uuid.uuid4())
-    now_iso = datetime.utcnow().isoformat()
+    now_iso = datetime.now(timezone.utc).isoformat()
     cursor.execute("""
     INSERT INTO payments (
         id, user_id, user_email, user_phone, plan, plan_name,
