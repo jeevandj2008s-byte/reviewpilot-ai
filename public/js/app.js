@@ -213,13 +213,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-// UPI Direct Payment & Subscription Checkout Controller
+// QR-Direct Subscription Checkout Controller
 const PaymentModalController = {
   activePlan: 'professional',
   activeAmount: 299,
   activePlanName: 'Professional Plan',
-  upiId: '9741481204@axl',
-  recipientName: 'ReviewPilot AI',
 
   open(plan, planName, amount) {
     this.activePlan = plan || 'professional';
@@ -229,15 +227,12 @@ const PaymentModalController = {
     const modal = document.getElementById('payment-modal');
     const planNameEl = document.getElementById('checkout-plan-name');
     const amountEl = document.getElementById('checkout-amount-display');
-    const directUpiLink = document.getElementById('direct-upi-link');
     const qrImg = document.getElementById('checkout-qr-img');
     const utrInput = document.getElementById('payment-utr-input');
     const statusMsg = document.getElementById('payment-status-message');
-    const vpaDisplay = document.getElementById('payment-vpa-display');
 
     if (planNameEl) planNameEl.textContent = this.activePlanName;
     if (amountEl) amountEl.textContent = `₹${this.activeAmount}`;
-    if (vpaDisplay) vpaDisplay.textContent = this.upiId;
 
     if (utrInput) {
       utrInput.value = '';
@@ -246,15 +241,6 @@ const PaymentModalController = {
     if (statusMsg) {
       statusMsg.style.display = 'none';
       statusMsg.textContent = '';
-    }
-
-    // Standard UPI URI with exact amount and payee
-    const encodedName = encodeURIComponent(this.recipientName);
-    const encodedNote = encodeURIComponent(`ReviewPilot ${this.activePlanName}`);
-    const upiUri = `upi://pay?pa=${this.upiId}&pn=${encodedName}&am=${this.activeAmount}&cu=INR&tn=${encodedNote}`;
-
-    if (directUpiLink) {
-      directUpiLink.href = upiUri;
     }
 
     // Display user's verified PhonePe QR code
@@ -269,6 +255,9 @@ const PaymentModalController = {
       modal.classList.add('active');
       modal.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
+      if (utrInput) {
+        setTimeout(() => utrInput.focus(), 250);
+      }
     }
   },
 
@@ -279,22 +268,6 @@ const PaymentModalController = {
       modal.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
     }
-  },
-
-  copyUpi() {
-    navigator.clipboard.writeText(this.upiId).then(() => {
-      const copyText = document.getElementById('copy-upi-text');
-      if (copyText) {
-        const originalText = copyText.textContent;
-        copyText.textContent = 'Copied to clipboard!';
-        setTimeout(() => {
-          copyText.textContent = originalText;
-        }, 2200);
-      }
-      showToast('UPI ID copied: ' + this.upiId, 'success');
-    }).catch(() => {
-      showToast(`UPI ID: ${this.upiId}`, 'info');
-    });
   },
 
   async confirmPayment() {
