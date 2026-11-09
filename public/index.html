@@ -1146,27 +1146,9 @@
       <!-- QR Code Display -->
       <div class="payment-qr-container">
         <div class="payment-qr-box">
-          <img id="checkout-qr-img" src="/static/images/payment-qr.png" alt="Scan to pay via UPI - 9741481204@axl" class="payment-qr-image" />
+          <img id="checkout-qr-img" src="/static/images/payment-qr.png" alt="Scan to pay via UPI QR" class="payment-qr-image" />
         </div>
-        <p class="payment-qr-caption">Scan QR code using PhonePe, Google Pay, Paytm or any UPI app</p>
-      </div>
-
-      <!-- Official UPI ID & Direct Pay Actions -->
-      <div class="payment-upi-details">
-        <div class="payment-upi-id-badge">
-          <span class="payment-upi-label">UPI ID:</span>
-          <span class="payment-upi-value" id="payment-vpa-display">9741481204@axl</span>
-        </div>
-        <div class="payment-actions-row">
-          <button type="button" class="btn btn-secondary btn-sm" id="copy-upi-btn" style="flex: 1;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            <span id="copy-upi-text">Copy UPI ID</span>
-          </button>
-          <a href="upi://pay?pa=9741481204@axl&pn=ReviewPilot%20AI&am=299&cu=INR" id="direct-upi-link" class="btn btn-primary btn-sm" style="flex: 1; text-align: center; text-decoration: none;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-            Open in UPI App
-          </a>
-        </div>
+        <p class="payment-qr-caption">Scan with PhonePe, Google Pay, Paytm, or any UPI app to pay</p>
       </div>
 
       <!-- 12-Digit UTR / Transaction ID Input -->
@@ -1191,8 +1173,8 @@
 
       <!-- Quick Guidance -->
       <div class="payment-micro-instructions">
-        <span>1. Scan QR or Copy UPI ID</span> &bull; 
-        <span>2. Complete payment</span> &bull; 
+        <span>1. Scan QR to pay</span> &bull; 
+        <span>2. Complete in UPI app</span> &bull; 
         <span>3. Submit UTR to activate</span>
       </div>
     </div>
