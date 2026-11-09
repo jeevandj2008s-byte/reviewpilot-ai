@@ -170,12 +170,32 @@ def init_db():
     )
     """)
 
-    # 8. High-Performance Query Indexes
+    # 8. Payments and Subscription Transactions table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS payments (
+        id TEXT PRIMARY KEY,
+        user_id TEXT,
+        user_email TEXT,
+        user_phone TEXT,
+        plan TEXT NOT NULL,
+        plan_name TEXT NOT NULL,
+        amount REAL NOT NULL,
+        currency TEXT DEFAULT 'INR',
+        payment_method TEXT DEFAULT 'UPI',
+        utr_number TEXT,
+        status TEXT DEFAULT 'verified',
+        created_at TEXT NOT NULL
+    )
+    """)
+
+    # 9. High-Performance Query Indexes
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_reviews_platform ON reviews(platform, created_at DESC)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_reviews_platform_review_id ON reviews(platform, platform_review_id)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_reviews_sentiment ON reviews(sentiment)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_reviews_is_urgent ON reviews(is_urgent)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_platform_conn_platform ON platform_connections(platform)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_payments_user_id ON payments(user_id)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_payments_utr ON payments(utr_number)")
 
     conn.commit()
     conn.close()
@@ -777,3 +797,55 @@ def set_last_notified_suspicious(user_id: str):
     cursor.execute("UPDATE users SET last_notified_suspicious = ? WHERE id = ?", (now_iso, user_id))
     conn.commit()
     conn.close()
+
+def record_payment(
+    plan: str,
+    plan_name: str,
+    amount: float,
+    utr_number: Optional[str] = None,
+    user_id: Optional[str] = None,
+    user_email: Optional[str] = None,
+    user_phone: Optional[str] = None,
+    payment_method: str = "UPI",
+    status: str = "verified"
+) -> Dict[str, Any]:
+    """Records a verified subscription payment/activation transaction in SQLite."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    payment_id = str(uuid.uuid4())
+    now_iso = datetime.utcnow().isoformat()
+    cursor.execute("""
+    INSERT INTO payments (
+        id, user_id, user_email, user_phone, plan, plan_name,
+        amount, currency, payment_method, utr_number, status, created_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        payment_id, user_id, user_email, user_phone, plan, plan_name,
+        amount, "INR", payment_method, utr_number, status, now_iso
+    ))
+    conn.commit()
+    conn.close()
+    return {
+        "id": payment_id,
+        "user_id": user_id,
+        "plan": plan,
+        "plan_name": plan_name,
+        "amount": amount,
+        "utr_number": utr_number,
+        "status": status,
+        "created_at": now_iso
+    }
+
+def get_user_payments(user_id: Optional[str] = None, email: Optional[str] = None) -> List[Dict[str, Any]]:
+    """Retrieves payment history by user_id or email."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    if user_id:
+        cursor.execute("SELECT * FROM payments WHERE user_id = ? ORDER BY created_at DESC", (user_id,))
+    elif email:
+        cursor.execute("SELECT * FROM payments WHERE user_email = ? ORDER BY created_at DESC", (email.lower(),))
+    else:
+        cursor.execute("SELECT * FROM payments ORDER BY created_at DESC LIMIT 50")
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
