@@ -426,9 +426,15 @@ document.addEventListener('DOMContentLoaded', () => {
     bindTouchpadAndClick(confirmBtn, () => PaymentModalController.confirmPayment());
   }
 
-  // UTR Enter key submit
+  // UTR Enter key submit & real-time input sanitization
   const utrInput = document.getElementById('payment-utr-input');
   if (utrInput) {
+    utrInput.addEventListener('input', (e) => {
+      const sanitized = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+      if (sanitized !== e.target.value) {
+        e.target.value = sanitized;
+      }
+    });
     utrInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
