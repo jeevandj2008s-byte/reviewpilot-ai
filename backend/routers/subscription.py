@@ -4,7 +4,7 @@ Handles UPI payment checkout, dynamic QR generation parameters,
 NPCI deep links, UTR claim verification, and instant subscription tier upgrades.
 """
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any
 
 from fastapi import APIRouter, HTTPException, Depends, status, Request
@@ -182,7 +182,7 @@ async def activate_subscription(
     if user_id:
         update_user_subscription(user_id=user_id, plan=plan_name, status="active")
 
-    now_iso = datetime.utcnow().isoformat()
+    now_iso = datetime.now(timezone.utc).isoformat()
     return ActivateSubscriptionResponse(
         status="success",
         message=f"✓ Verification confirmed! Your {plan_name} subscription has been successfully activated.",
