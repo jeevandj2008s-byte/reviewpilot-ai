@@ -288,6 +288,29 @@ const API = {
     });
   },
 
+  // Subscription & YouPI Payment Gateway Methods
+  async getSubscriptionPlans() {
+    return this.request('/api/subscription/plans');
+  },
+
+  async verifyUtr(utr) {
+    return this.request('/api/subscription/verify-utr', {
+      method: 'POST',
+      body: JSON.stringify({ utr })
+    });
+  },
+
+  async activateSubscription(payload) {
+    return this.request('/api/subscription/activate', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  async getSubscriptionHistory() {
+    return this.request('/api/subscription/history');
+  },
+
   // Export URLs
   getExportCsvUrl() {
     return '/api/export/csv';
