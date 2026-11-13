@@ -12,7 +12,7 @@ const http = require('http');
 const rootDir = __dirname;
 const isWin = process.platform === 'win32';
 const PORT = 8000;
-const HOST = '127.0.0.1';
+const HOST = '0.0.0.0';
 
 // 1. Locate the best Python executable
 function getPythonExecutable() {
@@ -41,14 +41,14 @@ function getRunnerCommand() {
 // 3. HTTP Health check verification
 function checkHealth() {
   return new Promise((resolve) => {
-    const req = http.get(`http://${HOST}:${PORT}/health`, { timeout: 3500 }, (res) => {
+    const req = http.get(`http://127.0.0.1:${PORT}/health`, { timeout: 3500 }, (res) => {
       let data = '';
       res.on('data', (chunk) => { data += chunk; });
       res.on('end', () => {
         try {
           const json = JSON.parse(data);
           if (res.statusCode === 200 && json.status === 'healthy') {
-            console.log(`\x1b[32m✔ ReviewPilot AI backend is HEALTHY on http://${HOST}:${PORT}/health\x1b[0m`);
+            console.log(`\x1b[32m✔ ReviewPilot AI backend is HEALTHY on http://localhost:${PORT}/health\x1b[0m`);
             console.log(`  Service: ${json.service} | Status: ${json.status}`);
             resolve(true);
           } else {
